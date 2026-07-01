@@ -1,0 +1,50 @@
+{
+  "id": "gitea",
+  "name": "Gitea",
+  "desc": "轻量 GitHub 替代，5 分钟部署",
+  "icon": "🐦",
+  "category": "devtools",
+  "tags": ["git", "devops", "self-hosted"],
+  "stars": 45000,
+  "clouds": ["aws", "aliyun"],
+  "version": "1.0.0",
+  "min_cli_version": "0.1.0",
+  "price": "$5/month",
+  "images": {
+    "aws": "ami-0a1b2c3d4e5f6g7h8",
+    "aliyun": "m-0a1b2c3d4e5f6g7h8"
+  },
+  "templates": {
+    "aws": { "path": "apps/gitea/templates/aws.yaml" },
+    "aliyun": { "path": "apps/gitea/templates/aliyun.json" }
+  },
+  "params": {
+    "InstanceType": {
+      "aws": {
+        "default": "t3.medium",
+        "options": ["t3.micro", "t3.small", "t3.medium", "t3.large"]
+      },
+      "aliyun": {
+        "default": "ecs.c6.large",
+        "options": ["ecs.t6-c1m1.large", "ecs.c6.large", "ecs.c6.xlarge"]
+      }
+    },
+    "DomainName": { "type": "string", "default": "" },
+    "HostedZoneId": { "type": "string", "default": "", "aws": { "default": "" } },
+    "KeyName": { "type": "string", "aws": { "required": true } },
+    "KeyPairName": { "type": "string", "aliyun": { "required": true } },
+    "DiskSize": {
+      "type": "number",
+      "aws": { "default": "20" },
+      "aliyun": { "default": "40" }
+    },
+    "VpcId": {
+      "type": "string",
+      "default": "",
+      "aws": { "default": "" },
+      "aliyun": { "required": true }
+    },
+    "VSwitchId": { "type": "string", "aliyun": { "required": true } },
+    "AllowedIP": { "type": "string", "default": "0.0.0.0/0" }
+  }
+}

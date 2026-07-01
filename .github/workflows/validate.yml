@@ -1,0 +1,41 @@
+name: Validate Catalog
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install jq
+        run: sudo apt-get update && sudo apt-get install -y jq
+
+      - name: Build index
+        run: make index
+
+      - name: Validate
+        run: make validate
+
+      - name: Set up AWS SAM CLI
+        uses: aws-actions/setup-sam@v3
+        with:
+          use-installer: true
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Install cfn-lint
+        run: python3 -m pip install cfn-lint
+
+      - name: Validate AWS templates with SAM CLI
+        run: make validate-aws
+
+      - name: Check index is committed
+        run: |
+          git diff --exit-code index/apps.json || (
+            echo "::error::index/apps.json is out of date. Run 'make index' and commit."
+            exit 1
+          )

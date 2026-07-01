@@ -1,0 +1,68 @@
+{
+  "ROSTemplateFormatVersion": "2015-09-01",
+  "Description": "Uptime Kuma on Cloud Forge CLI - 一键部署（阿里云）",
+  "Parameters": {
+    "InstanceType": {
+      "Type": "String",
+      "Default": "ecs.t6-c1m1.large",
+      "AllowedValues": ["ecs.t6-c1m1.large", "ecs.t6-c1m2.large"]
+    },
+    "ImageId": {
+      "Type": "String",
+      "Default": "m-0q1w2e3r4t5y6u7i8"
+    },
+    "KeyPairName": { "Type": "String" },
+    "VpcId": { "Type": "String" },
+    "VSwitchId": { "Type": "String" },
+    "AllowedIP": { "Type": "String", "Default": "0.0.0.0/0" }
+  },
+  "Resources": {
+    "UptimeSG": {
+      "Type": "ALIYUN::ECS::SecurityGroup",
+      "Properties": {
+        "VpcId": { "Ref": "VpcId" },
+        "SecurityGroupIngress": [
+          { "IpProtocol": "tcp", "PortRange": "22/22", "SourceCidrIp": { "Ref": "AllowedIP" } },
+          { "IpProtocol": "tcp", "PortRange": "3001/3001", "SourceCidrIp": { "Ref": "AllowedIP" } }
+        ]
+      }
+    },
+    "UptimeInstance": {
+      "Type": "ALIYUN::ECS::Instance",
+      "Properties": {
+        "ImageId": { "Ref": "ImageId" },
+        "InstanceType": { "Ref": "InstanceType" },
+        "KeyPairName": { "Ref": "KeyPairName" },
+        "VSwitchId": { "Ref": "VSwitchId" },
+        "SecurityGroupId": { "Ref": "UptimeSG" },
+        "SystemDiskSize": 20,
+        "UserData": "#!/bin/bash\nsystemctl start uptime-kuma"
+      }
+    },
+    "UptimeEIP": {
+      "Type": "ALIYUN::VPC::EIP",
+      "Properties": {
+        "Bandwidth": 5,
+        "InternetChargeType": "PayByTraffic"
+      }
+    },
+    "UptimeEIPAssociation": {
+      "Type": "ALIYUN::VPC::EIPAssociation",
+      "Properties": {
+        "AllocationId": { "Ref": "UptimeEIP" },
+        "InstanceId": { "Ref": "UptimeInstance" }
+      }
+    }
+  },
+  "Outputs": {
+    "UptimeURL": {
+      "Value": {
+        "Fn::Join": [
+          "",
+          ["http://", { "Fn::GetAtt": ["UptimeEIP", "EipAddress"] }, ":3001"]
+        ]
+      }
+    },
+    "InstanceId": { "Value": { "Ref": "UptimeInstance" } }
+  }
+}

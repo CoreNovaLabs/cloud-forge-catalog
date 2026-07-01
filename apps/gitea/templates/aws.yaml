@@ -1,0 +1,92 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Description: 'Gitea on Cloud Forge CLI - 一键部署'
+
+Parameters:
+  InstanceType:
+    Type: String
+    Default: t3.medium
+    AllowedValues: [t3.micro, t3.small, t3.medium, t3.large]
+  ImageId:
+    Type: AWS::EC2::Image::Id
+    Default: ami-0a1b2c3d4e5f6g7h8
+  KeyName:
+    Type: AWS::EC2::KeyPair::KeyName
+  DomainName:
+    Type: String
+    Default: ""
+  HostedZoneId:
+    Type: String
+    Default: ""
+  DiskSize:
+    Type: Number
+    Default: 20
+    MinValue: 10
+    MaxValue: 500
+  VpcId:
+    Type: String
+    Default: ""
+  AllowedIP:
+    Type: String
+    Default: "0.0.0.0/0"
+
+Conditions:
+  HasDomain: !Not [!Equals [!Ref DomainName, ""]]
+  HasHostedZone: !Not [!Equals [!Ref HostedZoneId, ""]]
+  HasDNS: !And [!Condition HasDomain, !Condition HasHostedZone]
+  HasVpc: !Not [!Equals [!Ref VpcId, ""]]
+
+Resources:
+  GiteaInstance:
+    Type: AWS::EC2::Instance
+    Properties:
+      ImageId: !Ref ImageId
+      InstanceType: !Ref InstanceType
+      KeyName: !Ref KeyName
+      BlockDeviceMappings:
+        - DeviceName: /dev/xvda
+          Ebs:
+            VolumeSize: !Ref DiskSize
+            VolumeType: gp3
+      SecurityGroupIds: [!Ref GiteaSG]
+      UserData:
+        Fn::Base64: |
+          #!/bin/bash
+          systemctl start gitea
+
+  GiteaSG:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      GroupDescription: Gitea SG
+      VpcId: !If [HasVpc, !Ref VpcId, !Ref AWS::NoValue]
+      SecurityGroupIngress:
+        - IpProtocol: tcp
+          FromPort: 22
+          ToPort: 22
+          CidrIp: !Ref AllowedIP
+        - IpProtocol: tcp
+          FromPort: 3000
+          ToPort: 3000
+          CidrIp: !Ref AllowedIP
+
+  GiteaEIP:
+    Type: AWS::EC2::EIP
+    Properties:
+      InstanceId: !Ref GiteaInstance
+      Domain: vpc
+
+  GiteaDNS:
+    Type: AWS::Route53::RecordSet
+    Condition: HasDNS
+    Properties:
+      HostedZoneId: !Ref HostedZoneId
+      Name: !Ref DomainName
+      Type: A
+      TTL: 300
+      ResourceRecords:
+        - !GetAtt GiteaEIP.PublicIp
+
+Outputs:
+  GiteaURL:
+    Value: !If [HasDomain, !Sub "https://${DomainName}", !Sub "http://${GiteaEIP.PublicIp}:3000"]
+  InstanceId:
+    Value: !Ref GiteaInstance

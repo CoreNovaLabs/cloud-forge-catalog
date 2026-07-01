@@ -1,0 +1,100 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://cloud-forge.io/schema/app-v1.schema.json",
+  "title": "Cloud Forge App Manifest",
+  "type": "object",
+  "required": ["id", "name", "desc", "category", "clouds", "version", "images", "templates"],
+  "properties": {
+    "id": {
+      "type": "string",
+      "pattern": "^[a-z0-9]([a-z0-9-]*[a-z0-9])?$"
+    },
+    "name": { "type": "string", "minLength": 1 },
+    "desc": { "type": "string", "minLength": 1 },
+    "icon": { "type": "string" },
+    "category": {
+      "type": "string",
+      "enum": ["devtools", "automation", "monitoring", "database", "cms", "other"]
+    },
+    "tags": {
+      "type": "array",
+      "items": { "type": "string" },
+      "uniqueItems": true
+    },
+    "stars": { "type": "integer", "minimum": 0 },
+    "clouds": {
+      "type": "array",
+      "items": { "type": "string", "enum": ["aws", "aliyun"] },
+      "minItems": 1,
+      "uniqueItems": true
+    },
+    "version": {
+      "type": "string",
+      "pattern": "^\\d+\\.\\d+\\.\\d+$"
+    },
+    "min_cli_version": {
+      "type": "string",
+      "pattern": "^\\d+\\.\\d+\\.\\d+$"
+    },
+    "price": { "type": "string" },
+    "images": {
+      "type": "object",
+      "properties": {
+        "aws": { "type": "string" },
+        "aliyun": { "type": "string" }
+      },
+      "additionalProperties": false
+    },
+    "templates": {
+      "type": "object",
+      "properties": {
+        "aws": { "$ref": "#/$defs/templateRef" },
+        "aliyun": { "$ref": "#/$defs/templateRef" }
+      },
+      "additionalProperties": false
+    },
+    "params": {
+      "type": "object",
+      "additionalProperties": {
+        "type": "object",
+        "properties": {
+          "type": { "type": "string" },
+          "secret": { "type": "boolean" },
+          "required": { "type": "boolean" },
+          "default": {},
+          "options": { "type": "array" },
+          "aws": { "$ref": "#/$defs/cloudParam" },
+          "aliyun": { "$ref": "#/$defs/cloudParam" }
+        }
+      }
+    }
+  },
+  "$defs": {
+    "templateRef": {
+      "type": "object",
+      "required": ["path"],
+      "properties": {
+        "path": {
+          "type": "string",
+          "description": "Relative path from catalog repo root"
+        },
+        "checksum": {
+          "type": "string",
+          "pattern": "^sha256:[a-f0-9]{64}$"
+        }
+      }
+    },
+    "cloudParam": {
+      "type": "object",
+      "properties": {
+        "default": { "type": "string" },
+        "options": {
+          "type": "array",
+          "items": { "type": "string" }
+        },
+        "required": { "type": "boolean" }
+      },
+      "additionalProperties": false
+    }
+  }
+}

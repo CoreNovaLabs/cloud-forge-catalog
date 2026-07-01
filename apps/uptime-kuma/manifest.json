@@ -1,0 +1,50 @@
+{
+  "id": "uptime-kuma",
+  "name": "Uptime Kuma",
+  "desc": "优雅的监控工具",
+  "icon": "🟢",
+  "category": "monitoring",
+  "tags": ["monitoring", "uptime", "alerting"],
+  "stars": 28000,
+  "clouds": ["aws", "aliyun"],
+  "version": "1.0.0",
+  "min_cli_version": "0.1.0",
+  "price": "$3/month",
+  "images": {
+    "aws": "ami-0q1w2e3r4t5y6u7i8",
+    "aliyun": "m-0q1w2e3r4t5y6u7i8"
+  },
+  "templates": {
+    "aws": { "path": "apps/uptime-kuma/templates/aws.yaml" },
+    "aliyun": { "path": "apps/uptime-kuma/templates/aliyun.json" }
+  },
+  "params": {
+    "InstanceType": {
+      "aws": {
+        "default": "t3.micro",
+        "options": ["t3.micro", "t3.small"]
+      },
+      "aliyun": {
+        "default": "ecs.t6-c1m1.large",
+        "options": ["ecs.t6-c1m1.large", "ecs.t6-c1m2.large"]
+      }
+    },
+    "DomainName": { "type": "string", "default": "" },
+    "HostedZoneId": { "type": "string", "default": "", "aws": { "default": "" } },
+    "KeyName": { "type": "string", "aws": { "required": true } },
+    "KeyPairName": { "type": "string", "aliyun": { "required": true } },
+    "DiskSize": {
+      "type": "number",
+      "aws": { "default": "20" },
+      "aliyun": { "default": "20" }
+    },
+    "VpcId": {
+      "type": "string",
+      "default": "",
+      "aws": { "default": "" },
+      "aliyun": { "required": true }
+    },
+    "VSwitchId": { "type": "string", "aliyun": { "required": true } },
+    "AllowedIP": { "type": "string", "default": "0.0.0.0/0" }
+  }
+}

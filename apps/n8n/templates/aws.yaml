@@ -1,0 +1,90 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Description: 'n8n on Cloud Forge CLI - 一键部署'
+
+Parameters:
+  InstanceType:
+    Type: String
+    Default: t3.large
+    AllowedValues: [t3.medium, t3.large, t3.xlarge]
+  ImageId:
+    Type: AWS::EC2::Image::Id
+    Default: ami-0i9j8k7l6m5n4o3p2
+  KeyName:
+    Type: AWS::EC2::KeyPair::KeyName
+  DomainName:
+    Type: String
+    Default: ""
+  HostedZoneId:
+    Type: String
+    Default: ""
+  DiskSize:
+    Type: Number
+    Default: 40
+  VpcId:
+    Type: String
+    Default: ""
+  AllowedIP:
+    Type: String
+    Default: "0.0.0.0/0"
+
+Conditions:
+  HasDomain: !Not [!Equals [!Ref DomainName, ""]]
+  HasHostedZone: !Not [!Equals [!Ref HostedZoneId, ""]]
+  HasDNS: !And [!Condition HasDomain, !Condition HasHostedZone]
+  HasVpc: !Not [!Equals [!Ref VpcId, ""]]
+
+Resources:
+  N8nInstance:
+    Type: AWS::EC2::Instance
+    Properties:
+      ImageId: !Ref ImageId
+      InstanceType: !Ref InstanceType
+      KeyName: !Ref KeyName
+      BlockDeviceMappings:
+        - DeviceName: /dev/xvda
+          Ebs:
+            VolumeSize: !Ref DiskSize
+            VolumeType: gp3
+      SecurityGroupIds: [!Ref N8nSG]
+      UserData:
+        Fn::Base64: |
+          #!/bin/bash
+          systemctl start n8n
+
+  N8nSG:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      GroupDescription: n8n SG
+      VpcId: !If [HasVpc, !Ref VpcId, !Ref AWS::NoValue]
+      SecurityGroupIngress:
+        - IpProtocol: tcp
+          FromPort: 22
+          ToPort: 22
+          CidrIp: !Ref AllowedIP
+        - IpProtocol: tcp
+          FromPort: 5678
+          ToPort: 5678
+          CidrIp: !Ref AllowedIP
+
+  N8nEIP:
+    Type: AWS::EC2::EIP
+    Properties:
+      InstanceId: !Ref N8nInstance
+      Domain: vpc
+
+  N8nDNS:
+    Type: AWS::Route53::RecordSet
+    Condition: HasDNS
+    Properties:
+      HostedZoneId: !Ref HostedZoneId
+      Name: !Ref DomainName
+      Type: A
+      TTL: 300
+      ResourceRecords:
+        - !GetAtt N8nEIP.PublicIp
+
+Outputs:
+  N8nURL:
+    Value: !If [HasDomain, !Sub "https://${DomainName}", !Sub "http://${N8nEIP.PublicIp}:5678"]
+  InstanceId:
+    Value: !Ref N8nInstance

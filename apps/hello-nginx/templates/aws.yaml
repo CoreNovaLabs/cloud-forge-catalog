@@ -1,0 +1,104 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Description: 'Hello NGINX on Cloud Forge CLI - AWS local validation template'
+
+Parameters:
+  InstanceType:
+    Type: String
+    Default: t3.micro
+    AllowedValues:
+      - t3.micro
+      - t3.small
+      - t3.medium
+  LatestAmiId:
+    Type: AWS::SSM::Parameter::Value<AWS::EC2::Image::Id>
+    Default: /aws/service/ami-amazon-linux-latest/al2023-ami-kernel-default-x86_64
+  KeyName:
+    Type: String
+    Default: ''
+    Description: Optional EC2 key pair name for SSH access.
+  VpcId:
+    Type: String
+    Default: ''
+    Description: Optional VPC ID. Leave empty to use the account default VPC.
+  SubnetId:
+    Type: String
+    Default: ''
+    Description: Optional subnet ID. Leave empty to use the account default subnet.
+  AllowedIP:
+    Type: String
+    Default: 0.0.0.0/0
+    AllowedPattern: '^(([0-9]{1,3}\.){3}[0-9]{1,3}/([0-9]|[1-2][0-9]|3[0-2]))$'
+
+Conditions:
+  HasKeyName: !Not [!Equals [!Ref KeyName, '']]
+  HasVpc: !Not [!Equals [!Ref VpcId, '']]
+  HasSubnet: !Not [!Equals [!Ref SubnetId, '']]
+
+Resources:
+  HelloSecurityGroup:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      GroupDescription: Allow HTTP and restricted SSH for Hello NGINX
+      VpcId: !If [HasVpc, !Ref VpcId, !Ref AWS::NoValue]
+      SecurityGroupIngress:
+        - IpProtocol: tcp
+          FromPort: 80
+          ToPort: 80
+          CidrIp: 0.0.0.0/0
+        - IpProtocol: tcp
+          FromPort: 22
+          ToPort: 22
+          CidrIp: !Ref AllowedIP
+      Tags:
+        - Key: cloud-forge:app
+          Value: hello-nginx
+
+  HelloInstance:
+    Type: AWS::EC2::Instance
+    Properties:
+      ImageId: !Ref LatestAmiId
+      InstanceType: !Ref InstanceType
+      KeyName: !If [HasKeyName, !Ref KeyName, !Ref AWS::NoValue]
+      SubnetId: !If [HasSubnet, !Ref SubnetId, !Ref AWS::NoValue]
+      SecurityGroupIds:
+        - !Ref HelloSecurityGroup
+      UserData:
+        Fn::Base64: |
+          #!/bin/bash
+          set -euxo pipefail
+          dnf install -y nginx
+          cat >/usr/share/nginx/html/index.html <<'HTML'
+          <!doctype html>
+          <html lang="en">
+          <head><meta charset="utf-8"><title>Cloud Forge</title></head>
+          <body><h1>Hello from Cloud Forge</h1><p>NGINX is running on AWS.</p></body>
+          </html>
+          HTML
+          systemctl enable --now nginx
+      Tags:
+        - Key: Name
+          Value: cloud-forge-hello-nginx
+        - Key: cloud-forge:app
+          Value: hello-nginx
+
+  HelloEIP:
+    Type: AWS::EC2::EIP
+    Properties:
+      Domain: vpc
+      Tags:
+        - Key: cloud-forge:app
+          Value: hello-nginx
+
+  HelloEIPAssociation:
+    Type: AWS::EC2::EIPAssociation
+    Properties:
+      AllocationId: !GetAtt HelloEIP.AllocationId
+      InstanceId: !Ref HelloInstance
+
+Outputs:
+  ServiceURL:
+    Description: HTTP endpoint for the sample service.
+    Value: !Sub 'http://${HelloEIP}'
+  InstanceId:
+    Description: Created EC2 instance ID.
+    Value: !Ref HelloInstance

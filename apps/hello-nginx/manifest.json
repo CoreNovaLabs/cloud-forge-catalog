@@ -1,0 +1,53 @@
+{
+  "id": "hello-nginx",
+  "name": "Hello NGINX",
+  "desc": "Minimal NGINX service for validating the Cloud Forge AWS template flow",
+  "icon": "🌐",
+  "category": "other",
+  "tags": ["nginx", "aws", "demo"],
+  "stars": 0,
+  "clouds": ["aws"],
+  "version": "1.0.0",
+  "min_cli_version": "0.1.0",
+  "price": "free",
+  "images": {
+    "aws": "ssm:/aws/service/ami-amazon-linux-latest/al2023-ami-kernel-default-x86_64"
+  },
+  "templates": {
+    "aws": { "path": "apps/hello-nginx/templates/aws.yaml" }
+  },
+  "params": {
+    "InstanceType": {
+      "type": "string",
+      "aws": {
+        "default": "t3.micro",
+        "options": ["t3.micro", "t3.small", "t3.medium"]
+      }
+    },
+    "LatestAmiId": {
+      "type": "string",
+      "aws": {
+        "default": "/aws/service/ami-amazon-linux-latest/al2023-ami-kernel-default-x86_64"
+      }
+    },
+    "KeyName": {
+      "type": "string",
+      "default": "",
+      "aws": { "default": "" }
+    },
+    "VpcId": {
+      "type": "string",
+      "default": "",
+      "aws": { "default": "" }
+    },
+    "SubnetId": {
+      "type": "string",
+      "default": "",
+      "aws": { "default": "" }
+    },
+    "AllowedIP": {
+      "type": "string",
+      "default": "0.0.0.0/0"
+    }
+  }
+}

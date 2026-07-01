@@ -1,0 +1,90 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Description: 'Uptime Kuma on Cloud Forge CLI - 一键部署'
+
+Parameters:
+  InstanceType:
+    Type: String
+    Default: t3.micro
+    AllowedValues: [t3.micro, t3.small]
+  ImageId:
+    Type: AWS::EC2::Image::Id
+    Default: ami-0q1w2e3r4t5y6u7i8
+  KeyName:
+    Type: AWS::EC2::KeyPair::KeyName
+  DomainName:
+    Type: String
+    Default: ""
+  HostedZoneId:
+    Type: String
+    Default: ""
+  DiskSize:
+    Type: Number
+    Default: 20
+  VpcId:
+    Type: String
+    Default: ""
+  AllowedIP:
+    Type: String
+    Default: "0.0.0.0/0"
+
+Conditions:
+  HasDomain: !Not [!Equals [!Ref DomainName, ""]]
+  HasHostedZone: !Not [!Equals [!Ref HostedZoneId, ""]]
+  HasDNS: !And [!Condition HasDomain, !Condition HasHostedZone]
+  HasVpc: !Not [!Equals [!Ref VpcId, ""]]
+
+Resources:
+  UptimeInstance:
+    Type: AWS::EC2::Instance
+    Properties:
+      ImageId: !Ref ImageId
+      InstanceType: !Ref InstanceType
+      KeyName: !Ref KeyName
+      BlockDeviceMappings:
+        - DeviceName: /dev/xvda
+          Ebs:
+            VolumeSize: !Ref DiskSize
+            VolumeType: gp3
+      SecurityGroupIds: [!Ref UptimeSG]
+      UserData:
+        Fn::Base64: |
+          #!/bin/bash
+          systemctl start uptime-kuma
+
+  UptimeSG:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      GroupDescription: Uptime Kuma SG
+      VpcId: !If [HasVpc, !Ref VpcId, !Ref AWS::NoValue]
+      SecurityGroupIngress:
+        - IpProtocol: tcp
+          FromPort: 22
+          ToPort: 22
+          CidrIp: !Ref AllowedIP
+        - IpProtocol: tcp
+          FromPort: 3001
+          ToPort: 3001
+          CidrIp: !Ref AllowedIP
+
+  UptimeEIP:
+    Type: AWS::EC2::EIP
+    Properties:
+      InstanceId: !Ref UptimeInstance
+      Domain: vpc
+
+  UptimeDNS:
+    Type: AWS::Route53::RecordSet
+    Condition: HasDNS
+    Properties:
+      HostedZoneId: !Ref HostedZoneId
+      Name: !Ref DomainName
+      Type: A
+      TTL: 300
+      ResourceRecords:
+        - !GetAtt UptimeEIP.PublicIp
+
+Outputs:
+  UptimeURL:
+    Value: !If [HasDomain, !Sub "https://${DomainName}", !Sub "http://${UptimeEIP.PublicIp}:3001"]
+  InstanceId:
+    Value: !Ref UptimeInstance

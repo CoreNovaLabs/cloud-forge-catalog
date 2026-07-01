@@ -1,0 +1,68 @@
+{
+  "ROSTemplateFormatVersion": "2015-09-01",
+  "Description": "n8n on Cloud Forge CLI - 一键部署（阿里云）",
+  "Parameters": {
+    "InstanceType": {
+      "Type": "String",
+      "Default": "ecs.c6.xlarge",
+      "AllowedValues": ["ecs.c6.large", "ecs.c6.xlarge"]
+    },
+    "ImageId": {
+      "Type": "String",
+      "Default": "m-0i9j8k7l6m5n4o3p2"
+    },
+    "KeyPairName": { "Type": "String" },
+    "VpcId": { "Type": "String" },
+    "VSwitchId": { "Type": "String" },
+    "AllowedIP": { "Type": "String", "Default": "0.0.0.0/0" }
+  },
+  "Resources": {
+    "N8nSG": {
+      "Type": "ALIYUN::ECS::SecurityGroup",
+      "Properties": {
+        "VpcId": { "Ref": "VpcId" },
+        "SecurityGroupIngress": [
+          { "IpProtocol": "tcp", "PortRange": "22/22", "SourceCidrIp": { "Ref": "AllowedIP" } },
+          { "IpProtocol": "tcp", "PortRange": "5678/5678", "SourceCidrIp": { "Ref": "AllowedIP" } }
+        ]
+      }
+    },
+    "N8nInstance": {
+      "Type": "ALIYUN::ECS::Instance",
+      "Properties": {
+        "ImageId": { "Ref": "ImageId" },
+        "InstanceType": { "Ref": "InstanceType" },
+        "KeyPairName": { "Ref": "KeyPairName" },
+        "VSwitchId": { "Ref": "VSwitchId" },
+        "SecurityGroupId": { "Ref": "N8nSG" },
+        "SystemDiskSize": 40,
+        "UserData": "#!/bin/bash\nsystemctl start n8n"
+      }
+    },
+    "N8nEIP": {
+      "Type": "ALIYUN::VPC::EIP",
+      "Properties": {
+        "Bandwidth": 5,
+        "InternetChargeType": "PayByTraffic"
+      }
+    },
+    "N8nEIPAssociation": {
+      "Type": "ALIYUN::VPC::EIPAssociation",
+      "Properties": {
+        "AllocationId": { "Ref": "N8nEIP" },
+        "InstanceId": { "Ref": "N8nInstance" }
+      }
+    }
+  },
+  "Outputs": {
+    "N8nURL": {
+      "Value": {
+        "Fn::Join": [
+          "",
+          ["http://", { "Fn::GetAtt": ["N8nEIP", "EipAddress"] }, ":5678"]
+        ]
+      }
+    },
+    "InstanceId": { "Value": { "Ref": "N8nInstance" } }
+  }
+}
