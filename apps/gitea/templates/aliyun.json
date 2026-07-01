@@ -1,6 +1,6 @@
 {
   "ROSTemplateFormatVersion": "2015-09-01",
-  "Description": "Gitea on Cloud Forge CLI - 一键部署（阿里云）",
+  "Description": "Gitea on Cloud Forge CLI - one-command deployment for Aliyun",
   "Parameters": {
     "InstanceType": {
       "Type": "String",

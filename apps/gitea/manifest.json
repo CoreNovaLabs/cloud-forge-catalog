@@ -1,7 +1,7 @@
 {
   "id": "gitea",
   "name": "Gitea",
-  "desc": "轻量 GitHub 替代，5 分钟部署",
+  "desc": "Lightweight Git hosting you can deploy in minutes",
   "icon": "🐦",
   "category": "devtools",
   "tags": ["git", "devops", "self-hosted"],

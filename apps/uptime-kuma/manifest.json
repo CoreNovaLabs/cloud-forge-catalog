@@ -1,7 +1,7 @@
 {
   "id": "uptime-kuma",
   "name": "Uptime Kuma",
-  "desc": "优雅的监控工具",
+  "desc": "A clean self-hosted uptime monitoring tool",
   "icon": "🟢",
   "category": "monitoring",
   "tags": ["monitoring", "uptime", "alerting"],

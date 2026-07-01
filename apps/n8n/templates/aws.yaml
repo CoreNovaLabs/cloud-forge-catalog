@@ -1,5 +1,5 @@
 AWSTemplateFormatVersion: '2010-09-09'
-Description: 'n8n on Cloud Forge CLI - 一键部署'
+Description: 'n8n on Cloud Forge CLI - one-command deployment'
 
 Parameters:
   InstanceType:

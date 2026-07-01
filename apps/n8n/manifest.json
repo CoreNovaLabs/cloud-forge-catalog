@@ -1,7 +1,7 @@
 {
   "id": "n8n",
   "name": "n8n",
-  "desc": "开源自动化工作流，Zapier 替代",
+  "desc": "Open-source workflow automation and Zapier alternative",
   "icon": "⚡",
   "category": "automation",
   "tags": ["automation", "workflow", "zapier"],

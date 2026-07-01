@@ -1,28 +1,28 @@
 # Cloud Forge Catalog
 
-Cloud Forge CLI 的模板商店仓库。包含应用索引（`index/apps.json`）、IaC 模板（CFN / ROS）及 JSON Schema。
+Template catalog for Cloud Forge CLI. This repository contains the generated app index (`index/apps.json`), infrastructure templates (CloudFormation / ROS), and JSON Schema for app manifests.
 
-## 目录结构
+## Repository Layout
 
 ```
 cloud-forge-catalog/
 ├── index/
-│   └── apps.json              # CLI 拉取的全局索引（由 scripts 生成）
+│   └── apps.json              # Generated catalog index consumed by the CLI
 ├── apps/
 │   └── <app-id>/
-│       ├── manifest.json      # 单应用元数据（编辑此文件）
+│       ├── manifest.json      # App metadata edited by contributors
 │       └── templates/
 │           ├── aws.yaml       # CloudFormation
 │           └── aliyun.json    # ROS
 ├── schema/
-│   └── app-v1.schema.json     # manifest 校验 Schema
+│   └── app-v1.schema.json     # Manifest validation schema
 └── scripts/
-    └── build-index.sh         # 从 manifest 生成 index/apps.json
+    └── build-index.sh         # Builds index/apps.json from app manifests
 ```
 
-## CLI 对接
+## CLI Integration
 
-CLI 通过 HTTP 拉取索引，按需下载模板：
+The CLI fetches the catalog index over HTTP and downloads templates on demand:
 
 ```yaml
 # ~/.cloud-forge/config.yaml
@@ -31,32 +31,32 @@ store:
   cache_ttl: 24h
 ```
 
-本地开发可使用 file 协议或相对路径：
+For local development, use a `file://` URL:
 
 ```bash
 export CLOUD_FORGE_STORE_URL="file:///path/to/cloud-forge-catalog/index/apps.json"
 ```
 
-## 贡献新应用
+## Adding an App
 
-1. 复制 `apps/gitea/` 为 `apps/<your-app>/`
-2. 编辑 `manifest.json` 与 `templates/`
-3. 运行 `make validate && make index`
-4. 提交 PR
+1. Copy `apps/gitea/` to `apps/<your-app>/`
+2. Edit `manifest.json` and the template files
+3. Run `make validate && make index`
+4. Open a pull request
 
-当前最小可验证服务是 `hello-nginx`。它只包含 AWS CloudFormation 模板，用 Amazon Linux 2023 的公开 SSM AMI 参数安装并启动 NGINX，适合作为 CLI 与 catalog 的本地验收样例。
+The minimal validation app is `hello-nginx`. It contains an AWS CloudFormation template that uses the public Amazon Linux 2023 SSM AMI parameter to install and start NGINX. Use it as the local acceptance sample for the CLI and catalog integration.
 
-## 命令
+## Commands
 
 ```bash
-make index        # 生成 index/apps.json
-make validate     # 校验 manifest、模板路径、索引结构
-make validate-aws # 使用 AWS SAM CLI 本地 lint AWS CloudFormation 模板
+make index        # Generate index/apps.json
+make validate     # Validate manifests, template paths, and index structure
+make validate-aws # Lint AWS CloudFormation templates locally with AWS SAM CLI
 ```
 
-`make validate-aws` 只执行本地模板 lint，不创建 CloudFormation Stack，不启动 EC2，也不会分配 EIP。它适合在提交前快速发现 CloudFormation/SAM 语法和静态规则问题；AMI 是否存在、实例规格是否在目标 Region 可用、IAM 权限是否足够，仍需要后续用 Change Set 或沙箱账号验证。
+`make validate-aws` only runs local template linting. It does not create a CloudFormation stack, start EC2 instances, or allocate EIPs. It is useful for catching CloudFormation/SAM syntax and static rule issues before a commit. Runtime checks such as AMI availability, instance type availability in a target Region, and IAM permissions still require a Change Set or a sandbox AWS account.
 
-本地依赖：
+Local dependencies:
 
 ```bash
 brew tap aws/tap
@@ -64,7 +64,7 @@ brew install aws-sam-cli
 python3 -m pip install cfn-lint
 ```
 
-## 版本
+## Versioning
 
-- Catalog 版本遵循 SemVer，通过 Git Tag 发布（如 `v1.0.0`）
-- CLI 可通过 `--catalog-version v1.0.0` 锁定索引版本
+- Catalog versions follow SemVer and are published through Git tags, for example `v1.0.0`
+- The CLI can pin a catalog version with `--catalog-version v1.0.0`

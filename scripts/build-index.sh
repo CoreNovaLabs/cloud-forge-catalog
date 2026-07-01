@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# 从 apps/*/manifest.json 聚合生成 index/apps.json，并写入模板 sha256
+# Build index/apps.json from apps/*/manifest.json and template sha256 checksums.
 set -euo pipefail
 
 ROOT="$(cd "$(dirname "$0")/.." && pwd)"
@@ -44,7 +44,7 @@ for manifest in "$ROOT"/apps/*/manifest.json; do
       )
     ' "$manifest")"
 
-  # 追加 checksum（需读文件）
+  # Append checksums from template files.
   for cloud in aws aliyun; do
     path="$(jq -r ".templates.${cloud}.path // empty" "$manifest")"
     if [ -n "$path" ] && [ -f "$ROOT/$path" ]; then
@@ -77,7 +77,7 @@ jq -n \
     base_url: $base,
     store: {
       name: "Cloud Forge App Store",
-      description: "一键部署开源应用，基于不可变镜像"
+      description: "One-command open-source app deployment powered by immutable images"
     },
     apps: $apps
   }' > "$INDEX"
