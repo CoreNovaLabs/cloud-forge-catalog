@@ -1,6 +1,6 @@
 {
-  "catalog_version": "1.0.0",
-  "generated_at": "2026-07-01T09:23:28Z",
+  "catalog_version": "0.2.0",
+  "generated_at": "2026-07-03T16:44:34Z",
   "base_url": "https://raw.githubusercontent.com/CoreNovaLabs/cloud-forge-catalog/main",
   "store": {
     "name": "Cloud Forge App Store",
@@ -24,17 +24,17 @@
         "aliyun"
       ],
       "version": "1.0.0",
-      "min_cli_version": "0.1.0",
+      "min_cli_version": "0.2.0",
       "price": "$5/month",
       "images": {
-        "aws": "ami-0a1b2c3d4e5f6g7h8",
+        "aws": "ami-0b9b527b5a400c0e4",
         "aliyun": "m-0a1b2c3d4e5f6g7h8"
       },
       "templates": {
         "aws": {
           "path": "apps/gitea/templates/aws.yaml",
           "url": "https://raw.githubusercontent.com/CoreNovaLabs/cloud-forge-catalog/main/apps/gitea/templates/aws.yaml",
-          "checksum": "sha256:0fdc0a53148ded14ead7a2d423bf06f0fa764477792022aa2c52d56ff56b9c23"
+          "checksum": "sha256:136909eeeb571f40122544597bcad7fed54a9110cf59d440e0a56b29c2842775"
         },
         "aliyun": {
           "path": "apps/gitea/templates/aliyun.json",
@@ -44,6 +44,7 @@
       },
       "params": {
         "InstanceType": {
+          "type": "string",
           "aws": {
             "default": "t3.medium",
             "options": [
@@ -62,6 +63,23 @@
             ]
           }
         },
+        "LatestAmiId": {
+          "type": "string",
+          "aws": {
+            "default": "ami-0b9b527b5a400c0e4"
+          }
+        },
+        "CaddyTlsMode": {
+          "type": "string",
+          "aws": {
+            "default": "ip-letsencrypt",
+            "options": [
+              "ip-letsencrypt",
+              "http",
+              "internal"
+            ]
+          }
+        },
         "DomainName": {
           "type": "string",
           "default": ""
@@ -75,8 +93,9 @@
         },
         "KeyName": {
           "type": "string",
+          "default": "",
           "aws": {
-            "required": true
+            "default": ""
           }
         },
         "KeyPairName": {
@@ -102,6 +121,13 @@
           },
           "aliyun": {
             "required": true
+          }
+        },
+        "SubnetId": {
+          "type": "string",
+          "default": "",
+          "aws": {
+            "default": ""
           }
         },
         "VSwitchId": {
@@ -132,16 +158,16 @@
         "aws"
       ],
       "version": "1.0.0",
-      "min_cli_version": "0.1.0",
+      "min_cli_version": "0.2.0",
       "price": "free",
       "images": {
-        "aws": "ssm:/aws/service/ami-amazon-linux-latest/al2023-ami-kernel-default-x86_64"
+        "aws": "ami-0b9b527b5a400c0e4"
       },
       "templates": {
         "aws": {
           "path": "apps/hello-nginx/templates/aws.yaml",
           "url": "https://raw.githubusercontent.com/CoreNovaLabs/cloud-forge-catalog/main/apps/hello-nginx/templates/aws.yaml",
-          "checksum": "sha256:e611dde117c961482bd4814be7cfc856179caef3cd3f6bf1de8f489249df11dc"
+          "checksum": "sha256:68e1c27916da420f1f01102d49a106b7af0adcc468a5d51027253cfbc9230d67"
         }
       },
       "params": {
@@ -159,7 +185,18 @@
         "LatestAmiId": {
           "type": "string",
           "aws": {
-            "default": "/aws/service/ami-amazon-linux-latest/al2023-ami-kernel-default-x86_64"
+            "default": "ami-0b9b527b5a400c0e4"
+          }
+        },
+        "CaddyTlsMode": {
+          "type": "string",
+          "aws": {
+            "default": "ip-letsencrypt",
+            "options": [
+              "ip-letsencrypt",
+              "http",
+              "internal"
+            ]
           }
         },
         "KeyName": {
@@ -206,17 +243,17 @@
         "aliyun"
       ],
       "version": "1.0.0",
-      "min_cli_version": "0.1.0",
+      "min_cli_version": "0.2.0",
       "price": "$8/month",
       "images": {
-        "aws": "ami-0i9j8k7l6m5n4o3p2",
+        "aws": "ami-0b9b527b5a400c0e4",
         "aliyun": "m-0i9j8k7l6m5n4o3p2"
       },
       "templates": {
         "aws": {
           "path": "apps/n8n/templates/aws.yaml",
           "url": "https://raw.githubusercontent.com/CoreNovaLabs/cloud-forge-catalog/main/apps/n8n/templates/aws.yaml",
-          "checksum": "sha256:22659e35672e644dac53b308ee0a1e3f42a1b4b2af7281c3f14b7fe8dd312283"
+          "checksum": "sha256:076f50f4e57710a236d4532532cd109526bf246d7e8bf80c008023b540ce08fc"
         },
         "aliyun": {
           "path": "apps/n8n/templates/aliyun.json",
@@ -226,6 +263,7 @@
       },
       "params": {
         "InstanceType": {
+          "type": "string",
           "aws": {
             "default": "t3.large",
             "options": [
@@ -242,6 +280,23 @@
             ]
           }
         },
+        "LatestAmiId": {
+          "type": "string",
+          "aws": {
+            "default": "ami-0b9b527b5a400c0e4"
+          }
+        },
+        "CaddyTlsMode": {
+          "type": "string",
+          "aws": {
+            "default": "ip-letsencrypt",
+            "options": [
+              "ip-letsencrypt",
+              "http",
+              "internal"
+            ]
+          }
+        },
         "DomainName": {
           "type": "string",
           "default": ""
@@ -255,8 +310,9 @@
         },
         "KeyName": {
           "type": "string",
+          "default": "",
           "aws": {
-            "required": true
+            "default": ""
           }
         },
         "KeyPairName": {
@@ -282,6 +338,13 @@
           },
           "aliyun": {
             "required": true
+          }
+        },
+        "SubnetId": {
+          "type": "string",
+          "default": "",
+          "aws": {
+            "default": ""
           }
         },
         "VSwitchId": {
@@ -313,17 +376,17 @@
         "aliyun"
       ],
       "version": "1.0.0",
-      "min_cli_version": "0.1.0",
+      "min_cli_version": "0.2.0",
       "price": "$3/month",
       "images": {
-        "aws": "ami-0q1w2e3r4t5y6u7i8",
+        "aws": "ami-0b9b527b5a400c0e4",
         "aliyun": "m-0q1w2e3r4t5y6u7i8"
       },
       "templates": {
         "aws": {
           "path": "apps/uptime-kuma/templates/aws.yaml",
           "url": "https://raw.githubusercontent.com/CoreNovaLabs/cloud-forge-catalog/main/apps/uptime-kuma/templates/aws.yaml",
-          "checksum": "sha256:d477604985cad7472e79c7c8c757882294718152b786b8279b3d1422e422c85a"
+          "checksum": "sha256:7a75c275edf53b8adf61011bc7f495ab1854bbc408e4ae2c81702f4fcbd9f1d0"
         },
         "aliyun": {
           "path": "apps/uptime-kuma/templates/aliyun.json",
@@ -333,6 +396,7 @@
       },
       "params": {
         "InstanceType": {
+          "type": "string",
           "aws": {
             "default": "t3.micro",
             "options": [
@@ -345,6 +409,23 @@
             "options": [
               "ecs.t6-c1m1.large",
               "ecs.t6-c1m2.large"
+            ]
+          }
+        },
+        "LatestAmiId": {
+          "type": "string",
+          "aws": {
+            "default": "ami-0b9b527b5a400c0e4"
+          }
+        },
+        "CaddyTlsMode": {
+          "type": "string",
+          "aws": {
+            "default": "ip-letsencrypt",
+            "options": [
+              "ip-letsencrypt",
+              "http",
+              "internal"
             ]
           }
         },
@@ -361,8 +442,9 @@
         },
         "KeyName": {
           "type": "string",
+          "default": "",
           "aws": {
-            "required": true
+            "default": ""
           }
         },
         "KeyPairName": {
@@ -388,6 +470,13 @@
           },
           "aliyun": {
             "required": true
+          }
+        },
+        "SubnetId": {
+          "type": "string",
+          "default": "",
+          "aws": {
+            "default": ""
           }
         },
         "VSwitchId": {

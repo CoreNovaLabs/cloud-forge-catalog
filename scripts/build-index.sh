@@ -67,7 +67,7 @@ apps_json+="]"
 mkdir -p "$(dirname "$INDEX")"
 
 jq -n \
-  --arg version "1.0.0" \
+  --arg version "0.2.0" \
   --arg base "$BASE_URL" \
   --arg generated "$(date -u +"%Y-%m-%dT%H:%M:%SZ")" \
   --argjson apps "$apps_json" \

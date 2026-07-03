@@ -6,73 +6,133 @@ Parameters:
     Type: String
     Default: t3.micro
     AllowedValues: [t3.micro, t3.small]
-  ImageId:
+  LatestAmiId:
     Type: AWS::EC2::Image::Id
-    Default: ami-0q1w2e3r4t5y6u7i8
+    Default: ami-0b9b527b5a400c0e4
+  CaddyTlsMode:
+    Type: String
+    Default: ip-letsencrypt
+    AllowedValues: [ip-letsencrypt, http, internal]
+    Description: Caddy TLS mode for the public endpoint.
   KeyName:
-    Type: AWS::EC2::KeyPair::KeyName
+    Type: String
+    Default: ''
+    Description: Optional EC2 key pair name for SSH access.
   DomainName:
     Type: String
-    Default: ""
+    Default: ''
   HostedZoneId:
     Type: String
-    Default: ""
+    Default: ''
   DiskSize:
     Type: Number
     Default: 20
+    MinValue: 10
+    MaxValue: 500
   VpcId:
     Type: String
-    Default: ""
+    Default: ''
+  SubnetId:
+    Type: String
+    Default: ''
   AllowedIP:
     Type: String
-    Default: "0.0.0.0/0"
+    Default: 0.0.0.0/0
+    AllowedPattern: '^(([0-9]{1,3}\.){3}[0-9]{1,3}/([0-9]|[1-2][0-9]|3[0-2]))$'
 
 Conditions:
-  HasDomain: !Not [!Equals [!Ref DomainName, ""]]
-  HasHostedZone: !Not [!Equals [!Ref HostedZoneId, ""]]
+  HasKeyName: !Not [!Equals [!Ref KeyName, '']]
+  HasDomain: !Not [!Equals [!Ref DomainName, '']]
+  HasHostedZone: !Not [!Equals [!Ref HostedZoneId, '']]
   HasDNS: !And [!Condition HasDomain, !Condition HasHostedZone]
-  HasVpc: !Not [!Equals [!Ref VpcId, ""]]
+  HasVpc: !Not [!Equals [!Ref VpcId, '']]
+  HasSubnet: !Not [!Equals [!Ref SubnetId, '']]
+  UseHttp: !Equals [!Ref CaddyTlsMode, http]
 
 Resources:
-  UptimeInstance:
+  UptimeKumaSecurityGroup:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      GroupDescription: Allow HTTP, HTTPS, and restricted SSH for Uptime Kuma
+      VpcId: !If [HasVpc, !Ref VpcId, !Ref AWS::NoValue]
+      SecurityGroupIngress:
+        - IpProtocol: tcp
+          FromPort: 80
+          ToPort: 80
+          CidrIp: 0.0.0.0/0
+        - IpProtocol: tcp
+          FromPort: 443
+          ToPort: 443
+          CidrIp: 0.0.0.0/0
+        - IpProtocol: tcp
+          FromPort: 22
+          ToPort: 22
+          CidrIp: !Ref AllowedIP
+      Tags:
+        - Key: cloud-forge:app
+          Value: uptime-kuma
+
+  UptimeKumaInstance:
     Type: AWS::EC2::Instance
     Properties:
-      ImageId: !Ref ImageId
+      ImageId: !Ref LatestAmiId
       InstanceType: !Ref InstanceType
-      KeyName: !Ref KeyName
+      KeyName: !If [HasKeyName, !Ref KeyName, !Ref AWS::NoValue]
+      SubnetId: !If [HasSubnet, !Ref SubnetId, !Ref AWS::NoValue]
       BlockDeviceMappings:
         - DeviceName: /dev/xvda
           Ebs:
             VolumeSize: !Ref DiskSize
             VolumeType: gp3
-      SecurityGroupIds: [!Ref UptimeSG]
+      SecurityGroupIds:
+        - !Ref UptimeKumaSecurityGroup
       UserData:
-        Fn::Base64: |
+        Fn::Base64: !Sub |
           #!/bin/bash
-          systemctl start uptime-kuma
+          set -euxo pipefail
+          install -d -m 0755 /opt/cloud-forge/data/uptime-kuma
+          cat >/opt/cloud-forge/docker-compose.app.yml <<'COMPOSE'
+          services:
+            uptime-kuma:
+              image: louislam/uptime-kuma:1
+              restart: unless-stopped
+              volumes:
+                - /opt/cloud-forge/data/uptime-kuma:/app/data
+              networks:
+                - cloud-forge
+          networks:
+            cloud-forge:
+              external: true
+          COMPOSE
+          install -d -m 0755 /etc/cloud-forge
+          cat >/etc/cloud-forge/app.env <<EOF
+          CLOUD_FORGE_CADDY_PUBLIC_IP=${UptimeKumaEIP}
+          CLOUD_FORGE_CADDY_UPSTREAM=http://uptime-kuma:3001
+          CLOUD_FORGE_CADDY_TLS_MODE=${CaddyTlsMode}
+          CLOUD_FORGE_CADDY_AUTO_IP_CERT=true
+          EOF
+          /opt/cloud-forge/bin/cloud-forge-apply-app
+      Tags:
+        - Key: Name
+          Value: cloud-forge-uptime-kuma
+        - Key: cloud-forge:app
+          Value: uptime-kuma
 
-  UptimeSG:
-    Type: AWS::EC2::SecurityGroup
-    Properties:
-      GroupDescription: Uptime Kuma SG
-      VpcId: !If [HasVpc, !Ref VpcId, !Ref AWS::NoValue]
-      SecurityGroupIngress:
-        - IpProtocol: tcp
-          FromPort: 22
-          ToPort: 22
-          CidrIp: !Ref AllowedIP
-        - IpProtocol: tcp
-          FromPort: 3001
-          ToPort: 3001
-          CidrIp: !Ref AllowedIP
-
-  UptimeEIP:
+  UptimeKumaEIP:
     Type: AWS::EC2::EIP
     Properties:
-      InstanceId: !Ref UptimeInstance
       Domain: vpc
+      Tags:
+        - Key: cloud-forge:app
+          Value: uptime-kuma
 
-  UptimeDNS:
+  UptimeKumaEIPAssociation:
+    Type: AWS::EC2::EIPAssociation
+    Properties:
+      AllocationId: !GetAtt UptimeKumaEIP.AllocationId
+      InstanceId: !Ref UptimeKumaInstance
+
+  UptimeKumaDNS:
     Type: AWS::Route53::RecordSet
     Condition: HasDNS
     Properties:
@@ -81,10 +141,30 @@ Resources:
       Type: A
       TTL: 300
       ResourceRecords:
-        - !GetAtt UptimeEIP.PublicIp
+        - !Ref UptimeKumaEIP
 
 Outputs:
-  UptimeURL:
-    Value: !If [HasDomain, !Sub "https://${DomainName}", !Sub "http://${UptimeEIP.PublicIp}:3001"]
+  ServiceURL:
+    Description: Primary endpoint for Uptime Kuma.
+    Value: !If
+      - UseHttp
+      - !Sub 'http://${UptimeKumaEIP}'
+      - !Sub 'https://${UptimeKumaEIP}'
+  PublicIP:
+    Description: Elastic IP address assigned to the service.
+    Value: !Ref UptimeKumaEIP
   InstanceId:
-    Value: !Ref UptimeInstance
+    Description: Created EC2 instance ID.
+    Value: !Ref UptimeKumaInstance
+  AWSRegion:
+    Description: AWS region where the stack is deployed.
+    Value: !Ref AWS::Region
+  AmiId:
+    Description: AMI ID used by the EC2 instance.
+    Value: !Ref LatestAmiId
+  InstanceType:
+    Description: EC2 instance type.
+    Value: !Ref InstanceType
+  SecurityGroupId:
+    Description: Security group attached to the instance.
+    Value: !Ref UptimeKumaSecurityGroup

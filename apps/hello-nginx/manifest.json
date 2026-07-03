@@ -8,10 +8,10 @@
   "stars": 0,
   "clouds": ["aws"],
   "version": "1.0.0",
-  "min_cli_version": "0.1.0",
+  "min_cli_version": "0.2.0",
   "price": "free",
   "images": {
-    "aws": "ssm:/aws/service/ami-amazon-linux-latest/al2023-ami-kernel-default-x86_64"
+    "aws": "ami-0b9b527b5a400c0e4"
   },
   "templates": {
     "aws": { "path": "apps/hello-nginx/templates/aws.yaml" }
@@ -27,7 +27,14 @@
     "LatestAmiId": {
       "type": "string",
       "aws": {
-        "default": "/aws/service/ami-amazon-linux-latest/al2023-ami-kernel-default-x86_64"
+        "default": "ami-0b9b527b5a400c0e4"
+      }
+    },
+    "CaddyTlsMode": {
+      "type": "string",
+      "aws": {
+        "default": "ip-letsencrypt",
+        "options": ["ip-letsencrypt", "http", "internal"]
       }
     },
     "KeyName": {

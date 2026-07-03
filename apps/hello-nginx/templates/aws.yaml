@@ -10,8 +10,16 @@ Parameters:
       - t3.small
       - t3.medium
   LatestAmiId:
-    Type: AWS::SSM::Parameter::Value<AWS::EC2::Image::Id>
-    Default: /aws/service/ami-amazon-linux-latest/al2023-ami-kernel-default-x86_64
+    Type: AWS::EC2::Image::Id
+    Default: ami-0b9b527b5a400c0e4
+  CaddyTlsMode:
+    Type: String
+    Default: ip-letsencrypt
+    AllowedValues:
+      - ip-letsencrypt
+      - http
+      - internal
+    Description: Caddy TLS mode. Use ip-letsencrypt for automatic Let's Encrypt IP certificates without a domain.
   KeyName:
     Type: String
     Default: ''
@@ -33,17 +41,22 @@ Conditions:
   HasKeyName: !Not [!Equals [!Ref KeyName, '']]
   HasVpc: !Not [!Equals [!Ref VpcId, '']]
   HasSubnet: !Not [!Equals [!Ref SubnetId, '']]
+  UseHttp: !Equals [!Ref CaddyTlsMode, http]
 
 Resources:
   HelloSecurityGroup:
     Type: AWS::EC2::SecurityGroup
     Properties:
-      GroupDescription: Allow HTTP and restricted SSH for Hello NGINX
+      GroupDescription: Allow HTTP, HTTPS, and restricted SSH for Hello NGINX
       VpcId: !If [HasVpc, !Ref VpcId, !Ref AWS::NoValue]
       SecurityGroupIngress:
         - IpProtocol: tcp
           FromPort: 80
           ToPort: 80
+          CidrIp: 0.0.0.0/0
+        - IpProtocol: tcp
+          FromPort: 443
+          ToPort: 443
           CidrIp: 0.0.0.0/0
         - IpProtocol: tcp
           FromPort: 22
@@ -63,18 +76,38 @@ Resources:
       SecurityGroupIds:
         - !Ref HelloSecurityGroup
       UserData:
-        Fn::Base64: |
+        Fn::Base64: !Sub |
           #!/bin/bash
           set -euxo pipefail
-          dnf install -y nginx
-          cat >/usr/share/nginx/html/index.html <<'HTML'
+          install -d -m 0755 /opt/cloud-forge/data/hello-nginx/html
+          cat >/opt/cloud-forge/data/hello-nginx/html/index.html <<'HTML'
           <!doctype html>
           <html lang="en">
           <head><meta charset="utf-8"><title>Cloud Forge</title></head>
           <body><h1>Hello from Cloud Forge</h1><p>NGINX is running on AWS.</p></body>
           </html>
           HTML
-          systemctl enable --now nginx
+          cat >/opt/cloud-forge/docker-compose.app.yml <<'COMPOSE'
+          services:
+            nginx:
+              image: nginx:1.27-alpine
+              restart: unless-stopped
+              volumes:
+                - /opt/cloud-forge/data/hello-nginx/html:/usr/share/nginx/html:ro
+              networks:
+                - cloud-forge
+          networks:
+            cloud-forge:
+              external: true
+          COMPOSE
+          install -d -m 0755 /etc/cloud-forge
+          cat >/etc/cloud-forge/app.env <<EOF
+          CLOUD_FORGE_CADDY_PUBLIC_IP=${HelloEIP}
+          CLOUD_FORGE_CADDY_UPSTREAM=http://nginx:80
+          CLOUD_FORGE_CADDY_TLS_MODE=${CaddyTlsMode}
+          CLOUD_FORGE_CADDY_AUTO_IP_CERT=true
+          EOF
+          /opt/cloud-forge/bin/cloud-forge-apply-app
       Tags:
         - Key: Name
           Value: cloud-forge-hello-nginx
@@ -97,8 +130,26 @@ Resources:
 
 Outputs:
   ServiceURL:
-    Description: HTTP endpoint for the sample service.
-    Value: !Sub 'http://${HelloEIP}'
+    Description: Primary endpoint for the sample service.
+    Value: !If
+      - UseHttp
+      - !Sub 'http://${HelloEIP}'
+      - !Sub 'https://${HelloEIP}'
+  PublicIP:
+    Description: Elastic IP address assigned to the service.
+    Value: !Ref HelloEIP
   InstanceId:
     Description: Created EC2 instance ID.
     Value: !Ref HelloInstance
+  AWSRegion:
+    Description: AWS region where the stack is deployed.
+    Value: !Ref AWS::Region
+  AmiId:
+    Description: AMI ID used by the EC2 instance.
+    Value: !Ref LatestAmiId
+  InstanceType:
+    Description: EC2 instance type.
+    Value: !Ref InstanceType
+  SecurityGroupId:
+    Description: Security group attached to the instance.
+    Value: !Ref HelloSecurityGroup

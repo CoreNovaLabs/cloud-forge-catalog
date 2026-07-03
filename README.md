@@ -22,20 +22,22 @@ cloud-forge-catalog/
 
 ## CLI Integration
 
-The CLI fetches the catalog index over HTTP and downloads templates on demand:
+The CLI fetches the catalog index over HTTP and downloads templates on demand.
 
-```yaml
-# ~/.cloud-forge/config.yaml
-store:
-  url: https://raw.githubusercontent.com/CoreNovaLabs/cloud-forge-catalog/main/index/apps.json
-  cache_ttl: 24h
+Default index URL (configured in the CLI):
+
+```text
+https://cdn.jsdelivr.net/gh/CoreNovaLabs/cloud-forge-catalog@main/index/apps.json
 ```
 
-For local development, use a `file://` URL:
+Override with an environment variable:
 
 ```bash
+export CLOUD_FORGE_STORE_URL="https://raw.githubusercontent.com/CoreNovaLabs/cloud-forge-catalog/main/index/apps.json"
 export CLOUD_FORGE_STORE_URL="file:///path/to/cloud-forge-catalog/index/apps.json"
 ```
+
+Deploy and delete currently support **AWS only**. Aliyun templates are available for `search` and `template`, but not for `deploy` yet.
 
 ## Adding an App
 
@@ -66,5 +68,5 @@ python3 -m pip install cfn-lint
 
 ## Versioning
 
-- Catalog versions follow SemVer and are published through Git tags, for example `v1.0.0`
-- The CLI can pin a catalog version with `--catalog-version v1.0.0`
+- Catalog versions follow SemVer and are published through Git tags, for example `v0.2.0`
+- The CLI reads the catalog index from the default CDN URL or `CLOUD_FORGE_STORE_URL`
