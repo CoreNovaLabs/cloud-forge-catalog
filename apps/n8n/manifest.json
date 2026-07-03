@@ -9,7 +9,11 @@
   "clouds": ["aws", "aliyun"],
   "version": "1.0.0",
   "min_cli_version": "0.2.0",
-  "price": "$8/month",
+  "price": "free",
+  "cost_notice": [
+    "This deploy has base costs.",
+    "Cloud Forge runtime AMI fee applies. AWS resources such as EC2, EBS, public IPv4/Elastic IP, and data transfer are billed separately by AWS."
+  ],
   "images": {
     "aws": "ami-04cf9ac8716f030d6",
     "aliyun": "m-0i9j8k7l6m5n4o3p2"

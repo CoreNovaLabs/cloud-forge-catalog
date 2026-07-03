@@ -37,6 +37,10 @@
       "pattern": "^\\d+\\.\\d+\\.\\d+$"
     },
     "price": { "type": "string" },
+    "cost_notice": {
+      "type": "array",
+      "items": { "type": "string", "minLength": 1 }
+    },
     "images": {
       "type": "object",
       "properties": {

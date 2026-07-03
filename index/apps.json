@@ -1,6 +1,6 @@
 {
   "catalog_version": "0.2.0",
-  "generated_at": "2026-07-03T18:41:11Z",
+  "generated_at": "2026-07-03T23:46:27Z",
   "base_url": "https://raw.githubusercontent.com/CoreNovaLabs/cloud-forge-catalog/main",
   "store": {
     "name": "Cloud Forge App Store",
@@ -244,7 +244,11 @@
       ],
       "version": "1.0.0",
       "min_cli_version": "0.2.0",
-      "price": "$8/month",
+      "price": "free",
+      "cost_notice": [
+        "This deploy has base costs.",
+        "Cloud Forge runtime AMI fee applies. AWS resources such as EC2, EBS, public IPv4/Elastic IP, and data transfer are billed separately by AWS."
+      ],
       "images": {
         "aws": "ami-04cf9ac8716f030d6",
         "aliyun": "m-0i9j8k7l6m5n4o3p2"
