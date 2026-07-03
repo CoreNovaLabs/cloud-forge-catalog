@@ -8,7 +8,7 @@ Parameters:
     AllowedValues: [t3.medium, t3.large, t3.xlarge]
   LatestAmiId:
     Type: AWS::EC2::Image::Id
-    Default: ami-0b9b527b5a400c0e4
+    Default: ami-04cf9ac8716f030d6
   CaddyTlsMode:
     Type: String
     Default: ip-letsencrypt
@@ -104,9 +104,6 @@ Resources:
                 - /opt/cloud-forge/data/n8n:/home/node/.n8n
               networks:
                 - cloud-forge
-          networks:
-            cloud-forge:
-              external: true
           COMPOSE
           install -d -m 0755 /etc/cloud-forge
           cat >/etc/cloud-forge/app.env <<EOF

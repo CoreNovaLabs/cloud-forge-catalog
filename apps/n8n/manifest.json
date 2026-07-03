@@ -11,7 +11,7 @@
   "min_cli_version": "0.2.0",
   "price": "$8/month",
   "images": {
-    "aws": "ami-0b9b527b5a400c0e4",
+    "aws": "ami-04cf9ac8716f030d6",
     "aliyun": "m-0i9j8k7l6m5n4o3p2"
   },
   "templates": {
@@ -33,7 +33,7 @@
     "LatestAmiId": {
       "type": "string",
       "aws": {
-        "default": "ami-0b9b527b5a400c0e4"
+        "default": "ami-04cf9ac8716f030d6"
       }
     },
     "CaddyTlsMode": {

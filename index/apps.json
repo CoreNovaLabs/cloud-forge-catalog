@@ -1,6 +1,6 @@
 {
   "catalog_version": "0.2.0",
-  "generated_at": "2026-07-03T16:44:34Z",
+  "generated_at": "2026-07-03T18:41:11Z",
   "base_url": "https://raw.githubusercontent.com/CoreNovaLabs/cloud-forge-catalog/main",
   "store": {
     "name": "Cloud Forge App Store",
@@ -27,14 +27,14 @@
       "min_cli_version": "0.2.0",
       "price": "$5/month",
       "images": {
-        "aws": "ami-0b9b527b5a400c0e4",
+        "aws": "ami-04cf9ac8716f030d6",
         "aliyun": "m-0a1b2c3d4e5f6g7h8"
       },
       "templates": {
         "aws": {
           "path": "apps/gitea/templates/aws.yaml",
           "url": "https://raw.githubusercontent.com/CoreNovaLabs/cloud-forge-catalog/main/apps/gitea/templates/aws.yaml",
-          "checksum": "sha256:136909eeeb571f40122544597bcad7fed54a9110cf59d440e0a56b29c2842775"
+          "checksum": "sha256:12050073b36e8738fb0e16eac3fb59ceaab320637a0aeef3f88567f45e618c8d"
         },
         "aliyun": {
           "path": "apps/gitea/templates/aliyun.json",
@@ -66,7 +66,7 @@
         "LatestAmiId": {
           "type": "string",
           "aws": {
-            "default": "ami-0b9b527b5a400c0e4"
+            "default": "ami-04cf9ac8716f030d6"
           }
         },
         "CaddyTlsMode": {
@@ -161,13 +161,13 @@
       "min_cli_version": "0.2.0",
       "price": "free",
       "images": {
-        "aws": "ami-0b9b527b5a400c0e4"
+        "aws": "ami-04cf9ac8716f030d6"
       },
       "templates": {
         "aws": {
           "path": "apps/hello-nginx/templates/aws.yaml",
           "url": "https://raw.githubusercontent.com/CoreNovaLabs/cloud-forge-catalog/main/apps/hello-nginx/templates/aws.yaml",
-          "checksum": "sha256:68e1c27916da420f1f01102d49a106b7af0adcc468a5d51027253cfbc9230d67"
+          "checksum": "sha256:ef9b13fb1a300d7d05a8771b724b44a61241c23e75db843b28ba7042f1157365"
         }
       },
       "params": {
@@ -185,7 +185,7 @@
         "LatestAmiId": {
           "type": "string",
           "aws": {
-            "default": "ami-0b9b527b5a400c0e4"
+            "default": "ami-04cf9ac8716f030d6"
           }
         },
         "CaddyTlsMode": {
@@ -246,14 +246,14 @@
       "min_cli_version": "0.2.0",
       "price": "$8/month",
       "images": {
-        "aws": "ami-0b9b527b5a400c0e4",
+        "aws": "ami-04cf9ac8716f030d6",
         "aliyun": "m-0i9j8k7l6m5n4o3p2"
       },
       "templates": {
         "aws": {
           "path": "apps/n8n/templates/aws.yaml",
           "url": "https://raw.githubusercontent.com/CoreNovaLabs/cloud-forge-catalog/main/apps/n8n/templates/aws.yaml",
-          "checksum": "sha256:076f50f4e57710a236d4532532cd109526bf246d7e8bf80c008023b540ce08fc"
+          "checksum": "sha256:5a1df9f069a3a541c3b2063e1d1b644d81d699f2db97dffb8b5db169d1018aa2"
         },
         "aliyun": {
           "path": "apps/n8n/templates/aliyun.json",
@@ -283,7 +283,7 @@
         "LatestAmiId": {
           "type": "string",
           "aws": {
-            "default": "ami-0b9b527b5a400c0e4"
+            "default": "ami-04cf9ac8716f030d6"
           }
         },
         "CaddyTlsMode": {
@@ -379,14 +379,14 @@
       "min_cli_version": "0.2.0",
       "price": "$3/month",
       "images": {
-        "aws": "ami-0b9b527b5a400c0e4",
+        "aws": "ami-04cf9ac8716f030d6",
         "aliyun": "m-0q1w2e3r4t5y6u7i8"
       },
       "templates": {
         "aws": {
           "path": "apps/uptime-kuma/templates/aws.yaml",
           "url": "https://raw.githubusercontent.com/CoreNovaLabs/cloud-forge-catalog/main/apps/uptime-kuma/templates/aws.yaml",
-          "checksum": "sha256:7a75c275edf53b8adf61011bc7f495ab1854bbc408e4ae2c81702f4fcbd9f1d0"
+          "checksum": "sha256:f8449679677232c7fb848a45a84934bc032aac8c1a6403c1d2be7fd022f049df"
         },
         "aliyun": {
           "path": "apps/uptime-kuma/templates/aliyun.json",
@@ -415,7 +415,7 @@
         "LatestAmiId": {
           "type": "string",
           "aws": {
-            "default": "ami-0b9b527b5a400c0e4"
+            "default": "ami-04cf9ac8716f030d6"
           }
         },
         "CaddyTlsMode": {

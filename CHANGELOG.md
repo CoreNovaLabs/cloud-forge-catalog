@@ -7,7 +7,7 @@ All notable changes to Cloud Forge Catalog are documented in this file.
 ### Added
 
 - Production-ready AWS templates for `gitea`, `n8n`, and `uptime-kuma`
-- Shared Cloud Forge hardened runtime AMI defaults (`ami-0b9b527b5a400c0e4`, Caddy via Docker Compose)
+- Shared Cloud Forge hardened runtime AMI defaults (`ami-04cf9ac8716f030d6`, Caddy via Docker Compose)
 - Docker Compose + Caddy reverse-proxy UserData for all AWS app templates
 - MIT License
 

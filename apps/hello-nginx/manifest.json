@@ -11,7 +11,7 @@
   "min_cli_version": "0.2.0",
   "price": "free",
   "images": {
-    "aws": "ami-0b9b527b5a400c0e4"
+    "aws": "ami-04cf9ac8716f030d6"
   },
   "templates": {
     "aws": { "path": "apps/hello-nginx/templates/aws.yaml" }
@@ -27,7 +27,7 @@
     "LatestAmiId": {
       "type": "string",
       "aws": {
-        "default": "ami-0b9b527b5a400c0e4"
+        "default": "ami-04cf9ac8716f030d6"
       }
     },
     "CaddyTlsMode": {
