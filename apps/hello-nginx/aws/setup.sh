@@ -9,3 +9,4 @@ tee /opt/cloud-forge/data/hello-nginx/html/index.html >/dev/null <<'HTML'
 <body><h1>Hello from Cloud Forge</h1><p>NGINX is running on AWS.</p></body>
 </html>
 HTML
+chmod 0644 /opt/cloud-forge/data/hello-nginx/html/index.html
