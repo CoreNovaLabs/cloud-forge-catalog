@@ -4,13 +4,6 @@ All notable changes to Cloud Forge Catalog are documented in this file.
 
 ## [Unreleased]
 
-### Changed
-
-- Share Docker Compose and upstream env under `apps/<id>/compose/` for AWS and Aliyun; add `scripts/aws/bootstrap-app.sh` and thin CloudFormation UserData
-- Reorganize cloud-specific scripts under `scripts/aws/` and `scripts/aliyun/`; move SAM validation to `scripts/aws/validate-sam.sh`
-- Aliyun bootstrap loads the shared compose package instead of per-cloud compose files
-- Set `gitea` and `uptime-kuma` catalog price to `free`
-
 ## [0.3.0] - 2026-07-04
 
 ### Added
@@ -18,12 +11,17 @@ All notable changes to Cloud Forge Catalog are documented in this file.
 - Aliyun bootstrap scripts: `scripts/aliyun/bootstrap-runtime.sh`, `bootstrap-app.sh`, `install-caddy-aliyun.sh`
 - Production ROS templates for `hello-nginx`, `gitea`, `n8n`, and `uptime-kuma` (public Alinux3 + UserData + Docker Hub)
 - `hello-nginx` Aliyun manifest and template
+- Shared Docker Compose and upstream env under `apps/<id>/compose/` for AWS and Aliyun; `scripts/aws/bootstrap-app.sh` and thin CloudFormation UserData
 
 ### Changed
 
 - Replaced placeholder Aliyun image IDs with public `aliyun_3_x64_20G_alibase_20260122.vhd` defaults
 - Updated `cost_notice` and `min_cli_version: 0.3.0` for Aliyun deploy
-- Regenerated `index/apps.json`
+- Reorganized cloud-specific scripts under `scripts/aws/` and `scripts/aliyun/`; SAM validation at `scripts/aws/validate-sam.sh`
+- Aliyun bootstrap loads the shared compose package instead of per-cloud compose files
+- Set `gitea` and `uptime-kuma` catalog price to `free`
+- Fixed hello-nginx static file permissions for nginx container (`umask 022` in bootstrap)
+- Regenerated `index/apps.json` with `catalog_version: 0.3.0`
 
 ### Notes
 

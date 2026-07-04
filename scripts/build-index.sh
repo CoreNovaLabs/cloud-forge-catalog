@@ -68,7 +68,7 @@ mkdir -p "$(dirname "$INDEX")"
 
 generated="$(date -u +"%Y-%m-%dT%H:%M:%SZ")"
 new_fingerprint="$(jq -nc \
-  --arg version "0.2.0" \
+  --arg version "0.3.0" \
   --arg base "$BASE_URL" \
   --argjson apps "$apps_json" \
   '{
@@ -92,7 +92,7 @@ if [ -f "$INDEX" ]; then
 fi
 
 jq -n \
-  --arg version "0.2.0" \
+  --arg version "0.3.0" \
   --arg base "$BASE_URL" \
   --arg generated "$generated" \
   --argjson apps "$apps_json" \

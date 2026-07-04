@@ -1,6 +1,6 @@
 {
-  "catalog_version": "0.2.0",
-  "generated_at": "2026-07-04T13:28:26Z",
+  "catalog_version": "0.3.0",
+  "generated_at": "2026-07-04T15:10:02Z",
   "base_url": "https://raw.githubusercontent.com/CoreNovaLabs/cloud-forge-catalog/main",
   "store": {
     "name": "Cloud Forge App Store",
