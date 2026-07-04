@@ -16,6 +16,9 @@ for manifest in "$ROOT"/apps/*/manifest.json; do
   [ -f "$manifest" ] || continue
   app_id="$(jq -r '.id' "$manifest")"
   dir_id="$(basename "$(dirname "$manifest")")"
+  if [ "$dir_id" = "_template" ]; then
+    continue
+  fi
   if [ "$app_id" != "$dir_id" ]; then
     echo "FAIL: $manifest id=$app_id != dir=$dir_id" >&2
     exit 1

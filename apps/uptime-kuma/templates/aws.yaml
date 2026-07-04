@@ -27,7 +27,7 @@ Parameters:
   DiskSize:
     Type: Number
     Default: 20
-    MinValue: 10
+    MinValue: 20
     MaxValue: 500
   VpcId:
     Type: String
@@ -53,7 +53,7 @@ Resources:
   UptimeKumaSecurityGroup:
     Type: AWS::EC2::SecurityGroup
     Properties:
-      GroupDescription: Allow HTTP, HTTPS, and restricted SSH for Uptime Kuma
+      GroupDescription: Allow HTTP, HTTPS, and restricted SSH for uptime-kuma
       VpcId: !If [HasVpc, !Ref VpcId, !Ref AWS::NoValue]
       SecurityGroupIngress:
         - IpProtocol: tcp
@@ -130,7 +130,7 @@ Resources:
 
 Outputs:
   ServiceURL:
-    Description: Primary endpoint for Uptime Kuma.
+    Description: Primary endpoint for uptime-kuma.
     Value: !If
       - UseHttp
       - !Sub 'http://${UptimeKumaEIP}'

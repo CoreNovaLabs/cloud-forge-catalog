@@ -76,7 +76,7 @@
   },
   "Outputs": {
     "ServiceURL": {
-      "Description": "Primary endpoint for Gitea.",
+      "Description": "Primary endpoint for gitea.",
       "Value": {
         "Fn::If": [
           "UseHttp",

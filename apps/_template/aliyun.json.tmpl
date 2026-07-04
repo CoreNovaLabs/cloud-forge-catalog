@@ -1,15 +1,15 @@
 {
   "ROSTemplateFormatVersion": "2015-09-01",
-  "Description": "Uptime Kuma on Cloud Forge CLI - Aliyun cn-hongkong bootstrap",
+  "Description": "{{APP_NAME}} on Cloud Forge CLI - Aliyun cn-hongkong bootstrap",
   "Parameters": {
     "InstanceType": {
       "Type": "String",
-      "Default": "ecs.t6-c1m1.large",
-      "AllowedValues": ["ecs.t6-c1m1.large", "ecs.t6-c1m2.large"]
+      "Default": "{{ALIYUN_INSTANCE_DEFAULT}}",
+      "AllowedValues": [{{ALIYUN_INSTANCE_OPTIONS_JSON}}]
     },
     "ImageId": {
       "Type": "String",
-      "Default": "aliyun_3_x64_20G_alibase_20260122.vhd"
+      "Default": "{{ALIYUN_IMAGE_DEFAULT}}"
     },
     "KeyPairName": { "Type": "String" },
     "VpcId": { "Type": "String" },
@@ -20,18 +20,18 @@
       "Default": "ip-letsencrypt",
       "AllowedValues": ["ip-letsencrypt", "http", "internal"]
     },
-    "DiskSize": { "Type": "Number", "Default": 20, "MinValue": 20, "MaxValue": 500 },
+    "DiskSize": { "Type": "Number", "Default": {{ALIYUN_DISK_DEFAULT}}, "MinValue": 20, "MaxValue": 500 },
     "DomainName": { "Type": "String", "Default": "" }
   },
   "Conditions": {
     "UseHttp": { "Fn::Equals": [{ "Ref": "CaddyTlsMode" }, "http"] }
   },
   "Resources": {
-    "UptimeKumaSG": {
+    "{{APP_PREFIX}}SG": {
       "Type": "ALIYUN::ECS::SecurityGroup",
       "Properties": {
         "VpcId": { "Ref": "VpcId" },
-        "SecurityGroupName": "cloud-forge-uptime-kuma",
+        "SecurityGroupName": "cloud-forge-{{APP_ID}}",
         "SecurityGroupIngress": [
           { "IpProtocol": "tcp", "PortRange": "80/80", "SourceCidrIp": "0.0.0.0/0" },
           { "IpProtocol": "tcp", "PortRange": "443/443", "SourceCidrIp": "0.0.0.0/0" },
@@ -39,59 +39,59 @@
         ]
       }
     },
-    "UptimeKumaInstance": {
+    "{{APP_PREFIX}}Instance": {
       "Type": "ALIYUN::ECS::Instance",
       "Properties": {
         "ImageId": { "Ref": "ImageId" },
         "InstanceType": { "Ref": "InstanceType" },
         "KeyPairName": { "Ref": "KeyPairName" },
         "VSwitchId": { "Ref": "VSwitchId" },
-        "SecurityGroupId": { "Ref": "UptimeKumaSG" },
+        "SecurityGroupId": { "Ref": "{{APP_PREFIX}}SG" },
         "SystemDiskSize": { "Ref": "DiskSize" },
         "SystemDiskCategory": "cloud_efficiency",
         "InternetMaxBandwidthOut": 0,
         "UserData": {
-          "Fn::Sub": "#!/bin/bash\nset -euxo pipefail\nexport CLOUD_FORGE_CADDY_TLS_MODE=${CaddyTlsMode}\ncurl -fsSL https://cdn.jsdelivr.net/gh/CoreNovaLabs/cloud-forge-catalog@main/scripts/aliyun/bootstrap-app.sh | bash -s -- uptime-kuma\n"
+          "Fn::Sub": "#!/bin/bash\nset -euxo pipefail\nexport CLOUD_FORGE_CADDY_TLS_MODE=${CaddyTlsMode}\ncurl -fsSL https://cdn.jsdelivr.net/gh/CoreNovaLabs/cloud-forge-catalog@main/scripts/aliyun/bootstrap-app.sh | bash -s -- {{APP_ID}}\n"
         },
         "Tags": [
-          { "Key": "Name", "Value": "cloud-forge-uptime-kuma" },
-          { "Key": "cloud-forge:app", "Value": "uptime-kuma" }
+          { "Key": "Name", "Value": "cloud-forge-{{APP_ID}}" },
+          { "Key": "cloud-forge:app", "Value": "{{APP_ID}}" }
         ]
       }
     },
-    "UptimeKumaEIP": {
+    "{{APP_PREFIX}}EIP": {
       "Type": "ALIYUN::VPC::EIP",
       "Properties": {
         "Bandwidth": 5,
         "InternetChargeType": "PayByTraffic"
       }
     },
-    "UptimeKumaEIPAssociation": {
+    "{{APP_PREFIX}}EIPAssociation": {
       "Type": "ALIYUN::VPC::EIPAssociation",
       "Properties": {
-        "AllocationId": { "Ref": "UptimeKumaEIP" },
-        "InstanceId": { "Ref": "UptimeKumaInstance" }
+        "AllocationId": { "Ref": "{{APP_PREFIX}}EIP" },
+        "InstanceId": { "Ref": "{{APP_PREFIX}}Instance" }
       }
     }
   },
   "Outputs": {
     "ServiceURL": {
-      "Description": "Primary endpoint for uptime-kuma.",
+      "Description": "Primary endpoint for {{APP_ID}}.",
       "Value": {
         "Fn::If": [
           "UseHttp",
-          { "Fn::Join": ["", ["http://", { "Fn::GetAtt": ["UptimeKumaEIP", "EipAddress"] }]] },
-          { "Fn::Join": ["", ["https://", { "Fn::GetAtt": ["UptimeKumaEIP", "EipAddress"] }]] }
+          { "Fn::Join": ["", ["http://", { "Fn::GetAtt": ["{{APP_PREFIX}}EIP", "EipAddress"] }]] },
+          { "Fn::Join": ["", ["https://", { "Fn::GetAtt": ["{{APP_PREFIX}}EIP", "EipAddress"] }]] }
         ]
       }
     },
     "PublicIP": {
       "Description": "Elastic IP address assigned to the service.",
-      "Value": { "Fn::GetAtt": ["UptimeKumaEIP", "EipAddress"] }
+      "Value": { "Fn::GetAtt": ["{{APP_PREFIX}}EIP", "EipAddress"] }
     },
     "InstanceId": {
       "Description": "Created ECS instance ID.",
-      "Value": { "Ref": "UptimeKumaInstance" }
+      "Value": { "Ref": "{{APP_PREFIX}}Instance" }
     }
   }
 }

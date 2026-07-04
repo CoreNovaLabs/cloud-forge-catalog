@@ -27,7 +27,7 @@ Parameters:
   DiskSize:
     Type: Number
     Default: 20
-    MinValue: 10
+    MinValue: 20
     MaxValue: 500
   VpcId:
     Type: String
@@ -53,7 +53,7 @@ Resources:
   GiteaSecurityGroup:
     Type: AWS::EC2::SecurityGroup
     Properties:
-      GroupDescription: Allow HTTP, HTTPS, and restricted SSH for Gitea
+      GroupDescription: Allow HTTP, HTTPS, and restricted SSH for gitea
       VpcId: !If [HasVpc, !Ref VpcId, !Ref AWS::NoValue]
       SecurityGroupIngress:
         - IpProtocol: tcp
@@ -130,7 +130,7 @@ Resources:
 
 Outputs:
   ServiceURL:
-    Description: Primary endpoint for Gitea.
+    Description: Primary endpoint for gitea.
     Value: !If
       - UseHttp
       - !Sub 'http://${GiteaEIP}'

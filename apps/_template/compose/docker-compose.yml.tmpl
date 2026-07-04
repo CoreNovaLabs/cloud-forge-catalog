@@ -1,0 +1,14 @@
+services:
+  {{SERVICE_NAME}}:
+    image: {{DOCKER_IMAGE}}
+    restart: unless-stopped
+{{COMPOSE_COMMAND_BLOCK}}
+{{COMPOSE_ENV_BLOCK}}
+    volumes:
+{{COMPOSE_VOLUMES_BLOCK}}
+    networks:
+      - cloud-forge
+
+networks:
+  cloud-forge:
+    external: true

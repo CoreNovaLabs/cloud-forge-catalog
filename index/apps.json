@@ -1,6 +1,6 @@
 {
   "catalog_version": "0.3.0",
-  "generated_at": "2026-07-04T15:10:02Z",
+  "generated_at": "2026-07-04T16:25:02Z",
   "base_url": "https://raw.githubusercontent.com/CoreNovaLabs/cloud-forge-catalog/main",
   "store": {
     "name": "Cloud Forge App Store",
@@ -25,6 +25,13 @@
       ],
       "version": "1.0.0",
       "min_cli_version": "0.3.0",
+      "tier": "certified",
+      "smoke": {
+        "health_paths": [
+          "/"
+        ],
+        "wait_seconds": 120
+      },
       "price": "free",
       "cost_notice": [
         "Aliyun v1 only supports cn-hongkong.",
@@ -39,12 +46,12 @@
         "aws": {
           "path": "apps/gitea/templates/aws.yaml",
           "url": "https://raw.githubusercontent.com/CoreNovaLabs/cloud-forge-catalog/main/apps/gitea/templates/aws.yaml",
-          "checksum": "sha256:920d0eecf5165a6495d262dc7a6e03e4d755a488dadc3609077b55b5d64e00dc"
+          "checksum": "sha256:0b78857e3607c68c4060b6df85655de3678d2f51c8c7f8aae6a845428047a4f9"
         },
         "aliyun": {
           "path": "apps/gitea/templates/aliyun.json",
           "url": "https://raw.githubusercontent.com/CoreNovaLabs/cloud-forge-catalog/main/apps/gitea/templates/aliyun.json",
-          "checksum": "sha256:d0b160029f9fd8f90997e857432fe482fef90e684c384ee391145333f82fd44b"
+          "checksum": "sha256:d63496271419a8e35cac1746328a765f045e6f7255d3422f4291a6731e87410d"
         }
       },
       "params": {
@@ -180,6 +187,13 @@
       ],
       "version": "1.0.0",
       "min_cli_version": "0.3.0",
+      "tier": "certified",
+      "smoke": {
+        "health_paths": [
+          "/"
+        ],
+        "wait_seconds": 60
+      },
       "price": "free",
       "cost_notice": [
         "Aliyun v1 only supports cn-hongkong.",
@@ -194,12 +208,12 @@
         "aws": {
           "path": "apps/hello-nginx/templates/aws.yaml",
           "url": "https://raw.githubusercontent.com/CoreNovaLabs/cloud-forge-catalog/main/apps/hello-nginx/templates/aws.yaml",
-          "checksum": "sha256:252557e5fb3edc38b9acd913d3f2e96b3703f07730a560d9bcdcbcfc3ab82d5b"
+          "checksum": "sha256:c5ed037bb664acc375d2c802e91cce8e3868a891660462bb188d0c3223089747"
         },
         "aliyun": {
           "path": "apps/hello-nginx/templates/aliyun.json",
           "url": "https://raw.githubusercontent.com/CoreNovaLabs/cloud-forge-catalog/main/apps/hello-nginx/templates/aliyun.json",
-          "checksum": "sha256:9677025802c0240a84dd2aebb53fdc78bcc1366e8fe177ee103e1ebe20b0af7a"
+          "checksum": "sha256:ef4c5e00325ca372c0699f899abbdadbf514f26f7c784ec35b19c05c351e7c99"
         }
       },
       "params": {
@@ -313,6 +327,14 @@
       ],
       "version": "1.0.0",
       "min_cli_version": "0.3.0",
+      "tier": "certified",
+      "smoke": {
+        "health_paths": [
+          "/health",
+          "/"
+        ],
+        "wait_seconds": 120
+      },
       "price": "free",
       "cost_notice": [
         "Aliyun v1 only supports cn-hongkong.",
@@ -466,6 +488,13 @@
       ],
       "version": "1.0.0",
       "min_cli_version": "0.3.0",
+      "tier": "certified",
+      "smoke": {
+        "health_paths": [
+          "/"
+        ],
+        "wait_seconds": 90
+      },
       "price": "free",
       "cost_notice": [
         "Aliyun v1 only supports cn-hongkong.",
@@ -480,12 +509,12 @@
         "aws": {
           "path": "apps/uptime-kuma/templates/aws.yaml",
           "url": "https://raw.githubusercontent.com/CoreNovaLabs/cloud-forge-catalog/main/apps/uptime-kuma/templates/aws.yaml",
-          "checksum": "sha256:9f85daba3d32dd976f5228395ca6643b8187d1eec23392090f48136b7494dc7b"
+          "checksum": "sha256:b686ca3078e3d42831e2baa8351359204049c287ece5eaf4adcae775ddd7b882"
         },
         "aliyun": {
           "path": "apps/uptime-kuma/templates/aliyun.json",
           "url": "https://raw.githubusercontent.com/CoreNovaLabs/cloud-forge-catalog/main/apps/uptime-kuma/templates/aliyun.json",
-          "checksum": "sha256:74b32fe3548cbbf1d2f1bc301191fb9393f6e3985b136db60f4ceca3306e271c"
+          "checksum": "sha256:1da676877e02bf99f68507959b5a896aa36d56bad8c1c8e6c57caead5ab43cc0"
         }
       },
       "params": {

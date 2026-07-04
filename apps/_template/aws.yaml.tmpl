@@ -1,14 +1,14 @@
 AWSTemplateFormatVersion: '2010-09-09'
-Description: 'Hello NGINX on Cloud Forge CLI - one-command deployment'
+Description: '{{APP_NAME}} on Cloud Forge CLI - one-command deployment'
 
 Parameters:
   InstanceType:
     Type: String
-    Default: t3.micro
-    AllowedValues: [t3.micro, t3.small, t3.medium]
+    Default: {{AWS_INSTANCE_DEFAULT}}
+    AllowedValues: [{{AWS_INSTANCE_OPTIONS_CFN}}]
   LatestAmiId:
     Type: AWS::EC2::Image::Id
-    Default: ami-04cf9ac8716f030d6
+    Default: {{AWS_AMI_DEFAULT}}
   CaddyTlsMode:
     Type: String
     Default: ip-letsencrypt
@@ -26,7 +26,7 @@ Parameters:
     Default: ''
   DiskSize:
     Type: Number
-    Default: 20
+    Default: {{AWS_DISK_DEFAULT}}
     MinValue: 20
     MaxValue: 500
   VpcId:
@@ -50,10 +50,10 @@ Conditions:
   UseHttp: !Equals [!Ref CaddyTlsMode, http]
 
 Resources:
-  HelloNginxSecurityGroup:
+  {{APP_PREFIX}}SecurityGroup:
     Type: AWS::EC2::SecurityGroup
     Properties:
-      GroupDescription: Allow HTTP, HTTPS, and restricted SSH for hello-nginx
+      GroupDescription: Allow HTTP, HTTPS, and restricted SSH for {{APP_ID}}
       VpcId: !If [HasVpc, !Ref VpcId, !Ref AWS::NoValue]
       SecurityGroupIngress:
         - IpProtocol: tcp
@@ -70,9 +70,9 @@ Resources:
           CidrIp: !Ref AllowedIP
       Tags:
         - Key: cloud-forge:app
-          Value: hello-nginx
+          Value: {{APP_ID}}
 
-  HelloNginxInstance:
+  {{APP_PREFIX}}Instance:
     Type: AWS::EC2::Instance
     Properties:
       ImageId: !Ref LatestAmiId
@@ -85,39 +85,39 @@ Resources:
             VolumeSize: !Ref DiskSize
             VolumeType: gp3
       SecurityGroupIds:
-        - !Ref HelloNginxSecurityGroup
+        - !Ref {{APP_PREFIX}}SecurityGroup
       UserData:
         Fn::Base64: !Sub |
           #!/bin/bash
           set -euxo pipefail
-          export CLOUD_FORGE_CADDY_PUBLIC_IP=${HelloNginxEIP}
+          export CLOUD_FORGE_CADDY_PUBLIC_IP=${{{APP_PREFIX}}EIP}
           export CLOUD_FORGE_CADDY_TLS_MODE=${CaddyTlsMode}
           curl -fsSL https://cdn.jsdelivr.net/gh/CoreNovaLabs/cloud-forge-catalog@main/scripts/aws/bootstrap-app.sh -o /tmp/cf-bootstrap.sh
           if grep -q 'run_as_root CLOUD_FORGE_CATALOG_URL=' /tmp/cf-bootstrap.sh; then
             curl -fsSL https://cdn.jsdelivr.net/gh/CoreNovaLabs/cloud-forge-catalog@34993eb/scripts/aws/bootstrap-app.sh -o /tmp/cf-bootstrap.sh
           fi
-          bash /tmp/cf-bootstrap.sh hello-nginx
+          bash /tmp/cf-bootstrap.sh {{APP_ID}}
       Tags:
         - Key: Name
-          Value: cloud-forge-hello-nginx
+          Value: cloud-forge-{{APP_ID}}
         - Key: cloud-forge:app
-          Value: hello-nginx
+          Value: {{APP_ID}}
 
-  HelloNginxEIP:
+  {{APP_PREFIX}}EIP:
     Type: AWS::EC2::EIP
     Properties:
       Domain: vpc
       Tags:
         - Key: cloud-forge:app
-          Value: hello-nginx
+          Value: {{APP_ID}}
 
-  HelloNginxEIPAssociation:
+  {{APP_PREFIX}}EIPAssociation:
     Type: AWS::EC2::EIPAssociation
     Properties:
-      AllocationId: !GetAtt HelloNginxEIP.AllocationId
-      InstanceId: !Ref HelloNginxInstance
+      AllocationId: !GetAtt {{APP_PREFIX}}EIP.AllocationId
+      InstanceId: !Ref {{APP_PREFIX}}Instance
 
-  HelloNginxDNS:
+  {{APP_PREFIX}}DNS:
     Type: AWS::Route53::RecordSet
     Condition: HasDNS
     Properties:
@@ -126,21 +126,21 @@ Resources:
       Type: A
       TTL: 300
       ResourceRecords:
-        - !Ref HelloNginxEIP
+        - !Ref {{APP_PREFIX}}EIP
 
 Outputs:
   ServiceURL:
-    Description: Primary endpoint for hello-nginx.
+    Description: Primary endpoint for {{APP_ID}}.
     Value: !If
       - UseHttp
-      - !Sub 'http://${HelloNginxEIP}'
-      - !Sub 'https://${HelloNginxEIP}'
+      - !Sub 'http://${{{APP_PREFIX}}EIP}'
+      - !Sub 'https://${{{APP_PREFIX}}EIP}'
   PublicIP:
     Description: Elastic IP address assigned to the service.
-    Value: !Ref HelloNginxEIP
+    Value: !Ref {{APP_PREFIX}}EIP
   InstanceId:
     Description: Created EC2 instance ID.
-    Value: !Ref HelloNginxInstance
+    Value: !Ref {{APP_PREFIX}}Instance
   AWSRegion:
     Description: AWS region where the stack is deployed.
     Value: !Ref AWS::Region
@@ -152,4 +152,4 @@ Outputs:
     Value: !Ref InstanceType
   SecurityGroupId:
     Description: Security group attached to the instance.
-    Value: !Ref HelloNginxSecurityGroup
+    Value: !Ref {{APP_PREFIX}}SecurityGroup

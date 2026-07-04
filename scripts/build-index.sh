@@ -22,6 +22,9 @@ for manifest in "$ROOT"/apps/*/manifest.json; do
   [ -f "$manifest" ] || continue
   app_dir="$(dirname "$manifest")"
   app_id="$(basename "$app_dir")"
+  if [ "$app_id" = "_template" ]; then
+    continue
+  fi
 
   if ! command -v jq >/dev/null 2>&1; then
     echo "error: jq is required to run build-index.sh" >&2

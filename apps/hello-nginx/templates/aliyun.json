@@ -20,13 +20,14 @@
       "Default": "ip-letsencrypt",
       "AllowedValues": ["ip-letsencrypt", "http", "internal"]
     },
-    "DiskSize": { "Type": "Number", "Default": 40, "MinValue": 20, "MaxValue": 500 }
+    "DiskSize": { "Type": "Number", "Default": 20, "MinValue": 20, "MaxValue": 500 },
+    "DomainName": { "Type": "String", "Default": "" }
   },
   "Conditions": {
     "UseHttp": { "Fn::Equals": [{ "Ref": "CaddyTlsMode" }, "http"] }
   },
   "Resources": {
-    "HelloSG": {
+    "HelloNginxSG": {
       "Type": "ALIYUN::ECS::SecurityGroup",
       "Properties": {
         "VpcId": { "Ref": "VpcId" },
@@ -38,14 +39,14 @@
         ]
       }
     },
-    "HelloInstance": {
+    "HelloNginxInstance": {
       "Type": "ALIYUN::ECS::Instance",
       "Properties": {
         "ImageId": { "Ref": "ImageId" },
         "InstanceType": { "Ref": "InstanceType" },
         "KeyPairName": { "Ref": "KeyPairName" },
         "VSwitchId": { "Ref": "VSwitchId" },
-        "SecurityGroupId": { "Ref": "HelloSG" },
+        "SecurityGroupId": { "Ref": "HelloNginxSG" },
         "SystemDiskSize": { "Ref": "DiskSize" },
         "SystemDiskCategory": "cloud_efficiency",
         "InternetMaxBandwidthOut": 0,
@@ -58,39 +59,39 @@
         ]
       }
     },
-    "HelloEIP": {
+    "HelloNginxEIP": {
       "Type": "ALIYUN::VPC::EIP",
       "Properties": {
         "Bandwidth": 5,
         "InternetChargeType": "PayByTraffic"
       }
     },
-    "HelloEIPAssociation": {
+    "HelloNginxEIPAssociation": {
       "Type": "ALIYUN::VPC::EIPAssociation",
       "Properties": {
-        "AllocationId": { "Ref": "HelloEIP" },
-        "InstanceId": { "Ref": "HelloInstance" }
+        "AllocationId": { "Ref": "HelloNginxEIP" },
+        "InstanceId": { "Ref": "HelloNginxInstance" }
       }
     }
   },
   "Outputs": {
     "ServiceURL": {
-      "Description": "Primary endpoint for the sample service.",
+      "Description": "Primary endpoint for hello-nginx.",
       "Value": {
         "Fn::If": [
           "UseHttp",
-          { "Fn::Join": ["", ["http://", { "Fn::GetAtt": ["HelloEIP", "EipAddress"] }]] },
-          { "Fn::Join": ["", ["https://", { "Fn::GetAtt": ["HelloEIP", "EipAddress"] }]] }
+          { "Fn::Join": ["", ["http://", { "Fn::GetAtt": ["HelloNginxEIP", "EipAddress"] }]] },
+          { "Fn::Join": ["", ["https://", { "Fn::GetAtt": ["HelloNginxEIP", "EipAddress"] }]] }
         ]
       }
     },
     "PublicIP": {
       "Description": "Elastic IP address assigned to the service.",
-      "Value": { "Fn::GetAtt": ["HelloEIP", "EipAddress"] }
+      "Value": { "Fn::GetAtt": ["HelloNginxEIP", "EipAddress"] }
     },
     "InstanceId": {
       "Description": "Created ECS instance ID.",
-      "Value": { "Ref": "HelloInstance" }
+      "Value": { "Ref": "HelloNginxInstance" }
     }
   }
 }

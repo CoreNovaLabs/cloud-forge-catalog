@@ -9,6 +9,11 @@
   "clouds": ["aws", "aliyun"],
   "version": "1.0.0",
   "min_cli_version": "0.3.0",
+  "tier": "certified",
+  "smoke": {
+    "health_paths": ["/health", "/"],
+    "wait_seconds": 120
+  },
   "price": "free",
   "cost_notice": [
     "Aliyun v1 only supports cn-hongkong.",

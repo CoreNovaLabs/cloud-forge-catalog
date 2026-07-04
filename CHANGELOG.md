@@ -4,6 +4,21 @@ All notable changes to Cloud Forge Catalog are documented in this file.
 
 ## [Unreleased]
 
+### Added
+
+- `apps/_template/` shared templates for IaC and compose generation
+- `scripts/generate-templates.sh` and `scripts/generate_app.py` to render `aws.yaml` / `aliyun.json` from manifests
+- `scripts/generate-app.sh` and `apps.seed.yaml` for batch app scaffolding
+- `scripts/local-smoke.sh` for local Docker compose smoke tests
+- `scripts/list-verify-apps.sh` for tier-based cloud verify app selection
+- Manifest `tier` field (`certified` | `community` | `experimental`) and optional `smoke` probe config
+
+### Changed
+
+- Existing four apps marked `tier: certified` with smoke health paths
+- Regenerated AWS/Aliyun templates from `_template` for all current apps
+- `cloud-forge-cli` verify scripts now read app lists from `list-verify-apps.sh`
+
 ## [0.3.0] - 2026-07-04
 
 ### Added

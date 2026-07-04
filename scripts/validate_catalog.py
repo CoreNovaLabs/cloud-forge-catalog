@@ -18,6 +18,7 @@ IMAGE_RE = {
 }
 VALID_CATEGORIES = {"devtools", "automation", "monitoring", "database", "cms", "other"}
 VALID_CLOUDS = {"aws", "aliyun"}
+VALID_TIERS = {"certified", "community", "experimental"}
 
 
 def fail(message: str) -> None:
@@ -96,6 +97,25 @@ def validate_manifest(root: Path, manifest: Path) -> None:
     if "min_cli_version" in data and not SEMVER_RE.match(str(data["min_cli_version"])):
         fail(f"{manifest}: min_cli_version must be semver")
 
+    tier = data.get("tier", "community")
+    if tier not in VALID_TIERS:
+        fail(f"{manifest}: unsupported tier {tier!r}")
+
+    smoke = data.get("smoke")
+    if smoke is not None:
+        if not isinstance(smoke, dict):
+            fail(f"{manifest}: smoke must be an object")
+        paths = smoke.get("health_paths")
+        if paths is not None:
+            if not isinstance(paths, list) or not paths:
+                fail(f"{manifest}: smoke.health_paths must be a non-empty array")
+            for path in paths:
+                if not isinstance(path, str) or not path:
+                    fail(f"{manifest}: smoke.health_paths entries must be non-empty strings")
+        wait_seconds = smoke.get("wait_seconds")
+        if wait_seconds is not None and (not isinstance(wait_seconds, int) or wait_seconds < 1):
+            fail(f"{manifest}: smoke.wait_seconds must be a positive integer")
+
     clouds = data.get("clouds")
     if not isinstance(clouds, list) or not clouds:
         fail(f"{manifest}: clouds must be a non-empty array")
@@ -151,7 +171,11 @@ def main() -> None:
     args = parser.parse_args()
 
     root = args.root.resolve()
-    manifests = sorted(root.glob("apps/*/manifest.json"))
+    manifests = sorted(
+        path
+        for path in root.glob("apps/*/manifest.json")
+        if path.parent.name != "_template"
+    )
     if not manifests:
         fail(f"{root}: no app manifests found")
 

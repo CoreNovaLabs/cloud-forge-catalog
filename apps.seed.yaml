@@ -1,0 +1,75 @@
+# Seed catalog for scripts/generate-app.sh
+# Requires: python3 -m pip install pyyaml (for YAML loading)
+#
+# Example:
+#   ./scripts/generate-app.sh vaultwarden
+#   make index validate
+
+apps:
+  - id: vaultwarden
+    name: Vaultwarden
+    desc: Unofficial Bitwarden-compatible password manager server
+    icon: "🔐"
+    category: devtools
+    tier: community
+    tags: [passwords, security, self-hosted]
+    image: vaultwarden/server:1.32.5
+    service_name: vaultwarden
+    port: 80
+    data_path: /opt/cloud-forge/data/vaultwarden
+    uid: 1000
+    volume_mount: "/opt/cloud-forge/data/vaultwarden:/data"
+    aws_instance_default: t3.small
+    aws_instance_options: [t3.micro, t3.small, t3.medium]
+    aliyun_instance_default: ecs.t6-c1m1.large
+    aws_disk_gb: 20
+    aliyun_disk_gb: 40
+    smoke_health_paths: ["/alive", "/"]
+    smoke_wait_seconds: 120
+
+  - id: minio
+    name: MinIO
+    desc: S3-compatible object storage for self-hosted workloads
+    icon: "🪣"
+    category: devtools
+    tier: community
+    tags: [storage, s3, self-hosted]
+    image: minio/minio:RELEASE.2024-12-18T13-15-44Z
+    service_name: minio
+    port: 9000
+    command: ["server", "/data", "--console-address", ":9001"]
+    environment:
+      MINIO_ROOT_USER: cloudforge
+      MINIO_ROOT_PASSWORD: cloudforge-change-me
+    data_path: /opt/cloud-forge/data/minio
+    volume_mount: "/opt/cloud-forge/data/minio:/data"
+    aws_instance_default: t3.small
+    aws_instance_options: [t3.small, t3.medium, t3.large]
+    aliyun_instance_default: ecs.t6-c1m2.large
+    aws_disk_gb: 40
+    aliyun_disk_gb: 40
+    smoke_health_paths: ["/minio/health/live", "/"]
+    smoke_wait_seconds: 90
+
+  - id: code-server
+    name: code-server
+    desc: VS Code in the browser for remote development
+    icon: "💻"
+    category: devtools
+    tier: community
+    tags: [ide, vscode, devtools]
+    image: codercom/code-server:4.96.2
+    service_name: code_server
+    port: 8080
+    environment:
+      PASSWORD: cloudforge-change-me
+    data_path: /opt/cloud-forge/data/code-server
+    uid: 1000
+    volume_mount: "/opt/cloud-forge/data/code-server:/home/coder"
+    aws_instance_default: t3.medium
+    aws_instance_options: [t3.small, t3.medium, t3.large]
+    aliyun_instance_default: ecs.t6-c1m2.large
+    aws_disk_gb: 30
+    aliyun_disk_gb: 40
+    smoke_health_paths: ["/", "/healthz"]
+    smoke_wait_seconds: 120

@@ -9,25 +9,31 @@ cloud-forge-catalog/
 ├── index/
 │   └── apps.json              # Generated catalog index consumed by the CLI
 ├── apps/
+│   ├── _template/             # Shared IaC/compose templates for generators
 │   └── <app-id>/
 │       ├── manifest.json      # App metadata edited by contributors
 │       ├── compose/           # Shared Docker Compose + upstream (AWS + Aliyun)
 │       ├── aws/               # Optional AWS-only setup.sh
 │       ├── aliyun/            # Optional Aliyun-only setup.sh
 │       └── templates/
-│           ├── aws.yaml       # CloudFormation (thin UserData)
-│           └── aliyun.json    # ROS
+│           ├── aws.yaml       # CloudFormation (generated or hand-edited)
+│           └── aliyun.json    # ROS (generated or hand-edited)
+├── apps.seed.yaml             # Batch app definitions for generate-app.sh
 ├── schema/
 │   └── app-v1.schema.json     # Manifest validation schema
 └── scripts/
     ├── build-index.sh         # Builds index/apps.json from app manifests
-    ├── validate.sh            # Manifest + index validation (all clouds)
+    ├── generate-templates.sh # Render aws.yaml / aliyun.json from _template
+    ├── generate-app.sh      # Create a new app from apps.seed.yaml
+    ├── local-smoke.sh       # Local Docker smoke tests for compose packages
+    ├── list-verify-apps.sh  # Select apps for cloud verify by tier
+    ├── validate.sh
     ├── validate_catalog.py
     ├── aws/
-    │   ├── bootstrap-app.sh   # Instance bootstrap on pre-baked AMI
-    │   └── validate-sam.sh    # Local AWS CloudFormation lint (SAM CLI)
+    │   ├── bootstrap-app.sh
+    │   └── validate-sam.sh
     └── aliyun/
-        ├── bootstrap-app.sh   # Instance bootstrap dispatcher
+        ├── bootstrap-app.sh
         ├── bootstrap-runtime.sh
         └── install-caddy-aliyun.sh
 ```
@@ -53,19 +59,59 @@ Deploy and delete support **AWS** and **Aliyun (`cn-hongkong`)**. Both clouds lo
 
 ## Adding an App
 
-1. Copy `apps/gitea/` to `apps/<your-app>/`
-2. Edit `manifest.json`, templates, `compose/docker-compose.yml`, `compose/app.env`, and optional cloud setup scripts
-3. Run `make validate && make index`
-4. Open a pull request
+### Manual
 
-The minimal validation app is `hello-nginx`. It contains an AWS CloudFormation template that uses the public Amazon Linux 2023 SSM AMI parameter to install and start NGINX. Use it as the local acceptance sample for the CLI and catalog integration.
+1. Copy `apps/gitea/` to `apps/<your-app>/`
+2. Edit `manifest.json`, `compose/`, optional `aws/setup.sh` / `aliyun/setup.sh`
+3. Run `./scripts/generate-templates.sh <app-id>` (or hand-edit templates)
+4. Run `make validate && make index && ./scripts/local-smoke.sh <app-id>`
+5. Open a pull request
+
+### Batch pipeline (AI + generator)
+
+1. Add an entry to `apps.seed.yaml`
+2. Generate the app skeleton:
+
+```bash
+python3 -m pip install pyyaml   # once, for YAML seed loading
+./scripts/generate-app.sh vaultwarden
+```
+
+3. Validate locally:
+
+```bash
+make generate-all              # regenerate IaC + index + validate
+./scripts/local-smoke.sh vaultwarden
+./scripts/local-smoke.sh --all --tier community
+```
+
+4. Promote quality with manifest `tier`:
+
+| Tier | Meaning | Cloud verify |
+| --- | --- | --- |
+| `certified` | Dual-cloud E2E verified | Always included |
+| `community` | Local Docker smoke passed | Optional random sample |
+| `experimental` | Best effort | Excluded by default |
+
+Cloud verify app selection (used by `cloud-forge-cli/scripts/verify-*-apps.sh`):
+
+```bash
+./scripts/list-verify-apps.sh
+CLOUD_FORGE_VERIFY_TIERS=certified,community CLOUD_FORGE_VERIFY_SAMPLE=0.1 ./scripts/list-verify-apps.sh
+```
+
+The minimal validation app is `hello-nginx`. Use it as the local acceptance sample for the CLI and catalog integration.
 
 ## Commands
 
 ```bash
-make index        # Generate index/apps.json
-make validate     # Validate manifests, template paths, and index structure
-make validate-aws # Lint AWS CloudFormation templates locally with AWS SAM CLI
+make index                  # Generate index/apps.json
+make validate               # Validate manifests, template paths, and index structure
+make validate-aws           # Lint AWS CloudFormation templates locally with AWS SAM CLI
+make generate-templates     # Regenerate aws.yaml / aliyun.json for all apps
+make generate-all           # generate-templates + index + validate
+make local-smoke APP=gitea  # Local Docker smoke test for one app
+make local-smoke-certified  # Local smoke for all certified apps
 ```
 
 `make validate-aws` only runs local template linting. It does not create a CloudFormation stack, start EC2 instances, or allocate EIPs. It is useful for catching CloudFormation/SAM syntax and static rule issues before a commit. Runtime checks such as AMI availability, instance type availability in a target Region, and IAM permissions still require a Change Set or a sandbox AWS account.

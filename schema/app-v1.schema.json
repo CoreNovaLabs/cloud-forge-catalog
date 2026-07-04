@@ -37,6 +37,23 @@
       "pattern": "^\\d+\\.\\d+\\.\\d+$"
     },
     "price": { "type": "string" },
+    "tier": {
+      "type": "string",
+      "enum": ["certified", "community", "experimental"],
+      "default": "community"
+    },
+    "smoke": {
+      "type": "object",
+      "properties": {
+        "health_paths": {
+          "type": "array",
+          "items": { "type": "string", "minLength": 1 },
+          "minItems": 1
+        },
+        "wait_seconds": { "type": "integer", "minimum": 1 }
+      },
+      "additionalProperties": false
+    },
     "cost_notice": {
       "type": "array",
       "items": { "type": "string", "minLength": 1 }
