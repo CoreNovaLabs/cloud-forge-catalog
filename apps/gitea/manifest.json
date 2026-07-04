@@ -8,11 +8,16 @@
   "stars": 45000,
   "clouds": ["aws", "aliyun"],
   "version": "1.0.0",
-  "min_cli_version": "0.2.0",
+  "min_cli_version": "0.3.0",
   "price": "$5/month",
+  "cost_notice": [
+    "Aliyun v1 only supports cn-hongkong.",
+    "First bootstrap may take 8-15 minutes on Aliyun public OS images.",
+    "You pay only for cloud resources such as ECS, EIP, disk, and data transfer."
+  ],
   "images": {
     "aws": "ami-04cf9ac8716f030d6",
-    "aliyun": "m-0a1b2c3d4e5f6g7h8"
+    "aliyun": "aliyun_3_x64_20G_alibase_20260122.vhd"
   },
   "templates": {
     "aws": { "path": "apps/gitea/templates/aws.yaml" },
@@ -26,8 +31,8 @@
         "options": ["t3.micro", "t3.small", "t3.medium", "t3.large"]
       },
       "aliyun": {
-        "default": "ecs.c6.large",
-        "options": ["ecs.t6-c1m1.large", "ecs.c6.large", "ecs.c6.xlarge"]
+        "default": "ecs.t6-c1m1.large",
+        "options": ["ecs.t6-c1m1.large", "ecs.t6-c1m2.large", "ecs.t6-c1m4.large"]
       }
     },
     "LatestAmiId": {
@@ -36,9 +41,19 @@
         "default": "ami-04cf9ac8716f030d6"
       }
     },
+    "ImageId": {
+      "type": "string",
+      "aliyun": {
+        "default": "aliyun_3_x64_20G_alibase_20260122.vhd"
+      }
+    },
     "CaddyTlsMode": {
       "type": "string",
       "aws": {
+        "default": "ip-letsencrypt",
+        "options": ["ip-letsencrypt", "http", "internal"]
+      },
+      "aliyun": {
         "default": "ip-letsencrypt",
         "options": ["ip-letsencrypt", "http", "internal"]
       }

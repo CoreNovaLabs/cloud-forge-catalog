@@ -14,7 +14,7 @@ APP_ID_RE = re.compile(r"^[a-z0-9]([a-z0-9-]*[a-z0-9])?$")
 SEMVER_RE = re.compile(r"^\d+\.\d+\.\d+$")
 IMAGE_RE = {
     "aws": re.compile(r"^(ami-[a-z0-9]+|ssm:/[A-Za-z0-9/_./-]+)$"),
-    "aliyun": re.compile(r"^m-[a-zA-Z0-9-]+$"),
+    "aliyun": re.compile(r"^(m-[a-zA-Z0-9-]+|aliyun_[a-zA-Z0-9_]+\.vhd)$"),
 }
 VALID_CATEGORIES = {"devtools", "automation", "monitoring", "database", "cms", "other"}
 VALID_CLOUDS = {"aws", "aliyun"}

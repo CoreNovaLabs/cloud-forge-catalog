@@ -8,11 +8,16 @@
   "stars": 28000,
   "clouds": ["aws", "aliyun"],
   "version": "1.0.0",
-  "min_cli_version": "0.2.0",
+  "min_cli_version": "0.3.0",
   "price": "$3/month",
+  "cost_notice": [
+    "Aliyun v1 only supports cn-hongkong.",
+    "First bootstrap may take 8-15 minutes on Aliyun public OS images.",
+    "You pay only for cloud resources such as ECS, EIP, disk, and data transfer."
+  ],
   "images": {
     "aws": "ami-04cf9ac8716f030d6",
-    "aliyun": "m-0q1w2e3r4t5y6u7i8"
+    "aliyun": "aliyun_3_x64_20G_alibase_20260122.vhd"
   },
   "templates": {
     "aws": { "path": "apps/uptime-kuma/templates/aws.yaml" },
@@ -36,9 +41,19 @@
         "default": "ami-04cf9ac8716f030d6"
       }
     },
+    "ImageId": {
+      "type": "string",
+      "aliyun": {
+        "default": "aliyun_3_x64_20G_alibase_20260122.vhd"
+      }
+    },
     "CaddyTlsMode": {
       "type": "string",
       "aws": {
+        "default": "ip-letsencrypt",
+        "options": ["ip-letsencrypt", "http", "internal"]
+      },
+      "aliyun": {
         "default": "ip-letsencrypt",
         "options": ["ip-letsencrypt", "http", "internal"]
       }

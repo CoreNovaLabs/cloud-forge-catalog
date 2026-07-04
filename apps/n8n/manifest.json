@@ -8,15 +8,16 @@
   "stars": 38000,
   "clouds": ["aws", "aliyun"],
   "version": "1.0.0",
-  "min_cli_version": "0.2.0",
+  "min_cli_version": "0.3.0",
   "price": "free",
   "cost_notice": [
-    "This deploy has base costs.",
-    "Cloud Forge runtime AMI fee applies. AWS resources such as EC2, EBS, public IPv4/Elastic IP, and data transfer are billed separately by AWS."
+    "Aliyun v1 only supports cn-hongkong.",
+    "First bootstrap may take 8-15 minutes on Aliyun public OS images.",
+    "You pay only for cloud resources such as ECS, EIP, disk, and data transfer."
   ],
   "images": {
     "aws": "ami-04cf9ac8716f030d6",
-    "aliyun": "m-0i9j8k7l6m5n4o3p2"
+    "aliyun": "aliyun_3_x64_20G_alibase_20260122.vhd"
   },
   "templates": {
     "aws": { "path": "apps/n8n/templates/aws.yaml" },
@@ -30,8 +31,8 @@
         "options": ["t3.medium", "t3.large", "t3.xlarge"]
       },
       "aliyun": {
-        "default": "ecs.c6.xlarge",
-        "options": ["ecs.c6.large", "ecs.c6.xlarge"]
+        "default": "ecs.t6-c1m2.large",
+        "options": ["ecs.t6-c1m1.large", "ecs.t6-c1m2.large", "ecs.t6-c1m4.large"]
       }
     },
     "LatestAmiId": {
@@ -40,9 +41,19 @@
         "default": "ami-04cf9ac8716f030d6"
       }
     },
+    "ImageId": {
+      "type": "string",
+      "aliyun": {
+        "default": "aliyun_3_x64_20G_alibase_20260122.vhd"
+      }
+    },
     "CaddyTlsMode": {
       "type": "string",
       "aws": {
+        "default": "ip-letsencrypt",
+        "options": ["ip-letsencrypt", "http", "internal"]
+      },
+      "aliyun": {
         "default": "ip-letsencrypt",
         "options": ["ip-letsencrypt", "http", "internal"]
       }

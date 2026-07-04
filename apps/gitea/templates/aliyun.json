@@ -1,32 +1,41 @@
 {
   "ROSTemplateFormatVersion": "2015-09-01",
-  "Description": "Gitea on Cloud Forge CLI - one-command deployment for Aliyun",
+  "Description": "Gitea on Cloud Forge CLI - Aliyun cn-hongkong bootstrap",
   "Parameters": {
     "InstanceType": {
       "Type": "String",
-      "Default": "ecs.c6.large",
-      "AllowedValues": ["ecs.t6-c1m1.large", "ecs.c6.large", "ecs.c6.xlarge"]
+      "Default": "ecs.t6-c1m1.large",
+      "AllowedValues": ["ecs.t6-c1m1.large", "ecs.t6-c1m2.large", "ecs.t6-c1m4.large"]
     },
     "ImageId": {
       "Type": "String",
-      "Default": "m-0a1b2c3d4e5f6g7h8"
+      "Default": "aliyun_3_x64_20G_alibase_20260122.vhd"
     },
     "KeyPairName": { "Type": "String" },
-    "AdminPassword": { "Type": "String", "NoEcho": true },
-    "DomainName": { "Type": "String", "Default": "" },
-    "DiskSize": { "Type": "Number", "Default": 40, "MinValue": 20, "MaxValue": 500 },
     "VpcId": { "Type": "String" },
     "VSwitchId": { "Type": "String" },
-    "AllowedIP": { "Type": "String", "Default": "0.0.0.0/0" }
+    "AllowedIP": { "Type": "String", "Default": "0.0.0.0/0" },
+    "CaddyTlsMode": {
+      "Type": "String",
+      "Default": "ip-letsencrypt",
+      "AllowedValues": ["ip-letsencrypt", "http", "internal"]
+    },
+    "DiskSize": { "Type": "Number", "Default": 40, "MinValue": 20, "MaxValue": 500 },
+    "DomainName": { "Type": "String", "Default": "" }
+  },
+  "Conditions": {
+    "UseHttp": { "Fn::Equals": [{ "Ref": "CaddyTlsMode" }, "http"] }
   },
   "Resources": {
     "GiteaSG": {
       "Type": "ALIYUN::ECS::SecurityGroup",
       "Properties": {
         "VpcId": { "Ref": "VpcId" },
+        "SecurityGroupName": "cloud-forge-gitea",
         "SecurityGroupIngress": [
-          { "IpProtocol": "tcp", "PortRange": "22/22", "SourceCidrIp": { "Ref": "AllowedIP" } },
-          { "IpProtocol": "tcp", "PortRange": "3000/3000", "SourceCidrIp": { "Ref": "AllowedIP" } }
+          { "IpProtocol": "tcp", "PortRange": "80/80", "SourceCidrIp": "0.0.0.0/0" },
+          { "IpProtocol": "tcp", "PortRange": "443/443", "SourceCidrIp": "0.0.0.0/0" },
+          { "IpProtocol": "tcp", "PortRange": "22/22", "SourceCidrIp": { "Ref": "AllowedIP" } }
         ]
       }
     },
@@ -39,7 +48,15 @@
         "VSwitchId": { "Ref": "VSwitchId" },
         "SecurityGroupId": { "Ref": "GiteaSG" },
         "SystemDiskSize": { "Ref": "DiskSize" },
-        "UserData": "#!/bin/bash\nsystemctl start gitea"
+        "SystemDiskCategory": "cloud_efficiency",
+        "InternetMaxBandwidthOut": 0,
+        "UserData": {
+          "Fn::Sub": "#!/bin/bash\nset -euxo pipefail\nexport CLOUD_FORGE_CADDY_TLS_MODE=${CaddyTlsMode}\ncurl -fsSL https://cdn.jsdelivr.net/gh/CoreNovaLabs/cloud-forge-catalog@main/scripts/aliyun/bootstrap-app.sh | bash -s -- gitea\n"
+        },
+        "Tags": [
+          { "Key": "Name", "Value": "cloud-forge-gitea" },
+          { "Key": "cloud-forge:app", "Value": "gitea" }
+        ]
       }
     },
     "GiteaEIP": {
@@ -58,14 +75,23 @@
     }
   },
   "Outputs": {
-    "GiteaURL": {
+    "ServiceURL": {
+      "Description": "Primary endpoint for Gitea.",
       "Value": {
-        "Fn::Join": [
-          "",
-          ["http://", { "Fn::GetAtt": ["GiteaEIP", "EipAddress"] }, ":3000"]
+        "Fn::If": [
+          "UseHttp",
+          { "Fn::Join": ["", ["http://", { "Fn::GetAtt": ["GiteaEIP", "EipAddress"] }]] },
+          { "Fn::Join": ["", ["https://", { "Fn::GetAtt": ["GiteaEIP", "EipAddress"] }]] }
         ]
       }
     },
-    "InstanceId": { "Value": { "Ref": "GiteaInstance" } }
+    "PublicIP": {
+      "Description": "Elastic IP address assigned to the service.",
+      "Value": { "Fn::GetAtt": ["GiteaEIP", "EipAddress"] }
+    },
+    "InstanceId": {
+      "Description": "Created ECS instance ID.",
+      "Value": { "Ref": "GiteaInstance" }
+    }
   }
 }

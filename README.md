@@ -37,7 +37,7 @@ export CLOUD_FORGE_STORE_URL="https://raw.githubusercontent.com/CoreNovaLabs/clo
 export CLOUD_FORGE_STORE_URL="file:///path/to/cloud-forge-catalog/index/apps.json"
 ```
 
-Deploy and delete currently support **AWS only**. Aliyun templates are available for `search` and `template`, but not for `deploy` yet.
+Deploy and delete support **AWS** and **Aliyun (`cn-hongkong`)**. Aliyun v1 uses public Alibaba Cloud Linux 3 images with UserData bootstrap scripts under `scripts/aliyun/`.
 
 ## Adding an App
 
