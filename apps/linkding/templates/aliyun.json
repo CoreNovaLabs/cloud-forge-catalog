@@ -1,0 +1,97 @@
+{
+  "ROSTemplateFormatVersion": "2015-09-01",
+  "Description": "Linkding on Cloud Forge CLI - Aliyun cn-hongkong bootstrap",
+  "Parameters": {
+    "InstanceType": {
+      "Type": "String",
+      "Default": "ecs.t6-c1m1.large",
+      "AllowedValues": ["ecs.t6-c1m1.large"]
+    },
+    "ImageId": {
+      "Type": "String",
+      "Default": "aliyun_3_x64_20G_alibase_20260122.vhd"
+    },
+    "KeyPairName": { "Type": "String" },
+    "VpcId": { "Type": "String" },
+    "VSwitchId": { "Type": "String" },
+    "AllowedIP": { "Type": "String", "Default": "0.0.0.0/0" },
+    "CaddyTlsMode": {
+      "Type": "String",
+      "Default": "ip-letsencrypt",
+      "AllowedValues": ["ip-letsencrypt", "http", "internal"]
+    },
+    "DiskSize": { "Type": "Number", "Default": 40, "MinValue": 20, "MaxValue": 500 },
+    "DomainName": { "Type": "String", "Default": "" }
+  },
+  "Conditions": {
+    "UseHttp": { "Fn::Equals": [{ "Ref": "CaddyTlsMode" }, "http"] }
+  },
+  "Resources": {
+    "LinkdingSG": {
+      "Type": "ALIYUN::ECS::SecurityGroup",
+      "Properties": {
+        "VpcId": { "Ref": "VpcId" },
+        "SecurityGroupName": "cloud-forge-linkding",
+        "SecurityGroupIngress": [
+          { "IpProtocol": "tcp", "PortRange": "80/80", "SourceCidrIp": "0.0.0.0/0" },
+          { "IpProtocol": "tcp", "PortRange": "443/443", "SourceCidrIp": "0.0.0.0/0" },
+          { "IpProtocol": "tcp", "PortRange": "22/22", "SourceCidrIp": { "Ref": "AllowedIP" } }
+        ]
+      }
+    },
+    "LinkdingInstance": {
+      "Type": "ALIYUN::ECS::Instance",
+      "Properties": {
+        "ImageId": { "Ref": "ImageId" },
+        "InstanceType": { "Ref": "InstanceType" },
+        "KeyPairName": { "Ref": "KeyPairName" },
+        "VSwitchId": { "Ref": "VSwitchId" },
+        "SecurityGroupId": { "Ref": "LinkdingSG" },
+        "SystemDiskSize": { "Ref": "DiskSize" },
+        "SystemDiskCategory": "cloud_efficiency",
+        "InternetMaxBandwidthOut": 0,
+        "UserData": {
+          "Fn::Sub": "#!/bin/bash\nset -euxo pipefail\nexport CLOUD_FORGE_CADDY_TLS_MODE=${CaddyTlsMode}\ncurl -fsSL https://cdn.jsdelivr.net/gh/CoreNovaLabs/cloud-forge-catalog@main/scripts/aliyun/bootstrap-app.sh | bash -s -- linkding\n"
+        },
+        "Tags": [
+          { "Key": "Name", "Value": "cloud-forge-linkding" },
+          { "Key": "cloud-forge:app", "Value": "linkding" }
+        ]
+      }
+    },
+    "LinkdingEIP": {
+      "Type": "ALIYUN::VPC::EIP",
+      "Properties": {
+        "Bandwidth": 5,
+        "InternetChargeType": "PayByTraffic"
+      }
+    },
+    "LinkdingEIPAssociation": {
+      "Type": "ALIYUN::VPC::EIPAssociation",
+      "Properties": {
+        "AllocationId": { "Ref": "LinkdingEIP" },
+        "InstanceId": { "Ref": "LinkdingInstance" }
+      }
+    }
+  },
+  "Outputs": {
+    "ServiceURL": {
+      "Description": "Primary endpoint for linkding.",
+      "Value": {
+        "Fn::If": [
+          "UseHttp",
+          { "Fn::Join": ["", ["http://", { "Fn::GetAtt": ["LinkdingEIP", "EipAddress"] }]] },
+          { "Fn::Join": ["", ["https://", { "Fn::GetAtt": ["LinkdingEIP", "EipAddress"] }]] }
+        ]
+      }
+    },
+    "PublicIP": {
+      "Description": "Elastic IP address assigned to the service.",
+      "Value": { "Fn::GetAtt": ["LinkdingEIP", "EipAddress"] }
+    },
+    "InstanceId": {
+      "Description": "Created ECS instance ID.",
+      "Value": { "Ref": "LinkdingInstance" }
+    }
+  }
+}

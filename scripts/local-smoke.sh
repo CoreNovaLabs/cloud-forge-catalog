@@ -6,6 +6,10 @@ ROOT="$(cd "$(dirname "$0")/.." && pwd)"
 NETWORK="${CLOUD_FORGE_SMOKE_NETWORK:-cloud-forge}"
 WAIT_SECONDS="${CLOUD_FORGE_SMOKE_WAIT:-90}"
 POLL_INTERVAL="${CLOUD_FORGE_SMOKE_POLL_INTERVAL:-3}"
+# Local smoke only: pull via registry mirror (default 毫秒镜像). Production compose keeps official image names.
+SMOKE_REGISTRY_MIRROR="${CLOUD_FORGE_SMOKE_REGISTRY_MIRROR:-docker.1ms.run}"
+SMOKE_PROBE_IMAGE="${CLOUD_FORGE_SMOKE_PROBE_IMAGE:-curlimages/curl:8.5.0}"
+PROBE_IMAGE_READY=0
 TIER_FILTER=""
 MODE=""
 APP_ID=""
@@ -61,6 +65,63 @@ ensure_network() {
   docker network inspect "$NETWORK" >/dev/null 2>&1 || docker network create "$NETWORK" >/dev/null
 }
 
+mirror_host() {
+  local mirror="${1:-}"
+  mirror="${mirror#https://}"
+  mirror="${mirror#http://}"
+  mirror="${mirror%/}"
+  echo "$mirror"
+}
+
+pull_compose_images_via_mirror() {
+  local compose_file="$1"
+  local mirror host image smoke_tag img_id
+  mirror="$(mirror_host "$SMOKE_REGISTRY_MIRROR")"
+  if [[ -z "$mirror" ]]; then
+    return 0
+  fi
+
+  host="$mirror"
+  echo "  pulling via mirror ${host} (local smoke only)"
+
+  while IFS= read -r image; do
+    [[ -z "$image" ]] && continue
+
+    if [[ "$image" == *@* ]]; then
+      smoke_tag="${image%%@*}:cloud-forge-smoke"
+      if docker image inspect "$smoke_tag" >/dev/null 2>&1; then
+        echo "  cached ${smoke_tag}"
+      elif docker pull "${host}/${image}"; then
+        img_id="$(docker image inspect "${host}/${image}" --format '{{.Id}}')"
+        docker tag "$img_id" "$smoke_tag"
+        echo "  pulled ${smoke_tag} (from digest pin)"
+      else
+        echo "  mirror pull failed for ${image}, trying docker hub..." >&2
+        docker pull "$image"
+        smoke_tag="$image"
+      fi
+      if [[ "$(uname -s)" == "Darwin" ]]; then
+        sed -i '' "s|image: ${image}|image: ${smoke_tag}|g" "$compose_file"
+      else
+        sed -i "s|image: ${image}|image: ${smoke_tag}|g" "$compose_file"
+      fi
+      continue
+    fi
+
+    if docker image inspect "$image" >/dev/null 2>&1; then
+      echo "  cached ${image}"
+      continue
+    fi
+    if docker pull "${host}/${image}"; then
+      docker tag "${host}/${image}" "${image}"
+      echo "  pulled ${image}"
+      continue
+    fi
+    echo "  mirror pull failed for ${image}, trying docker hub..." >&2
+    docker pull "$image"
+  done < <(docker compose -f "$compose_file" config --images 2>/dev/null || true)
+}
+
 read_manifest_field() {
   local app="$1"
   local filter="$2"
@@ -81,25 +142,61 @@ probe_paths() {
   read_manifest_field "$app" '.smoke.health_paths // ["/", "/health"]' | jq -r '.[]'
 }
 
+ensure_probe_image() {
+  if [[ "$PROBE_IMAGE_READY" -eq 1 ]]; then
+    return 0
+  fi
+  local mirror host probe="$SMOKE_PROBE_IMAGE"
+  mirror="$(mirror_host "$SMOKE_REGISTRY_MIRROR")"
+  if [[ -z "$mirror" ]]; then
+    probe="curlimages/curl:8.5.0"
+    docker pull "$probe" >/dev/null 2>&1 || true
+    SMOKE_PROBE_IMAGE="$probe"
+  elif docker pull "${mirror}/${probe}" >/dev/null 2>&1; then
+    SMOKE_PROBE_IMAGE="${mirror}/${probe}"
+  else
+    SMOKE_PROBE_IMAGE="curlimages/curl:8.5.0"
+    docker pull "$SMOKE_PROBE_IMAGE" >/dev/null 2>&1 || true
+  fi
+  PROBE_IMAGE_READY=1
+}
+
 wait_for_http() {
   local project="$1"
   local svc="$2"
   local port="$3"
   local path="$4"
-  local url="http://127.0.0.1:${port}${path}"
+  local url="http://${svc}:${port}${path}"
   local deadline=$((SECONDS + WAIT_SECONDS))
+
+  ensure_probe_image
 
   while (( SECONDS < deadline )); do
     if docker compose -p "$project" exec -T "$svc" sh -c \
-      "command -v wget >/dev/null && wget -qO- '$url' || curl -sf '$url'" >/dev/null 2>&1; then
-      echo "  OK ${svc}:${port}${path}"
+      "command -v wget >/dev/null && wget -qO- '$url' >/dev/null 2>&1 || { command -v curl >/dev/null && curl -sf '$url' >/dev/null; }" 2>/dev/null; then
+      echo "  OK ${url} (in-container)"
+      return 0
+    fi
+    if docker run --rm --network "$NETWORK" "$SMOKE_PROBE_IMAGE" -fsSL "$url" >/dev/null 2>&1; then
+      echo "  OK ${url}"
       return 0
     fi
     sleep "$POLL_INTERVAL"
   done
 
-  echo "  FAIL ${svc}:${port}${path} (timeout ${WAIT_SECONDS}s)" >&2
+  echo "  FAIL ${url} (timeout ${WAIT_SECONDS}s)" >&2
   return 1
+}
+
+prepare_smoke_compose() {
+  local app="$1"
+  local src="$2"
+  local smoke_dir="$ROOT/.local-smoke/$app"
+  local smoke_compose="$smoke_dir/docker-compose.yml"
+  mkdir -p "$smoke_dir/data"
+  # Mac Docker Desktop cannot bind-mount /opt/cloud-forge; rewrite paths for local smoke only.
+  sed "s|/opt/cloud-forge/data|${smoke_dir}/data|g" "$src" > "$smoke_compose"
+  echo "$smoke_compose"
 }
 
 smoke_one() {
@@ -123,17 +220,29 @@ smoke_one() {
 
   local project="cf-smoke-${app//[^a-z0-9]/}"
   local svc ok=0 path
+  local smoke_compose
 
   parse_upstream "$app"
   svc="$UPSTREAM_HOST"
 
-  ensure_network
-  docker compose -f "$compose" -p "$project" down -v --remove-orphans >/dev/null 2>&1 || true
+  smoke_compose="$(prepare_smoke_compose "$app" "$compose")"
 
-  if ! docker compose -f "$compose" -p "$project" up -d --wait; then
+  ensure_network
+  docker compose -f "$smoke_compose" -p "$project" down -v --remove-orphans >/dev/null 2>&1 || true
+
+  manifest_wait="$(read_manifest_field "$app" '.smoke.wait_seconds // empty')"
+  if [[ -n "$manifest_wait" && "$manifest_wait" != "null" ]]; then
+    WAIT_SECONDS="$manifest_wait"
+  elif [[ -n "${CLOUD_FORGE_SMOKE_WAIT:-}" ]]; then
+    WAIT_SECONDS="${CLOUD_FORGE_SMOKE_WAIT}"
+  fi
+
+  pull_compose_images_via_mirror "$smoke_compose"
+
+  if ! docker compose -f "$smoke_compose" -p "$project" up -d --wait; then
     echo "FAIL $app: docker compose up failed" >&2
-    docker compose -f "$compose" -p "$project" logs >&2 || true
-    docker compose -f "$compose" -p "$project" down -v --remove-orphans >/dev/null 2>&1 || true
+    docker compose -f "$smoke_compose" -p "$project" logs >&2 || true
+    docker compose -f "$smoke_compose" -p "$project" down -v --remove-orphans >/dev/null 2>&1 || true
     return 1
   fi
 
@@ -145,7 +254,7 @@ smoke_one() {
     fi
   done < <(probe_paths "$app")
 
-  docker compose -f "$compose" -p "$project" down -v --remove-orphans >/dev/null 2>&1 || true
+  docker compose -f "$smoke_compose" -p "$project" down -v --remove-orphans >/dev/null 2>&1 || true
 
   if [[ "$ok" -eq 1 ]]; then
     echo "PASS $app"

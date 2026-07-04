@@ -23,3 +23,9 @@ local-smoke-all:
 
 local-smoke-certified:
 	@./scripts/local-smoke.sh --all --tier certified
+
+onboard-seed:
+	@./scripts/onboard-seed.sh $(ARGS)
+
+onboard-smoke:
+	@./scripts/onboard-seed.sh --smoke $(ARGS)

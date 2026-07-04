@@ -1,0 +1,15 @@
+services:
+  linkding:
+    image: sissbruecker/linkding:1.37.0
+    restart: unless-stopped
+
+
+    volumes:
+      - /opt/cloud-forge/data/linkding:/etc/linkding/data
+
+    networks:
+      - cloud-forge
+
+networks:
+  cloud-forge:
+    external: true

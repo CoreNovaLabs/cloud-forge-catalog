@@ -1,0 +1,16 @@
+services:
+  code_server:
+    image: codercom/code-server:4.96.2
+    restart: unless-stopped
+
+    environment:
+      - PASSWORD=cloudforge-change-me
+    volumes:
+      - /opt/cloud-forge/data/code-server:/home/coder
+
+    networks:
+      - cloud-forge
+
+networks:
+  cloud-forge:
+    external: true

@@ -30,7 +30,7 @@ def load_seed(path: Path) -> list[dict]:
         try:
             import yaml  # type: ignore
         except ImportError as exc:
-            fail("PyYAML is required for YAML seed files: python3 -m pip install pyyaml") from exc
+            fail(f"PyYAML is required for YAML seed files: python3 -m pip install pyyaml ({exc})")
         data = yaml.safe_load(text)
     else:
         data = json.loads(text)
@@ -75,13 +75,19 @@ def build_compose_command(entry: dict) -> str:
 
 def build_compose_volumes(entry: dict, app_id: str) -> str:
     data_path = entry.get("data_path") or f"/opt/cloud-forge/data/{app_id}"
-    service = entry.get("service_name") or app_id.replace("-", "_")
     mount = entry.get("volume_mount")
     if mount:
         host, container = mount.split(":", 1)
         host = host.replace("{{DATA_PATH}}", data_path)
         return f"      - {host}:{container}"
     return f"      - {data_path}:/data"
+
+
+def build_compose_volumes_section(entry: dict, app_id: str) -> str:
+    if entry.get("stateless"):
+        return ""
+    block = build_compose_volumes(entry, app_id)
+    return f"    volumes:\n{block}\n"
 
 
 def build_chown_line(entry: dict) -> str:
@@ -158,7 +164,7 @@ def generate_app(root: Path, entry: dict, *, force: bool = False) -> None:
         "DATA_PATH": data_path,
         "COMPOSE_ENV_BLOCK": build_compose_env(entry),
         "COMPOSE_COMMAND_BLOCK": build_compose_command(entry),
-        "COMPOSE_VOLUMES_BLOCK": build_compose_volumes(entry, app_id),
+        "COMPOSE_VOLUMES_SECTION": build_compose_volumes_section(entry, app_id),
         "CHOWN_LINE": build_chown_line(entry),
     }
 

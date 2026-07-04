@@ -1,9 +1,8 @@
-# Seed catalog for scripts/generate-app.sh
-# Requires: python3 -m pip install pyyaml (for YAML loading)
+# Seed catalog for scripts/generate-app.sh and scripts/onboard-seed.sh
+# Requires: python3 -m pip install pyyaml
 #
-# Example:
-#   ./scripts/generate-app.sh vaultwarden
-#   make index validate
+# Local smoke pulls images via docker.1ms.run (see scripts/local-smoke.sh).
+# Committed compose files always use official Docker Hub image names.
 
 apps:
   - id: vaultwarden
@@ -48,7 +47,7 @@ apps:
     aliyun_instance_default: ecs.t6-c1m2.large
     aws_disk_gb: 40
     aliyun_disk_gb: 40
-    smoke_health_paths: ["/minio/health/live", "/"]
+    smoke_health_paths: ["/minio/health/live"]
     smoke_wait_seconds: 90
 
   - id: code-server
@@ -73,3 +72,82 @@ apps:
     aliyun_disk_gb: 40
     smoke_health_paths: ["/", "/healthz"]
     smoke_wait_seconds: 120
+
+  - id: freshrss
+    name: FreshRSS
+    desc: Self-hosted RSS feed aggregator and reader
+    icon: "📰"
+    category: cms
+    tier: community
+    tags: [rss, reader, self-hosted]
+    image: freshrss/freshrss@sha256:ab6b363102ccdbc39f6a62db926f567c61a5289bf25ba460f1c34423d8cc1a4d
+    service_name: freshrss
+    port: 80
+    data_path: /opt/cloud-forge/data/freshrss
+    uid: 1000
+    volume_mount: "/opt/cloud-forge/data/freshrss:/var/www/FreshRSS/data"
+    aws_instance_default: t3.small
+    aws_instance_options: [t3.micro, t3.small, t3.medium]
+    aliyun_instance_default: ecs.t6-c1m1.large
+    aws_disk_gb: 20
+    aliyun_disk_gb: 40
+    smoke_health_paths: ["/i/", "/"]
+    smoke_wait_seconds: 120
+
+  - id: it-tools
+    name: IT-Tools
+    desc: Collection of handy developer tools in a single web app
+    icon: "🧰"
+    category: devtools
+    tier: community
+    stateless: true
+    tags: [devtools, utilities, self-hosted]
+    image: corentinth/it-tools@sha256:8b8128748339583ca951af03dfe02a9a4d7363f61a216226fc28030731a5a61f
+    service_name: it_tools
+    port: 80
+    aws_instance_default: t3.micro
+    aws_instance_options: [t3.micro, t3.small]
+    aliyun_instance_default: ecs.t6-c1m1.large
+    aws_disk_gb: 20
+    aliyun_disk_gb: 20
+    smoke_health_paths: ["/"]
+    smoke_wait_seconds: 60
+
+  - id: linkding
+    name: Linkding
+    desc: Self-hosted bookmark manager with a clean UI
+    icon: "🔖"
+    category: devtools
+    tier: community
+    tags: [bookmarks, productivity, self-hosted]
+    image: sissbruecker/linkding:1.37.0
+    service_name: linkding
+    port: 9090
+    data_path: /opt/cloud-forge/data/linkding
+    volume_mount: "/opt/cloud-forge/data/linkding:/etc/linkding/data"
+    aws_instance_default: t3.small
+    aws_instance_options: [t3.micro, t3.small, t3.medium]
+    aliyun_instance_default: ecs.t6-c1m1.large
+    aws_disk_gb: 20
+    aliyun_disk_gb: 40
+    smoke_health_paths: ["/health", "/"]
+    smoke_wait_seconds: 90
+
+  - id: excalidraw
+    name: Excalidraw
+    desc: Virtual whiteboard for sketching hand-drawn diagrams
+    icon: "✏️"
+    category: devtools
+    tier: community
+    stateless: true
+    tags: [whiteboard, diagrams, collaboration]
+    image: excalidraw/excalidraw@sha256:f7ee194addd607bf831d2af0f0a34463dd4225e426cf35199ef0b12a803398e9
+    service_name: excalidraw
+    port: 80
+    aws_instance_default: t3.small
+    aws_instance_options: [t3.micro, t3.small, t3.medium]
+    aliyun_instance_default: ecs.t6-c1m1.large
+    aws_disk_gb: 20
+    aliyun_disk_gb: 20
+    smoke_health_paths: ["/"]
+    smoke_wait_seconds: 90

@@ -100,6 +100,8 @@ Cloud verify app selection (used by `cloud-forge-cli/scripts/verify-*-apps.sh`):
 CLOUD_FORGE_VERIFY_TIERS=certified,community CLOUD_FORGE_VERIFY_SAMPLE=0.1 ./scripts/list-verify-apps.sh
 ```
 
+Full listing plan: [docs/LISTING.md](docs/LISTING.md)
+
 The minimal validation app is `hello-nginx`. Use it as the local acceptance sample for the CLI and catalog integration.
 
 ## Commands
@@ -112,6 +114,8 @@ make generate-templates     # Regenerate aws.yaml / aliyun.json for all apps
 make generate-all           # generate-templates + index + validate
 make local-smoke APP=gitea  # Local Docker smoke test for one app
 make local-smoke-certified  # Local smoke for all certified apps
+make onboard-smoke ARGS="vaultwarden"  # Generate + local smoke one seed app
+make onboard-smoke ARGS="--force"      # Regenerate all seed apps + smoke
 ```
 
 `make validate-aws` only runs local template linting. It does not create a CloudFormation stack, start EC2 instances, or allocate EIPs. It is useful for catching CloudFormation/SAM syntax and static rule issues before a commit. Runtime checks such as AMI availability, instance type availability in a target Region, and IAM permissions still require a Change Set or a sandbox AWS account.

@@ -6,15 +6,21 @@ All notable changes to Cloud Forge Catalog are documented in this file.
 
 ### Added
 
+- Batch 1 community apps: `vaultwarden`, `minio`, `code-server`, `freshrss`, `it-tools`, `linkding`, `excalidraw`
+- `docs/LISTING.md` onboarding plan (local smoke only, zero cloud cost)
+- `scripts/onboard-seed.sh` to generate seed apps and optional smoke tests
 - `apps/_template/` shared templates for IaC and compose generation
 - `scripts/generate-templates.sh` and `scripts/generate_app.py` to render `aws.yaml` / `aliyun.json` from manifests
 - `scripts/generate-app.sh` and `apps.seed.yaml` for batch app scaffolding
 - `scripts/local-smoke.sh` for local Docker compose smoke tests
 - `scripts/list-verify-apps.sh` for tier-based cloud verify app selection
 - Manifest `tier` field (`certified` | `community` | `experimental`) and optional `smoke` probe config
+- Local smoke: `docker.1ms.run` mirror pulls, `.local-smoke/` volume rewrite, digest smoke tags
 
 ### Changed
 
+- `local-smoke.sh` supports `CLOUD_FORGE_SMOKE_REGISTRY_MIRROR` (default `docker.1ms.run`)
+- `index/apps.json` now lists 11 apps (4 certified + 7 community)
 - Existing four apps marked `tier: certified` with smoke health paths
 - Regenerated AWS/Aliyun templates from `_template` for all current apps
 - `cloud-forge-cli` verify scripts now read app lists from `list-verify-apps.sh`

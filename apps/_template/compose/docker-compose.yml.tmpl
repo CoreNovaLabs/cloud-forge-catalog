@@ -4,8 +4,7 @@ services:
     restart: unless-stopped
 {{COMPOSE_COMMAND_BLOCK}}
 {{COMPOSE_ENV_BLOCK}}
-    volumes:
-{{COMPOSE_VOLUMES_BLOCK}}
+{{COMPOSE_VOLUMES_SECTION}}
     networks:
       - cloud-forge
 
