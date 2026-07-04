@@ -37,7 +37,12 @@ run_optional_script() {
   local tmp
   tmp="$(mktemp)"
   if curl -fsSL "$url" -o "$tmp" 2>/dev/null; then
-    run_as_root CLOUD_FORGE_CATALOG_URL="${CATALOG_ROOT}" bash "$tmp"
+    # Prefix env assignment must not go through run_as_root "$@" — as root that tries to exec the var name as a command.
+    if [[ "$(id -u)" -eq 0 ]]; then
+      CLOUD_FORGE_CATALOG_URL="${CATALOG_ROOT}" bash "$tmp"
+    else
+      sudo CLOUD_FORGE_CATALOG_URL="${CATALOG_ROOT}" bash "$tmp"
+    fi
   fi
   rm -f "$tmp"
 }
