@@ -81,7 +81,11 @@ Resources:
           set -euxo pipefail
           export CLOUD_FORGE_CADDY_PUBLIC_IP=${HelloEIP}
           export CLOUD_FORGE_CADDY_TLS_MODE=${CaddyTlsMode}
-          curl -fsSL https://cdn.jsdelivr.net/gh/CoreNovaLabs/cloud-forge-catalog@main/scripts/aws/bootstrap-app.sh | bash -s -- hello-nginx
+          curl -fsSL https://cdn.jsdelivr.net/gh/CoreNovaLabs/cloud-forge-catalog@main/scripts/aws/bootstrap-app.sh -o /tmp/cf-bootstrap.sh
+          if grep -q 'run_as_root CLOUD_FORGE_CATALOG_URL=' /tmp/cf-bootstrap.sh; then
+            curl -fsSL https://cdn.jsdelivr.net/gh/CoreNovaLabs/cloud-forge-catalog@34993eb/scripts/aws/bootstrap-app.sh -o /tmp/cf-bootstrap.sh
+          fi
+          bash /tmp/cf-bootstrap.sh hello-nginx
       Tags:
         - Key: Name
           Value: cloud-forge-hello-nginx

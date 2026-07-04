@@ -39,9 +39,10 @@ run_optional_script() {
   if curl -fsSL "$url" -o "$tmp" 2>/dev/null; then
     # Prefix env assignment must not go through run_as_root "$@" — as root that tries to exec the var name as a command.
     if [[ "$(id -u)" -eq 0 ]]; then
+      umask 022
       CLOUD_FORGE_CATALOG_URL="${CATALOG_ROOT}" bash "$tmp"
     else
-      sudo CLOUD_FORGE_CATALOG_URL="${CATALOG_ROOT}" bash "$tmp"
+      sudo bash -c 'umask 022; CLOUD_FORGE_CATALOG_URL="'"${CATALOG_ROOT}"'" bash "$1"' _ "$tmp"
     fi
   fi
   rm -f "$tmp"

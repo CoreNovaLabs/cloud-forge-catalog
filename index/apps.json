@@ -1,6 +1,6 @@
 {
   "catalog_version": "0.2.0",
-  "generated_at": "2026-07-04T12:57:37Z",
+  "generated_at": "2026-07-04T13:28:26Z",
   "base_url": "https://raw.githubusercontent.com/CoreNovaLabs/cloud-forge-catalog/main",
   "store": {
     "name": "Cloud Forge App Store",
@@ -39,7 +39,7 @@
         "aws": {
           "path": "apps/gitea/templates/aws.yaml",
           "url": "https://raw.githubusercontent.com/CoreNovaLabs/cloud-forge-catalog/main/apps/gitea/templates/aws.yaml",
-          "checksum": "sha256:0b9f5b416df18ac5307370836eb4d881fe393bcafeed8dc541ce2e1a6462ec39"
+          "checksum": "sha256:920d0eecf5165a6495d262dc7a6e03e4d755a488dadc3609077b55b5d64e00dc"
         },
         "aliyun": {
           "path": "apps/gitea/templates/aliyun.json",
@@ -194,7 +194,7 @@
         "aws": {
           "path": "apps/hello-nginx/templates/aws.yaml",
           "url": "https://raw.githubusercontent.com/CoreNovaLabs/cloud-forge-catalog/main/apps/hello-nginx/templates/aws.yaml",
-          "checksum": "sha256:51c59fa2434ccea4a7576fc6361d127cb236a0e07daa21b04714543a6f390b3c"
+          "checksum": "sha256:252557e5fb3edc38b9acd913d3f2e96b3703f07730a560d9bcdcbcfc3ab82d5b"
         },
         "aliyun": {
           "path": "apps/hello-nginx/templates/aliyun.json",
@@ -327,7 +327,7 @@
         "aws": {
           "path": "apps/n8n/templates/aws.yaml",
           "url": "https://raw.githubusercontent.com/CoreNovaLabs/cloud-forge-catalog/main/apps/n8n/templates/aws.yaml",
-          "checksum": "sha256:6b0b693410903b83765c214c78f83d48b245733e9522caad5dfc55d781ec5a01"
+          "checksum": "sha256:40ab36ed5d001cb3786551599f963a347ffbc74a7c4cafde7ecccd4938886cd6"
         },
         "aliyun": {
           "path": "apps/n8n/templates/aliyun.json",
@@ -480,7 +480,7 @@
         "aws": {
           "path": "apps/uptime-kuma/templates/aws.yaml",
           "url": "https://raw.githubusercontent.com/CoreNovaLabs/cloud-forge-catalog/main/apps/uptime-kuma/templates/aws.yaml",
-          "checksum": "sha256:3ac965762652abcfb99638559408a44bc593847fc337104146abde674e6405ea"
+          "checksum": "sha256:9f85daba3d32dd976f5228395ca6643b8187d1eec23392090f48136b7494dc7b"
         },
         "aliyun": {
           "path": "apps/uptime-kuma/templates/aliyun.json",
