@@ -1,0 +1,8 @@
+services:
+  gitea:
+    image: gitea/gitea:1.22
+    restart: unless-stopped
+    volumes:
+      - /opt/cloud-forge/data/gitea:/data
+    networks:
+      - cloud-forge

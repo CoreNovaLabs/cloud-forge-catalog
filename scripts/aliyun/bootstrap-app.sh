@@ -1,19 +1,26 @@
 #!/usr/bin/env bash
-# Cloud Forge Aliyun app bootstrap — installs runtime then configures the catalog app.
+# Cloud Forge Aliyun app bootstrap — installs runtime then loads shared compose package.
 set -euo pipefail
 
 APP_ID="${1:-}"
 CATALOG_ROOT="${CLOUD_FORGE_CATALOG_URL:-https://cdn.jsdelivr.net/gh/CoreNovaLabs/cloud-forge-catalog@main}"
-CATALOG_BASE="${CATALOG_ROOT}/scripts/aliyun"
+CATALOG_SCRIPTS="${CATALOG_ROOT}/scripts/aliyun"
+COMPOSE_BASE="${CATALOG_ROOT}/apps/${APP_ID}/compose"
+CLOUD_SETUP="${CATALOG_ROOT}/apps/${APP_ID}/aliyun/setup.sh"
 
 if [[ -z "$APP_ID" ]]; then
   echo "usage: bootstrap-app.sh <app-id>" >&2
   exit 2
 fi
 
+if [[ ! "$APP_ID" =~ ^[a-z0-9]([a-z0-9-]*[a-z0-9])?$ ]]; then
+  echo "invalid app id: ${APP_ID}" >&2
+  exit 2
+fi
+
 echo "==> Cloud Forge app bootstrap: ${APP_ID}"
 
-curl -fsSL "${CATALOG_BASE}/bootstrap-runtime.sh" | sudo bash
+curl -fsSL "${CATALOG_SCRIPTS}/bootstrap-runtime.sh" | sudo bash
 
 fetch_public_ipv4() {
   local ip=""
@@ -36,78 +43,39 @@ if [[ -z "$PUBLIC_IP" ]]; then
 fi
 
 CADDY_TLS_MODE="${CLOUD_FORGE_CADDY_TLS_MODE:-ip-letsencrypt}"
-UPSTREAM=""
-COMPOSE_FILE=""
 
-case "$APP_ID" in
-  hello-nginx)
-    sudo install -d -m 0755 /opt/cloud-forge/data/hello-nginx/html
-    sudo tee /opt/cloud-forge/data/hello-nginx/html/index.html >/dev/null <<'HTML'
-<!doctype html>
-<html lang="en">
-<head><meta charset="utf-8"><title>Cloud Forge</title></head>
-<body><h1>Hello from Cloud Forge</h1><p>NGINX is running on Aliyun.</p></body>
-</html>
-HTML
-    COMPOSE_FILE="services:
-  nginx:
-    image: nginx:1.27-alpine
-    restart: unless-stopped
-    volumes:
-      - /opt/cloud-forge/data/hello-nginx/html:/usr/share/nginx/html:ro
-    networks:
-      - cloud-forge"
-    UPSTREAM="http://nginx:80"
-    ;;
-  n8n)
-    sudo install -d -m 0755 /opt/cloud-forge/data/n8n
-    sudo chown -R 1000:1000 /opt/cloud-forge/data/n8n
-    COMPOSE_FILE="services:
-  n8n:
-    image: n8nio/n8n:1.76.1
-    restart: unless-stopped
-    environment:
-      - N8N_PORT=5678
-      - N8N_PROTOCOL=http
-    volumes:
-      - /opt/cloud-forge/data/n8n:/home/node/.n8n
-    networks:
-      - cloud-forge"
-    UPSTREAM="http://n8n:5678"
-    ;;
-  gitea)
-    sudo install -d -m 0755 /opt/cloud-forge/data/gitea
-    COMPOSE_FILE="services:
-  gitea:
-    image: gitea/gitea:1.22
-    restart: unless-stopped
-    volumes:
-      - /opt/cloud-forge/data/gitea:/data
-    networks:
-      - cloud-forge"
-    UPSTREAM="http://gitea:3000"
-    ;;
-  uptime-kuma)
-    sudo install -d -m 0755 /opt/cloud-forge/data/uptime-kuma
-    COMPOSE_FILE="services:
-  uptime-kuma:
-    image: louislam/uptime-kuma:1
-    restart: unless-stopped
-    volumes:
-      - /opt/cloud-forge/data/uptime-kuma:/app/data
-    networks:
-      - cloud-forge"
-    UPSTREAM="http://uptime-kuma:3001"
-    ;;
-  *)
-    echo "unsupported app id: ${APP_ID}" >&2
-    exit 1
-    ;;
-esac
+run_optional_script() {
+  local url="$1"
+  local tmp
+  tmp="$(mktemp)"
+  if curl -fsSL "$url" -o "$tmp" 2>/dev/null; then
+    sudo CLOUD_FORGE_CATALOG_URL="${CATALOG_ROOT}" bash "$tmp"
+  fi
+  rm -f "$tmp"
+}
 
-sudo tee /opt/cloud-forge/docker-compose.app.yml >/dev/null <<EOF
-${COMPOSE_FILE}
-EOF
+run_optional_script "${CLOUD_SETUP}"
+
+catalog_app_env="$(mktemp)"
+if ! curl -fsSL "${COMPOSE_BASE}/app.env" -o "$catalog_app_env"; then
+  rm -f "$catalog_app_env"
+  echo "missing compose package for ${APP_ID} (expected ${COMPOSE_BASE}/app.env)" >&2
+  exit 1
+fi
+# shellcheck disable=SC1090
+source "$catalog_app_env"
+rm -f "$catalog_app_env"
+
+UPSTREAM="${CLOUD_FORGE_CADDY_UPSTREAM:-}"
+if [[ -z "$UPSTREAM" ]]; then
+  echo "missing CLOUD_FORGE_CADDY_UPSTREAM in ${COMPOSE_BASE}/app.env" >&2
+  exit 1
+fi
+
+if ! curl -fsSL "${COMPOSE_BASE}/docker-compose.yml" | sudo tee /opt/cloud-forge/docker-compose.app.yml >/dev/null; then
+  echo "missing ${COMPOSE_BASE}/docker-compose.yml" >&2
+  exit 1
+fi
 
 sudo tee /etc/cloud-forge/app.env >/dev/null <<EOF
 CLOUD_FORGE_CADDY_PUBLIC_IP=${PUBLIC_IP}

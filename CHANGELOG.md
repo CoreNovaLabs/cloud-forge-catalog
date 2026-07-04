@@ -2,6 +2,15 @@
 
 All notable changes to Cloud Forge Catalog are documented in this file.
 
+## [Unreleased]
+
+### Changed
+
+- Share Docker Compose and upstream env under `apps/<id>/compose/` for AWS and Aliyun; add `scripts/aws/bootstrap-app.sh` and thin CloudFormation UserData
+- Reorganize cloud-specific scripts under `scripts/aws/` and `scripts/aliyun/`; move SAM validation to `scripts/aws/validate-sam.sh`
+- Aliyun bootstrap loads the shared compose package instead of per-cloud compose files
+- Set `gitea` and `uptime-kuma` catalog price to `free`
+
 ## [0.3.0] - 2026-07-04
 
 ### Added

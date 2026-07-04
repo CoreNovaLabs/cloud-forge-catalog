@@ -52,6 +52,32 @@ def validate_template_path(root: Path, rel_path: str, manifest: Path) -> None:
         fail(f"{manifest}: template must be .json, .yaml, or .yml: {rel_path}")
 
 
+def validate_compose_package(root: Path, app_id: str, manifest: Path) -> None:
+    compose_dir = root / "apps" / app_id / "compose"
+    compose_path = compose_dir / "docker-compose.yml"
+    app_env_path = compose_dir / "app.env"
+
+    if not compose_path.is_file():
+        fail(f"{manifest}: missing shared compose {compose_path.relative_to(root)}")
+
+    compose_text = compose_path.read_text(encoding="utf-8")
+    if "cloud-forge" not in compose_text:
+        fail(f"{compose_path}: docker-compose must attach services to the cloud-forge network")
+
+    if not app_env_path.is_file():
+        fail(f"{manifest}: missing shared compose env {app_env_path.relative_to(root)}")
+
+    app_env_text = app_env_path.read_text(encoding="utf-8")
+    if "CLOUD_FORGE_CADDY_UPSTREAM=" not in app_env_text:
+        fail(f"{app_env_path}: must define CLOUD_FORGE_CADDY_UPSTREAM")
+
+
+def validate_cloud_setup(root: Path, app_id: str, cloud: str, manifest: Path) -> None:
+    setup_path = root / "apps" / app_id / cloud / "setup.sh"
+    if setup_path.exists() and not setup_path.is_file():
+        fail(f"{manifest}: {cloud}/setup.sh must be a regular file when present")
+
+
 def validate_manifest(root: Path, manifest: Path) -> None:
     data = read_json(manifest)
     app_id = assert_string(data.get("id"), "id", manifest)
@@ -96,6 +122,10 @@ def validate_manifest(root: Path, manifest: Path) -> None:
             fail(f"{manifest}: templates.{cloud} must be an object")
         rel_path = assert_string(ref.get("path"), f"templates.{cloud}.path", manifest)
         validate_template_path(root, rel_path, manifest)
+
+    validate_compose_package(root, app_id, manifest)
+    for cloud in clouds:
+        validate_cloud_setup(root, app_id, cloud, manifest)
 
     params = data.get("params", {})
     if params is not None and not isinstance(params, dict):

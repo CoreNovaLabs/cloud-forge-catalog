@@ -7,4 +7,4 @@ validate:
 	@./scripts/validate.sh
 
 validate-aws:
-	@./scripts/validate-aws-sam.sh
+	@./scripts/aws/validate-sam.sh

@@ -90,29 +90,9 @@ Resources:
         Fn::Base64: !Sub |
           #!/bin/bash
           set -euxo pipefail
-          install -d -m 0755 /opt/cloud-forge/data/n8n
-          chown -R 1000:1000 /opt/cloud-forge/data/n8n
-          cat >/opt/cloud-forge/docker-compose.app.yml <<'COMPOSE'
-          services:
-            n8n:
-              image: n8nio/n8n:latest
-              restart: unless-stopped
-              environment:
-                - N8N_PORT=5678
-                - N8N_PROTOCOL=http
-              volumes:
-                - /opt/cloud-forge/data/n8n:/home/node/.n8n
-              networks:
-                - cloud-forge
-          COMPOSE
-          install -d -m 0755 /etc/cloud-forge
-          cat >/etc/cloud-forge/app.env <<EOF
-          CLOUD_FORGE_CADDY_PUBLIC_IP=${N8nEIP}
-          CLOUD_FORGE_CADDY_UPSTREAM=http://n8n:5678
-          CLOUD_FORGE_CADDY_TLS_MODE=${CaddyTlsMode}
-          CLOUD_FORGE_CADDY_AUTO_IP_CERT=true
-          EOF
-          /opt/cloud-forge/bin/cloud-forge-apply-app
+          export CLOUD_FORGE_CADDY_PUBLIC_IP=${N8nEIP}
+          export CLOUD_FORGE_CADDY_TLS_MODE=${CaddyTlsMode}
+          curl -fsSL https://cdn.jsdelivr.net/gh/CoreNovaLabs/cloud-forge-catalog@main/scripts/aws/bootstrap-app.sh | bash -s -- n8n
       Tags:
         - Key: Name
           Value: cloud-forge-n8n

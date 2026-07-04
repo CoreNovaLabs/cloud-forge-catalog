@@ -90,25 +90,9 @@ Resources:
         Fn::Base64: !Sub |
           #!/bin/bash
           set -euxo pipefail
-          install -d -m 0755 /opt/cloud-forge/data/uptime-kuma
-          cat >/opt/cloud-forge/docker-compose.app.yml <<'COMPOSE'
-          services:
-            uptime-kuma:
-              image: louislam/uptime-kuma:1
-              restart: unless-stopped
-              volumes:
-                - /opt/cloud-forge/data/uptime-kuma:/app/data
-              networks:
-                - cloud-forge
-          COMPOSE
-          install -d -m 0755 /etc/cloud-forge
-          cat >/etc/cloud-forge/app.env <<EOF
-          CLOUD_FORGE_CADDY_PUBLIC_IP=${UptimeKumaEIP}
-          CLOUD_FORGE_CADDY_UPSTREAM=http://uptime-kuma:3001
-          CLOUD_FORGE_CADDY_TLS_MODE=${CaddyTlsMode}
-          CLOUD_FORGE_CADDY_AUTO_IP_CERT=true
-          EOF
-          /opt/cloud-forge/bin/cloud-forge-apply-app
+          export CLOUD_FORGE_CADDY_PUBLIC_IP=${UptimeKumaEIP}
+          export CLOUD_FORGE_CADDY_TLS_MODE=${CaddyTlsMode}
+          curl -fsSL https://cdn.jsdelivr.net/gh/CoreNovaLabs/cloud-forge-catalog@main/scripts/aws/bootstrap-app.sh | bash -s -- uptime-kuma
       Tags:
         - Key: Name
           Value: cloud-forge-uptime-kuma

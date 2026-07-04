@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-ROOT="$(cd "$(dirname "$0")/.." && pwd)"
+ROOT="$(cd "$(dirname "$0")/../.." && pwd)"
 export SAM_CLI_TELEMETRY="${SAM_CLI_TELEMETRY:-0}"
 
 if ! command -v sam >/dev/null 2>&1; then

@@ -1,0 +1,8 @@
+services:
+  nginx:
+    image: nginx:1.27-alpine
+    restart: unless-stopped
+    volumes:
+      - /opt/cloud-forge/data/hello-nginx/html:/usr/share/nginx/html:ro
+    networks:
+      - cloud-forge

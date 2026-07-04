@@ -90,25 +90,9 @@ Resources:
         Fn::Base64: !Sub |
           #!/bin/bash
           set -euxo pipefail
-          install -d -m 0755 /opt/cloud-forge/data/gitea
-          cat >/opt/cloud-forge/docker-compose.app.yml <<'COMPOSE'
-          services:
-            gitea:
-              image: gitea/gitea:1.22
-              restart: unless-stopped
-              volumes:
-                - /opt/cloud-forge/data/gitea:/data
-              networks:
-                - cloud-forge
-          COMPOSE
-          install -d -m 0755 /etc/cloud-forge
-          cat >/etc/cloud-forge/app.env <<EOF
-          CLOUD_FORGE_CADDY_PUBLIC_IP=${GiteaEIP}
-          CLOUD_FORGE_CADDY_UPSTREAM=http://gitea:3000
-          CLOUD_FORGE_CADDY_TLS_MODE=${CaddyTlsMode}
-          CLOUD_FORGE_CADDY_AUTO_IP_CERT=true
-          EOF
-          /opt/cloud-forge/bin/cloud-forge-apply-app
+          export CLOUD_FORGE_CADDY_PUBLIC_IP=${GiteaEIP}
+          export CLOUD_FORGE_CADDY_TLS_MODE=${CaddyTlsMode}
+          curl -fsSL https://cdn.jsdelivr.net/gh/CoreNovaLabs/cloud-forge-catalog@main/scripts/aws/bootstrap-app.sh | bash -s -- gitea
       Tags:
         - Key: Name
           Value: cloud-forge-gitea

@@ -9,7 +9,7 @@
   "clouds": ["aws", "aliyun"],
   "version": "1.0.0",
   "min_cli_version": "0.3.0",
-  "price": "$3/month",
+  "price": "free",
   "cost_notice": [
     "Aliyun v1 only supports cn-hongkong.",
     "First bootstrap may take 8-15 minutes on Aliyun public OS images.",

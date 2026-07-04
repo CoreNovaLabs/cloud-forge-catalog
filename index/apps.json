@@ -1,6 +1,6 @@
 {
   "catalog_version": "0.2.0",
-  "generated_at": "2026-07-04T08:45:02Z",
+  "generated_at": "2026-07-04T10:55:43Z",
   "base_url": "https://raw.githubusercontent.com/CoreNovaLabs/cloud-forge-catalog/main",
   "store": {
     "name": "Cloud Forge App Store",
@@ -25,7 +25,7 @@
       ],
       "version": "1.0.0",
       "min_cli_version": "0.3.0",
-      "price": "$5/month",
+      "price": "free",
       "cost_notice": [
         "Aliyun v1 only supports cn-hongkong.",
         "First bootstrap may take 8-15 minutes on Aliyun public OS images.",
@@ -466,7 +466,7 @@
       ],
       "version": "1.0.0",
       "min_cli_version": "0.3.0",
-      "price": "$3/month",
+      "price": "free",
       "cost_notice": [
         "Aliyun v1 only supports cn-hongkong.",
         "First bootstrap may take 8-15 minutes on Aliyun public OS images.",
