@@ -21,7 +21,8 @@
       "AllowedValues": ["ip-letsencrypt", "http", "internal"]
     },
     "DiskSize": { "Type": "Number", "Default": 40, "MinValue": 20, "MaxValue": 500 },
-    "DomainName": { "Type": "String", "Default": "" }
+    "DomainName": { "Type": "String", "Default": "" },
+    "AdminPassword": { "Type": "String", "NoEcho": true, "MinLength": 8 }
   },
   "Conditions": {
     "UseHttp": { "Fn::Equals": [{ "Ref": "CaddyTlsMode" }, "http"] }
@@ -51,7 +52,7 @@
         "SystemDiskCategory": "cloud_efficiency",
         "InternetMaxBandwidthOut": 0,
         "UserData": {
-          "Fn::Sub": "#!/bin/bash\nset -euxo pipefail\nexport CLOUD_FORGE_CADDY_TLS_MODE=${CaddyTlsMode}\ncurl -fsSL https://cdn.jsdelivr.net/gh/CoreNovaLabs/cloud-forge-catalog@main/scripts/aliyun/bootstrap-app.sh | bash -s -- minio\n"
+          "Fn::Sub": "#!/bin/bash\nset -euxo pipefail\nexport CLOUD_FORGE_CADDY_TLS_MODE=${CaddyTlsMode}\nexport CLOUD_FORGE_APP_ADMIN_PASSWORD=${AdminPassword}\ncurl -fsSL https://cdn.jsdelivr.net/gh/CoreNovaLabs/cloud-forge-catalog@main/scripts/aliyun/bootstrap-app.sh | bash -s -- minio\n"
         },
         "Tags": [
           { "Key": "Name", "Value": "cloud-forge-minio" },

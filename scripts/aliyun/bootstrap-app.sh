@@ -84,5 +84,17 @@ CLOUD_FORGE_CADDY_TLS_MODE=${CADDY_TLS_MODE}
 CLOUD_FORGE_CADDY_AUTO_IP_CERT=true
 EOF
 
+if [[ -n "${CLOUD_FORGE_SECRET_ENV:-}" ]]; then
+  admin_password="${CLOUD_FORGE_APP_ADMIN_PASSWORD:-}"
+  if [[ -z "$admin_password" ]]; then
+    echo "missing required AdminPassword (pass --admin-password or --param AdminPassword=...)" >&2
+    exit 1
+  fi
+  sudo tee /opt/cloud-forge/compose.app.env >/dev/null <<EOF
+${CLOUD_FORGE_SECRET_ENV}=${admin_password}
+EOF
+  sudo chmod 600 /opt/cloud-forge/compose.app.env
+fi
+
 sudo /opt/cloud-forge/bin/cloud-forge-apply-app
 echo "==> Cloud Forge app bootstrap complete: ${APP_ID}"

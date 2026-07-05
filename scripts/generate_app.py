@@ -64,6 +64,39 @@ def build_compose_env(entry: dict) -> str:
     return "\n".join(lines)
 
 
+def secret_env_names(entry: dict) -> list[str]:
+    names: list[str] = []
+    for item in entry.get("secrets") or []:
+        env_name = item.get("env")
+        if env_name:
+            names.append(str(env_name))
+    return names
+
+
+def build_compose_env_file_block(entry: dict) -> str:
+    if not secret_env_names(entry):
+        return ""
+    return "    env_file:\n      - /opt/cloud-forge/compose.app.env"
+
+
+def build_secret_env_line(entry: dict) -> str:
+    names = secret_env_names(entry)
+    if not names:
+        return ""
+    return f"CLOUD_FORGE_SECRET_ENV={names[0]}"
+
+
+def build_admin_password_param_json(entry: dict) -> str:
+    secrets = entry.get("secrets") or []
+    if not secrets:
+        return ""
+    return """,
+    \"AdminPassword\": {
+      \"type\": \"string\",
+      \"secret\": true
+    }"""
+
+
 def build_compose_command(entry: dict) -> str:
     command = entry.get("command")
     if not command:
@@ -163,6 +196,9 @@ def generate_app(root: Path, entry: dict, *, force: bool = False) -> None:
         "UPSTREAM_PORT": str(upstream_port),
         "DATA_PATH": data_path,
         "COMPOSE_ENV_BLOCK": build_compose_env(entry),
+        "COMPOSE_ENV_FILE_BLOCK": build_compose_env_file_block(entry),
+        "SECRET_ENV_LINE": build_secret_env_line(entry),
+        "ADMIN_PASSWORD_PARAM_JSON": build_admin_password_param_json(entry),
         "COMPOSE_COMMAND_BLOCK": build_compose_command(entry),
         "COMPOSE_VOLUMES_SECTION": build_compose_volumes_section(entry, app_id),
         "CHOWN_LINE": build_chown_line(entry),

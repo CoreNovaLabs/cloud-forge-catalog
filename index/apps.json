@@ -1,6 +1,6 @@
 {
   "catalog_version": "0.3.0",
-  "generated_at": "2026-07-04T17:24:47Z",
+  "generated_at": "2026-07-05T01:43:47Z",
   "base_url": "https://raw.githubusercontent.com/CoreNovaLabs/cloud-forge-catalog/main",
   "store": {
     "name": "Cloud Forge App Store",
@@ -47,12 +47,12 @@
         "aws": {
           "path": "apps/code-server/templates/aws.yaml",
           "url": "https://raw.githubusercontent.com/CoreNovaLabs/cloud-forge-catalog/main/apps/code-server/templates/aws.yaml",
-          "checksum": "sha256:647989c0a738e46e5c595acbe6c000de4921814adf7aee86acc4eef3fe342f3a"
+          "checksum": "sha256:3ab0b936933e0748ac24beb38226332135e4f8ee63e8649a2f7a01c4b313beed"
         },
         "aliyun": {
           "path": "apps/code-server/templates/aliyun.json",
           "url": "https://raw.githubusercontent.com/CoreNovaLabs/cloud-forge-catalog/main/apps/code-server/templates/aliyun.json",
-          "checksum": "sha256:4c69368e421a1a1afd230a374cbe351341372ba0a036dfc892718c566652045e"
+          "checksum": "sha256:a6344ec8466cf5fdb3c7b8604144898707855b291a5d25384309caed20893d81"
         }
       },
       "params": {
@@ -163,6 +163,10 @@
         "AllowedIP": {
           "type": "string",
           "default": "0.0.0.0/0"
+        },
+        "AdminPassword": {
+          "type": "string",
+          "secret": true
         }
       }
     },
@@ -205,7 +209,7 @@
         "aws": {
           "path": "apps/excalidraw/templates/aws.yaml",
           "url": "https://raw.githubusercontent.com/CoreNovaLabs/cloud-forge-catalog/main/apps/excalidraw/templates/aws.yaml",
-          "checksum": "sha256:f0829c23549546df4089f43154bd7f89e6aec9dd327596d903e06e5b8ae12f58"
+          "checksum": "sha256:931d115aba0cb1ede6e01d5bf3909b631d57bca3a013aa344bec43e071615ee9"
         },
         "aliyun": {
           "path": "apps/excalidraw/templates/aliyun.json",
@@ -364,7 +368,7 @@
         "aws": {
           "path": "apps/freshrss/templates/aws.yaml",
           "url": "https://raw.githubusercontent.com/CoreNovaLabs/cloud-forge-catalog/main/apps/freshrss/templates/aws.yaml",
-          "checksum": "sha256:f2046af32ac3917f5e97984b36088cd45593533c08241483465a91121940ae3a"
+          "checksum": "sha256:5d88b2109d3aba4d18283324a9da7703b8f3c388404550cadcb38b1bc50d20da"
         },
         "aliyun": {
           "path": "apps/freshrss/templates/aliyun.json",
@@ -522,7 +526,7 @@
         "aws": {
           "path": "apps/gitea/templates/aws.yaml",
           "url": "https://raw.githubusercontent.com/CoreNovaLabs/cloud-forge-catalog/main/apps/gitea/templates/aws.yaml",
-          "checksum": "sha256:0b78857e3607c68c4060b6df85655de3678d2f51c8c7f8aae6a845428047a4f9"
+          "checksum": "sha256:2b96e3114c6d33e5eefc3335041711f0a522b95af3b65f6f1530f008ea38483d"
         },
         "aliyun": {
           "path": "apps/gitea/templates/aliyun.json",
@@ -684,7 +688,7 @@
         "aws": {
           "path": "apps/hello-nginx/templates/aws.yaml",
           "url": "https://raw.githubusercontent.com/CoreNovaLabs/cloud-forge-catalog/main/apps/hello-nginx/templates/aws.yaml",
-          "checksum": "sha256:c5ed037bb664acc375d2c802e91cce8e3868a891660462bb188d0c3223089747"
+          "checksum": "sha256:e720b8b05463dfdc9372750d99d6211af62a23586531c614f251b7c905bed071"
         },
         "aliyun": {
           "path": "apps/hello-nginx/templates/aliyun.json",
@@ -824,7 +828,7 @@
         "aws": {
           "path": "apps/it-tools/templates/aws.yaml",
           "url": "https://raw.githubusercontent.com/CoreNovaLabs/cloud-forge-catalog/main/apps/it-tools/templates/aws.yaml",
-          "checksum": "sha256:8bf61b25521a4d715d3b9bce712bc2cbfcc08deb466b77041db21cf318327330"
+          "checksum": "sha256:f6e0d22dd861f72789082c0be36151449af76ff5780bf18e2914e30582c3d665"
         },
         "aliyun": {
           "path": "apps/it-tools/templates/aliyun.json",
@@ -982,7 +986,7 @@
         "aws": {
           "path": "apps/linkding/templates/aws.yaml",
           "url": "https://raw.githubusercontent.com/CoreNovaLabs/cloud-forge-catalog/main/apps/linkding/templates/aws.yaml",
-          "checksum": "sha256:234890d4b7fe02847c2b1b8ca9146212ebc15838c6a83698c2a1b46c9cf4af87"
+          "checksum": "sha256:48645d08817f73821ad405c1b6431e2dc631479764654b4676d1a52a9101ce61"
         },
         "aliyun": {
           "path": "apps/linkding/templates/aliyun.json",
@@ -1140,12 +1144,12 @@
         "aws": {
           "path": "apps/minio/templates/aws.yaml",
           "url": "https://raw.githubusercontent.com/CoreNovaLabs/cloud-forge-catalog/main/apps/minio/templates/aws.yaml",
-          "checksum": "sha256:3c80b56876009671a2a82031ddf6b8fc14aa41670bf96b82c515a6644fdde3cc"
+          "checksum": "sha256:d2fc05e56f800235b865a8a3e1e7331fcbc0d99e0ce28528d92178e612109a8b"
         },
         "aliyun": {
           "path": "apps/minio/templates/aliyun.json",
           "url": "https://raw.githubusercontent.com/CoreNovaLabs/cloud-forge-catalog/main/apps/minio/templates/aliyun.json",
-          "checksum": "sha256:270fc6c14884e0e10711a38b3f2843c2600b1083e56bbbdd04574535fd7c4e7c"
+          "checksum": "sha256:e3009d42479fcad4357cee11f33f7594830920180237e1f5841e02fb298c0aa0"
         }
       },
       "params": {
@@ -1256,6 +1260,10 @@
         "AllowedIP": {
           "type": "string",
           "default": "0.0.0.0/0"
+        },
+        "AdminPassword": {
+          "type": "string",
+          "secret": true
         }
       }
     },
@@ -1299,7 +1307,7 @@
         "aws": {
           "path": "apps/n8n/templates/aws.yaml",
           "url": "https://raw.githubusercontent.com/CoreNovaLabs/cloud-forge-catalog/main/apps/n8n/templates/aws.yaml",
-          "checksum": "sha256:40ab36ed5d001cb3786551599f963a347ffbc74a7c4cafde7ecccd4938886cd6"
+          "checksum": "sha256:69c28a868ed9776d99a2c8816cf55694d9ffbbd1b9ca13b7e924d7c30f627296"
         },
         "aliyun": {
           "path": "apps/n8n/templates/aliyun.json",
@@ -1459,7 +1467,7 @@
         "aws": {
           "path": "apps/uptime-kuma/templates/aws.yaml",
           "url": "https://raw.githubusercontent.com/CoreNovaLabs/cloud-forge-catalog/main/apps/uptime-kuma/templates/aws.yaml",
-          "checksum": "sha256:b686ca3078e3d42831e2baa8351359204049c287ece5eaf4adcae775ddd7b882"
+          "checksum": "sha256:e56414c1bf2f49cf249ff1d8022e75ff497352587b0b5ce51e67644f83ce01a3"
         },
         "aliyun": {
           "path": "apps/uptime-kuma/templates/aliyun.json",
@@ -1618,7 +1626,7 @@
         "aws": {
           "path": "apps/vaultwarden/templates/aws.yaml",
           "url": "https://raw.githubusercontent.com/CoreNovaLabs/cloud-forge-catalog/main/apps/vaultwarden/templates/aws.yaml",
-          "checksum": "sha256:6f8a2e5f099fb900c21351117d03338a4df955604d2b5e447e629973d59bb042"
+          "checksum": "sha256:528565c8eb0302335329105d6a3ca40b79fa04fb7a0e8b6199699eebe0e7e9f1"
         },
         "aliyun": {
           "path": "apps/vaultwarden/templates/aliyun.json",

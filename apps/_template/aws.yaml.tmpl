@@ -39,6 +39,7 @@ Parameters:
     Type: String
     Default: 0.0.0.0/0
     AllowedPattern: '^(([0-9]{1,3}\.){3}[0-9]{1,3}/([0-9]|[1-2][0-9]|3[0-2]))$'
+{{APP_SECRET_PARAMS_BLOCK}}
 
 Conditions:
   HasKeyName: !Not [!Equals [!Ref KeyName, '']]
@@ -92,6 +93,7 @@ Resources:
           set -euxo pipefail
           export CLOUD_FORGE_CADDY_PUBLIC_IP=${{{APP_PREFIX}}EIP}
           export CLOUD_FORGE_CADDY_TLS_MODE=${CaddyTlsMode}
+{{APP_SECRET_USERDATA_BLOCK}}
           curl -fsSL https://cdn.jsdelivr.net/gh/CoreNovaLabs/cloud-forge-catalog@main/scripts/aws/bootstrap-app.sh -o /tmp/cf-bootstrap.sh
           if grep -q 'run_as_root CLOUD_FORGE_CATALOG_URL=' /tmp/cf-bootstrap.sh; then
             curl -fsSL https://cdn.jsdelivr.net/gh/CoreNovaLabs/cloud-forge-catalog@34993eb/scripts/aws/bootstrap-app.sh -o /tmp/cf-bootstrap.sh

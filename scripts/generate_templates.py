@@ -31,6 +31,38 @@ def read_json(path: Path) -> dict:
     return json.loads(path.read_text(encoding="utf-8"))
 
 
+def has_admin_password(manifest: dict) -> bool:
+    return "AdminPassword" in (manifest.get("params") or {})
+
+
+def build_aws_secret_params_block(manifest: dict) -> str:
+    if not has_admin_password(manifest):
+        return ""
+    return """  AdminPassword:
+    Type: String
+    NoEcho: true
+    MinLength: 8"""
+
+
+def build_aws_secret_userdata_block(manifest: dict) -> str:
+    if not has_admin_password(manifest):
+        return ""
+    return "          export CLOUD_FORGE_APP_ADMIN_PASSWORD=${AdminPassword}"
+
+
+def build_aliyun_secret_params_block(manifest: dict) -> str:
+    if not has_admin_password(manifest):
+        return ""
+    return """,
+    "AdminPassword": { "Type": "String", "NoEcho": true, "MinLength": 8 }"""
+
+
+def build_aliyun_secret_userdata_block(manifest: dict) -> str:
+    if not has_admin_password(manifest):
+        return ""
+    return "export CLOUD_FORGE_APP_ADMIN_PASSWORD=${AdminPassword}\\n"
+
+
 def cloud_param(manifest: dict, name: str, cloud: str, field: str, default=None):
     params = manifest.get("params") or {}
     definition = params.get(name) or {}
@@ -89,6 +121,14 @@ def generate_iac(root: Path, app_id: str, manifest: dict) -> None:
         "ALIYUN_INSTANCE_OPTIONS_JSON": ", ".join(json.dumps(option) for option in aliyun_options),
         "ALIYUN_DISK_DEFAULT": aliyun_disk,
         "ALIYUN_IMAGE_DEFAULT": aliyun_image,
+        "APP_SECRET_PARAMS_BLOCK": build_aws_secret_params_block(manifest),
+        "APP_SECRET_USERDATA_BLOCK": build_aws_secret_userdata_block(manifest),
+        "APP_SECRET_USERDATA_ALIYUN": build_aliyun_secret_userdata_block(manifest),
+    }
+
+    aliyun_values = {
+        **values,
+        "APP_SECRET_PARAMS_BLOCK": build_aliyun_secret_params_block(manifest),
     }
 
     aws_out = root / "apps" / app_id / "templates" / "aws.yaml"
@@ -96,7 +136,7 @@ def generate_iac(root: Path, app_id: str, manifest: dict) -> None:
     aws_out.parent.mkdir(parents=True, exist_ok=True)
 
     aws_text = render_template(load_template(root, "aws.yaml.tmpl"), values)
-    aliyun_text = render_template(load_template(root, "aliyun.json.tmpl"), values)
+    aliyun_text = render_template(load_template(root, "aliyun.json.tmpl"), aliyun_values)
 
     aws_out.write_text(aws_text, encoding="utf-8")
     aliyun_out.write_text(aliyun_text, encoding="utf-8")

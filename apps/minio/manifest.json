@@ -76,6 +76,10 @@
     },
     "SubnetId": { "type": "string", "default": "", "aws": { "default": "" } },
     "VSwitchId": { "type": "string", "aliyun": { "required": true } },
-    "AllowedIP": { "type": "string", "default": "0.0.0.0/0" }
+    "AllowedIP": { "type": "string", "default": "0.0.0.0/0" },
+    "AdminPassword": {
+      "type": "string",
+      "secret": true
+    }
   }
 }

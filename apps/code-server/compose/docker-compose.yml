@@ -3,8 +3,9 @@ services:
     image: codercom/code-server:4.96.2
     restart: unless-stopped
 
-    environment:
-      - PASSWORD=cloudforge-change-me
+
+    env_file:
+      - /opt/cloud-forge/compose.app.env
     volumes:
       - /opt/cloud-forge/data/code-server:/home/coder
 

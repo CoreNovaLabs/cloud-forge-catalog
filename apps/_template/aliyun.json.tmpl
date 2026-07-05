@@ -21,7 +21,7 @@
       "AllowedValues": ["ip-letsencrypt", "http", "internal"]
     },
     "DiskSize": { "Type": "Number", "Default": {{ALIYUN_DISK_DEFAULT}}, "MinValue": 20, "MaxValue": 500 },
-    "DomainName": { "Type": "String", "Default": "" }
+    "DomainName": { "Type": "String", "Default": "" }{{APP_SECRET_PARAMS_BLOCK}}
   },
   "Conditions": {
     "UseHttp": { "Fn::Equals": [{ "Ref": "CaddyTlsMode" }, "http"] }
@@ -51,7 +51,7 @@
         "SystemDiskCategory": "cloud_efficiency",
         "InternetMaxBandwidthOut": 0,
         "UserData": {
-          "Fn::Sub": "#!/bin/bash\nset -euxo pipefail\nexport CLOUD_FORGE_CADDY_TLS_MODE=${CaddyTlsMode}\ncurl -fsSL https://cdn.jsdelivr.net/gh/CoreNovaLabs/cloud-forge-catalog@main/scripts/aliyun/bootstrap-app.sh | bash -s -- {{APP_ID}}\n"
+          "Fn::Sub": "#!/bin/bash\nset -euxo pipefail\nexport CLOUD_FORGE_CADDY_TLS_MODE=${CaddyTlsMode}\n{{APP_SECRET_USERDATA_ALIYUN}}curl -fsSL https://cdn.jsdelivr.net/gh/CoreNovaLabs/cloud-forge-catalog@main/scripts/aliyun/bootstrap-app.sh | bash -s -- {{APP_ID}}\n"
         },
         "Tags": [
           { "Key": "Name", "Value": "cloud-forge-{{APP_ID}}" },

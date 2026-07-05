@@ -5,7 +5,8 @@ services:
     command: ["server", "/data", "--console-address", ":9001"]
     environment:
       - MINIO_ROOT_USER=cloudforge
-      - MINIO_ROOT_PASSWORD=cloudforge-change-me
+    env_file:
+      - /opt/cloud-forge/compose.app.env
     volumes:
       - /opt/cloud-forge/data/minio:/data
 

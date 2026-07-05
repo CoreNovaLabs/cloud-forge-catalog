@@ -89,4 +89,5 @@ portainer (needs docker.sock — special template), hoppscotch, plausible (needs
 | `CLOUD_FORGE_SMOKE_REGISTRY_MIRROR` | `docker.1ms.run` | Local image pull mirror |
 | `CLOUD_FORGE_SMOKE_PROBE_IMAGE` | `curlimages/curl:8.5.0` | HTTP probe sidecar |
 | `CLOUD_FORGE_SMOKE_WAIT` | `90` | Default wait seconds |
+| `CLOUD_FORGE_SMOKE_ADMIN_PASSWORD` | _(auto)_ | Password for apps with `AdminPassword` during local smoke |
 | `CLOUD_FORGE_VERIFY_TIERS` | `certified` | Cloud verify app filter |

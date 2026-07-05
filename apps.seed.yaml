@@ -39,7 +39,9 @@ apps:
     command: ["server", "/data", "--console-address", ":9001"]
     environment:
       MINIO_ROOT_USER: cloudforge
-      MINIO_ROOT_PASSWORD: cloudforge-change-me
+    secrets:
+      - param: AdminPassword
+        env: MINIO_ROOT_PASSWORD
     data_path: /opt/cloud-forge/data/minio
     volume_mount: "/opt/cloud-forge/data/minio:/data"
     aws_instance_default: t3.small
@@ -60,8 +62,9 @@ apps:
     image: codercom/code-server:4.96.2
     service_name: code_server
     port: 8080
-    environment:
-      PASSWORD: cloudforge-change-me
+    secrets:
+      - param: AdminPassword
+        env: PASSWORD
     data_path: /opt/cloud-forge/data/code-server
     uid: 1000
     volume_mount: "/opt/cloud-forge/data/code-server:/home/coder"
