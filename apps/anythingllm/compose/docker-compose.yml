@@ -1,0 +1,17 @@
+services:
+  anythingllm:
+    image: mintplexlabs/anythingllm:1.7.2
+    restart: unless-stopped
+
+
+
+
+    volumes:
+      - /opt/cloud-forge/data/anythingllm:/app/server/storage
+
+    networks:
+      - cloud-forge
+
+networks:
+  cloud-forge:
+    name: cloud-forge

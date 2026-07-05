@@ -1,0 +1,17 @@
+services:
+  pgadmin:
+    image: dpage/pgadmin4:9.8
+    restart: unless-stopped
+
+
+
+
+    volumes:
+      - /opt/cloud-forge/data/pgadmin:/var/lib/pgadmin
+
+    networks:
+      - cloud-forge
+
+networks:
+  cloud-forge:
+    name: cloud-forge

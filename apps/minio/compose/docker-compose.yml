@@ -7,6 +7,7 @@ services:
       - MINIO_ROOT_USER=cloudforge
     env_file:
       - /opt/cloud-forge/compose.app.env
+
     volumes:
       - /opt/cloud-forge/data/minio:/data
 

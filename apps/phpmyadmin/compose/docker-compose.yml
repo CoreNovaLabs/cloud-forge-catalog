@@ -1,0 +1,17 @@
+services:
+  phpmyadmin:
+    image: phpmyadmin:5.2.1
+    restart: unless-stopped
+
+
+
+
+    volumes:
+      - /opt/cloud-forge/data/phpmyadmin:/sessions
+
+    networks:
+      - cloud-forge
+
+networks:
+  cloud-forge:
+    name: cloud-forge

@@ -1,0 +1,17 @@
+services:
+  planka:
+    image: ghcr.io/plankanban/planka:1.25.1
+    restart: unless-stopped
+
+
+
+
+    volumes:
+      - /opt/cloud-forge/data/planka:/var/lib/planka
+
+    networks:
+      - cloud-forge
+
+networks:
+  cloud-forge:
+    name: cloud-forge

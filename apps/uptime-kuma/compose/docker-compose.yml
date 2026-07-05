@@ -1,9 +1,14 @@
 services:
-  uptime-kuma:
-    image: louislam/uptime-kuma:1
+  uptime_kuma:
+    image: louislam/uptime-kuma:1.21.3
     restart: unless-stopped
+
+
+
+
     volumes:
       - /opt/cloud-forge/data/uptime-kuma:/app/data
+
     networks:
       - cloud-forge
 

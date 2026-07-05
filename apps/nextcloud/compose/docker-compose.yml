@@ -1,0 +1,17 @@
+services:
+  nextcloud:
+    image: nextcloud:30.0.5-apache
+    restart: unless-stopped
+
+
+
+
+    volumes:
+      - /opt/cloud-forge/data/nextcloud:/var/www/html
+
+    networks:
+      - cloud-forge
+
+networks:
+  cloud-forge:
+    name: cloud-forge

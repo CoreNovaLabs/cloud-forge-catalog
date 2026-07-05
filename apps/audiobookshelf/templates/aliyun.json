@@ -105,25 +105,7 @@
   "Outputs": {
     "ServiceURL": {
       "Description": "Primary endpoint for audiobookshelf.",
-      "Value": {
-        "Fn::If": [
-          "HasDomain",
-          {
-            "Fn::If": [
-              "UseHttp",
-              { "Fn::Join": ["", ["http://", { "Ref": "DomainName" }]] },
-              { "Fn::Join": ["", ["https://", { "Ref": "DomainName" }]] }
-            ]
-          },
-          {
-            "Fn::If": [
-              "UseHttp",
-              { "Fn::Join": ["", ["http://", { "Fn::GetAtt": ["AudiobookshelfEIP", "EipAddress"] }]] },
-              { "Fn::Join": ["", ["https://", { "Fn::GetAtt": ["AudiobookshelfEIP", "EipAddress"] }]] }
-            ]
-          }
-        ]
-      }
+      "Value": {"Fn::If": ["HasDomain", {"Fn::If": ["UseHttp", {"Fn::Sub": "http://${DomainName}"}, {"Fn::Sub": "https://${DomainName}"}]}, {"Fn::If": ["UseHttp", {"Fn::Sub": "http://${AudiobookshelfEIP}"}, {"Fn::Sub": "https://${AudiobookshelfEIP}"}]}]}
     },
     "DomainName": {
       "Description": "Custom domain when configured.",

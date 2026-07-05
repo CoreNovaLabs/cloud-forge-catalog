@@ -1,0 +1,17 @@
+services:
+  radarr:
+    image: lscr.io/linuxserver/radarr:5.18.4
+    restart: unless-stopped
+
+
+
+
+    volumes:
+      - /opt/cloud-forge/data/radarr:/config
+
+    networks:
+      - cloud-forge
+
+networks:
+  cloud-forge:
+    name: cloud-forge

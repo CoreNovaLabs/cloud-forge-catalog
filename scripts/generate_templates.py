@@ -15,6 +15,7 @@ DEFAULT_ALIYUN_IMAGE = "aliyun_3_x64_20G_alibase_20260122.vhd"
 # Pin jsdelivr when @main is stale; bump with catalog releases that change bootstrap scripts.
 CATALOG_CDN_REF = "66fb52b"
 VALID_TIERS = {"certified", "community", "experimental"}
+DIRECT_TCP_ROLES = {"db", "tcp"}
 
 
 def fail(message: str) -> None:
@@ -76,6 +77,141 @@ def cloud_param(manifest: dict, name: str, cloud: str, field: str, default=None)
     return default
 
 
+def app_role(manifest: dict) -> str:
+    return str(manifest.get("ami_role") or "web")
+
+
+def is_direct_tcp(manifest: dict) -> bool:
+    return app_role(manifest) in DIRECT_TCP_ROLES
+
+
+def service_scheme(manifest: dict, app_id: str) -> str:
+    if manifest.get("service_scheme"):
+        return str(manifest["service_scheme"])
+    return {
+        "postgresql": "postgresql",
+        "mariadb": "mysql",
+        "redis": "redis",
+        "mongodb": "mongodb",
+    }.get(app_id, "tcp")
+
+
+def service_port(manifest: dict) -> int:
+    value = manifest.get("service_port")
+    if value is None:
+        return 0
+    return int(value)
+
+
+def app_prefix(app_id: str) -> str:
+    return to_pascal(app_id)
+
+
+def build_aws_security_group_ingress_block(manifest: dict) -> str:
+    port = service_port(manifest)
+    if is_direct_tcp(manifest) and port > 0:
+        return (
+            "        - IpProtocol: tcp\n"
+            f"          FromPort: {port}\n"
+            f"          ToPort: {port}\n"
+            "          CidrIp: !Ref AllowedIP\n"
+        )
+    return (
+        "        - IpProtocol: tcp\n"
+        "          FromPort: 80\n"
+        "          ToPort: 80\n"
+        "          CidrIp: 0.0.0.0/0\n"
+        "        - IpProtocol: tcp\n"
+        "          FromPort: 443\n"
+        "          ToPort: 443\n"
+        "          CidrIp: 0.0.0.0/0\n"
+    )
+
+
+def build_aliyun_security_group_ingress_block(manifest: dict) -> str:
+    port = service_port(manifest)
+    if is_direct_tcp(manifest) and port > 0:
+        return (
+            "[\n"
+            f'          {{ "IpProtocol": "tcp", "PortRange": "{port}/{port}", "SourceCidrIp": {{ "Ref": "AllowedIP" }} }},\n'
+            '          { "IpProtocol": "tcp", "PortRange": "22/22", "SourceCidrIp": { "Ref": "AllowedIP" } }\n'
+            "        ]"
+        )
+    return (
+        "[\n"
+        '          { "IpProtocol": "tcp", "PortRange": "80/80", "SourceCidrIp": "0.0.0.0/0" },\n'
+        '          { "IpProtocol": "tcp", "PortRange": "443/443", "SourceCidrIp": "0.0.0.0/0" },\n'
+        '          { "IpProtocol": "tcp", "PortRange": "22/22", "SourceCidrIp": { "Ref": "AllowedIP" } }\n'
+        "        ]"
+    )
+
+
+def build_aws_service_url_value(manifest: dict, app_id: str) -> str:
+    prefix = app_prefix(app_id)
+    port = service_port(manifest)
+    if is_direct_tcp(manifest):
+        scheme = service_scheme(manifest, app_id)
+        if port <= 0:
+            port = 0
+        return (
+            "!If\n"
+            "      - HasDomain\n"
+            f"      - !Sub '{scheme}://${{DomainName}}:{port}'\n"
+            "      - !Sub '" + scheme + "://${" + prefix + "EIP}:" + str(port) + "'"
+        )
+    return (
+        "!If\n"
+        "      - HasDomain\n"
+        "      - !If\n"
+        "        - UseHttp\n"
+        "        - !Sub 'http://${DomainName}'\n"
+        "        - !Sub 'https://${DomainName}'\n"
+        "      - !If\n"
+        "        - UseHttp\n"
+        "        - !Sub 'http://${" + prefix + "EIP}'\n"
+        "        - !Sub 'https://${" + prefix + "EIP}'"
+    )
+
+
+def build_aliyun_service_url_value(manifest: dict, app_id: str) -> str:
+    prefix = app_prefix(app_id)
+    port = service_port(manifest)
+    if is_direct_tcp(manifest):
+        scheme = service_scheme(manifest, app_id)
+        return json.dumps(
+            {
+                "Fn::If": [
+                    "HasDomain",
+                    {"Fn::Sub": f"{scheme}://${{DomainName}}:{port}"},
+                    {"Fn::Sub": f"{scheme}://${{{prefix}EIP}}:{port}"},
+                ]
+            },
+            ensure_ascii=False,
+        )
+    return json.dumps(
+        {
+            "Fn::If": [
+                "HasDomain",
+                {
+                    "Fn::If": [
+                        "UseHttp",
+                        {"Fn::Sub": "http://${DomainName}"},
+                        {"Fn::Sub": "https://${DomainName}"},
+                    ]
+                },
+                {
+                    "Fn::If": [
+                        "UseHttp",
+                        {"Fn::Sub": f"http://${{{prefix}EIP}}"},
+                        {"Fn::Sub": f"https://${{{prefix}EIP}}"},
+                    ]
+                },
+            ]
+        },
+        ensure_ascii=False,
+    )
+
+
 def render_template(template_text: str, values: dict[str, str]) -> str:
     rendered = template_text
     for key, value in values.items():
@@ -110,7 +246,6 @@ def generate_iac(root: Path, app_id: str, manifest: dict) -> None:
 
     aws_ami = (manifest.get("images") or {}).get("aws") or DEFAULT_AWS_AMI
     aliyun_image = (manifest.get("images") or {}).get("aliyun") or DEFAULT_ALIYUN_IMAGE
-
     values = {
         "APP_ID": app_id,
         "APP_NAME": app_name,
@@ -126,12 +261,16 @@ def generate_iac(root: Path, app_id: str, manifest: dict) -> None:
         "APP_SECRET_PARAMS_BLOCK": build_aws_secret_params_block(manifest),
         "APP_SECRET_USERDATA_BLOCK": build_aws_secret_userdata_block(manifest),
         "APP_SECRET_USERDATA_ALIYUN": build_aliyun_secret_userdata_block(manifest),
+        "APP_SECURITY_GROUP_INGRESS_BLOCK": build_aws_security_group_ingress_block(manifest),
+        "APP_SERVICE_URL_VALUE": build_aws_service_url_value(manifest, app_id),
         "CATALOG_CDN_REF": CATALOG_CDN_REF,
     }
 
     aliyun_values = {
         **values,
         "APP_SECRET_PARAMS_BLOCK": build_aliyun_secret_params_block(manifest),
+        "APP_SECURITY_GROUP_INGRESS_BLOCK": build_aliyun_security_group_ingress_block(manifest),
+        "APP_SERVICE_URL_VALUE": build_aliyun_service_url_value(manifest, app_id),
     }
 
     aws_out = root / "apps" / app_id / "templates" / "aws.yaml"

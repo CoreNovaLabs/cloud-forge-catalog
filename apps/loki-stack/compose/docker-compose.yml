@@ -1,0 +1,17 @@
+services:
+  loki_stack:
+    image: grafana/loki:3.3.2
+    restart: unless-stopped
+
+
+
+
+    volumes:
+      - /opt/cloud-forge/data/loki-stack:/loki
+
+    networks:
+      - cloud-forge
+
+networks:
+  cloud-forge:
+    name: cloud-forge

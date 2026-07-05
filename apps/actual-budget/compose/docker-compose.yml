@@ -1,0 +1,17 @@
+services:
+  actual_budget:
+    image: actualbudget/actual-server:25.2.0
+    restart: unless-stopped
+
+
+
+
+    volumes:
+      - /opt/cloud-forge/data/actual-budget:/data
+
+    networks:
+      - cloud-forge
+
+networks:
+  cloud-forge:
+    name: cloud-forge

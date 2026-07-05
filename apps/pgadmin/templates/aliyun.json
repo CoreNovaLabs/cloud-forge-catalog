@@ -1,0 +1,123 @@
+{
+  "ROSTemplateFormatVersion": "2015-09-01",
+  "Description": "pgAdmin 4 on Cloud Forge CLI - Aliyun cn-hongkong bootstrap",
+  "Parameters": {
+    "InstanceType": {
+      "Type": "String",
+      "Default": "ecs.t6-c1m1.large",
+      "AllowedValues": ["ecs.t6-c1m1.large"]
+    },
+    "ImageId": {
+      "Type": "String",
+      "Default": "aliyun_3_x64_20G_alibase_20260122.vhd"
+    },
+    "KeyPairName": { "Type": "String" },
+    "VpcId": { "Type": "String" },
+    "VSwitchId": { "Type": "String" },
+    "AllowedIP": { "Type": "String", "Default": "0.0.0.0/0" },
+    "CaddyTlsMode": {
+      "Type": "String",
+      "Default": "ip-letsencrypt",
+      "AllowedValues": ["auto", "ip-letsencrypt", "http", "internal"]
+    },
+    "DiskSize": { "Type": "Number", "Default": 20, "MinValue": 20, "MaxValue": 500 },
+    "DomainName": { "Type": "String", "Default": "" },
+    "DnsDomainName": { "Type": "String", "Default": "" },
+    "DnsRR": { "Type": "String", "Default": "" },
+    "CaddyEmail": { "Type": "String", "Default": "" }
+  },
+  "Conditions": {
+    "UseHttp": { "Fn::Equals": [{ "Ref": "CaddyTlsMode" }, "http"] },
+    "HasDomain": {
+      "Fn::Not": {
+        "Fn::Equals": ["", { "Ref": "DomainName" }]
+      }
+    },
+    "HasDnsDomain": {
+      "Fn::Not": {
+        "Fn::Equals": ["", { "Ref": "DnsDomainName" }]
+      }
+    },
+    "HasDNS": {
+      "Fn::And": ["HasDomain", "HasDnsDomain"]
+    }
+  },
+  "Resources": {
+    "PgadminSG": {
+      "Type": "ALIYUN::ECS::SecurityGroup",
+      "Properties": {
+        "VpcId": { "Ref": "VpcId" },
+        "SecurityGroupName": "cloud-forge-pgadmin",
+        "SecurityGroupIngress": [
+          { "IpProtocol": "tcp", "PortRange": "80/80", "SourceCidrIp": "0.0.0.0/0" },
+          { "IpProtocol": "tcp", "PortRange": "443/443", "SourceCidrIp": "0.0.0.0/0" },
+          { "IpProtocol": "tcp", "PortRange": "22/22", "SourceCidrIp": { "Ref": "AllowedIP" } }
+        ]
+      }
+    },
+    "PgadminInstance": {
+      "Type": "ALIYUN::ECS::Instance",
+      "Properties": {
+        "ImageId": { "Ref": "ImageId" },
+        "InstanceType": { "Ref": "InstanceType" },
+        "KeyPairName": { "Ref": "KeyPairName" },
+        "VSwitchId": { "Ref": "VSwitchId" },
+        "SecurityGroupId": { "Ref": "PgadminSG" },
+        "SystemDiskSize": { "Ref": "DiskSize" },
+        "SystemDiskCategory": "cloud_efficiency",
+        "InternetMaxBandwidthOut": 0,
+        "UserData": {
+          "Fn::Sub": "#!/bin/bash\nset -euxo pipefail\nexport CLOUD_FORGE_CADDY_TLS_MODE=${CaddyTlsMode}\nexport CLOUD_FORGE_DOMAIN_NAME=${DomainName}\nexport CLOUD_FORGE_CADDY_EMAIL=${CaddyEmail}\ncurl -fsSL https://cdn.jsdelivr.net/gh/CoreNovaLabs/cloud-forge-catalog@main/scripts/aliyun/bootstrap-app.sh -o /tmp/cf-bootstrap.sh\nif ! grep -q CLOUD_FORGE_DOMAIN_NAME /tmp/cf-bootstrap.sh; then\n  curl -fsSL https://cdn.jsdelivr.net/gh/CoreNovaLabs/cloud-forge-catalog@66fb52b/scripts/aliyun/bootstrap-app.sh -o /tmp/cf-bootstrap.sh\nfi\nbash /tmp/cf-bootstrap.sh pgadmin\n"
+        },
+        "Tags": [
+          { "Key": "Name", "Value": "cloud-forge-pgadmin" },
+          { "Key": "cloud-forge:app", "Value": "pgadmin" }
+        ]
+      }
+    },
+    "PgadminEIP": {
+      "Type": "ALIYUN::VPC::EIP",
+      "Properties": {
+        "Bandwidth": 5,
+        "InternetChargeType": "PayByTraffic"
+      }
+    },
+    "PgadminEIPAssociation": {
+      "Type": "ALIYUN::VPC::EIPAssociation",
+      "Properties": {
+        "AllocationId": { "Ref": "PgadminEIP" },
+        "InstanceId": { "Ref": "PgadminInstance" }
+      }
+    },
+    "PgadminDNS": {
+      "Type": "ALIYUN::DNS::DomainRecord",
+      "Condition": "HasDNS",
+      "DependsOn": ["PgadminEIPAssociation"],
+      "Properties": {
+        "DomainName": { "Ref": "DnsDomainName" },
+        "RR": { "Ref": "DnsRR" },
+        "Type": "A",
+        "Value": { "Fn::GetAtt": ["PgadminEIP", "EipAddress"] },
+        "TTL": 600
+      }
+    }
+  },
+  "Outputs": {
+    "ServiceURL": {
+      "Description": "Primary endpoint for pgadmin.",
+      "Value": {"Fn::If": ["HasDomain", {"Fn::If": ["UseHttp", {"Fn::Sub": "http://${DomainName}"}, {"Fn::Sub": "https://${DomainName}"}]}, {"Fn::If": ["UseHttp", {"Fn::Sub": "http://${PgadminEIP}"}, {"Fn::Sub": "https://${PgadminEIP}"}]}]}
+    },
+    "DomainName": {
+      "Description": "Custom domain when configured.",
+      "Value": { "Ref": "DomainName" }
+    },
+    "PublicIP": {
+      "Description": "Elastic IP address assigned to the service.",
+      "Value": { "Fn::GetAtt": ["PgadminEIP", "EipAddress"] }
+    },
+    "InstanceId": {
+      "Description": "Created ECS instance ID.",
+      "Value": { "Ref": "PgadminInstance" }
+    }
+  }
+}

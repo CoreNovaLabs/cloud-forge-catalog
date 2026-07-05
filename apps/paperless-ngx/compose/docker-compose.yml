@@ -1,0 +1,17 @@
+services:
+  paperless_ngx:
+    image: ghcr.io/paperless-ngx/paperless-ngx:2.14.7
+    restart: unless-stopped
+
+
+
+
+    volumes:
+      - /opt/cloud-forge/data/paperless-ngx:/usr/src/paperless/data
+
+    networks:
+      - cloud-forge
+
+networks:
+  cloud-forge:
+    name: cloud-forge

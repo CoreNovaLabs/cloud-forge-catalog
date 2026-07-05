@@ -1,0 +1,17 @@
+services:
+  homepage:
+    image: gethomepage/homepage:v0.10.9
+    restart: unless-stopped
+
+
+
+
+    volumes:
+      - /opt/cloud-forge/data/homepage:/app/config
+
+    networks:
+      - cloud-forge
+
+networks:
+  cloud-forge:
+    name: cloud-forge

@@ -1,0 +1,17 @@
+services:
+  organizr:
+    image: organizr/organizr:v2.1.1800
+    restart: unless-stopped
+
+
+
+
+    volumes:
+      - /opt/cloud-forge/data/organizr:/config
+
+    networks:
+      - cloud-forge
+
+networks:
+  cloud-forge:
+    name: cloud-forge

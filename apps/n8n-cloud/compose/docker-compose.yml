@@ -1,0 +1,17 @@
+services:
+  n8n_cloud:
+    image: n8nio/n8n:1.78.1
+    restart: unless-stopped
+
+
+
+
+    volumes:
+      - /opt/cloud-forge/data/n8n-cloud:/home/node/.n8n
+
+    networks:
+      - cloud-forge
+
+networks:
+  cloud-forge:
+    name: cloud-forge

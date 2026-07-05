@@ -1,0 +1,17 @@
+services:
+  noco_db:
+    image: nocodb/nocodb:0.262.5
+    restart: unless-stopped
+
+
+
+
+    volumes:
+      - /opt/cloud-forge/data/noco-db:/usr/app/data
+
+    networks:
+      - cloud-forge
+
+networks:
+  cloud-forge:
+    name: cloud-forge

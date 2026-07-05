@@ -1,0 +1,17 @@
+services:
+  jellyfin:
+    image: jellyfin/jellyfin:10.10.7
+    restart: unless-stopped
+
+
+
+
+    volumes:
+      - /opt/cloud-forge/data/jellyfin:/config
+
+    networks:
+      - cloud-forge
+
+networks:
+  cloud-forge:
+    name: cloud-forge

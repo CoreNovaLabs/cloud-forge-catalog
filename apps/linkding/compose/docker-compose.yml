@@ -4,6 +4,8 @@ services:
     restart: unless-stopped
 
 
+
+
     volumes:
       - /opt/cloud-forge/data/linkding:/etc/linkding/data
 

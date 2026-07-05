@@ -1,0 +1,17 @@
+services:
+  prometheus:
+    image: prom/prometheus:v3.1.0
+    restart: unless-stopped
+
+
+
+
+    volumes:
+      - /opt/cloud-forge/data/prometheus:/prometheus
+
+    networks:
+      - cloud-forge
+
+networks:
+  cloud-forge:
+    name: cloud-forge

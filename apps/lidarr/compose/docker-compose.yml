@@ -1,0 +1,17 @@
+services:
+  lidarr:
+    image: lscr.io/linuxserver/lidarr:2.10.1
+    restart: unless-stopped
+
+
+
+
+    volumes:
+      - /opt/cloud-forge/data/lidarr:/config
+
+    networks:
+      - cloud-forge
+
+networks:
+  cloud-forge:
+    name: cloud-forge

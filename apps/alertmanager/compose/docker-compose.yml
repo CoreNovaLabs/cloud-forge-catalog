@@ -1,0 +1,17 @@
+services:
+  alertmanager:
+    image: prom/alertmanager:v0.28.0
+    restart: unless-stopped
+
+
+
+
+    volumes:
+      - /opt/cloud-forge/data/alertmanager:/alertmanager
+
+    networks:
+      - cloud-forge
+
+networks:
+  cloud-forge:
+    name: cloud-forge

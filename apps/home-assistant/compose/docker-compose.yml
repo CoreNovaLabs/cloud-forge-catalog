@@ -1,0 +1,17 @@
+services:
+  home_assistant:
+    image: homeassistant/home-assistant:2025.1.4
+    restart: unless-stopped
+
+
+
+
+    volumes:
+      - /opt/cloud-forge/data/home-assistant:/config
+
+    networks:
+      - cloud-forge
+
+networks:
+  cloud-forge:
+    name: cloud-forge

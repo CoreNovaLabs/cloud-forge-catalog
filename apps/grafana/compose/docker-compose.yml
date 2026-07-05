@@ -1,0 +1,17 @@
+services:
+  grafana:
+    image: grafana/grafana:11.4.0
+    restart: unless-stopped
+
+
+
+
+    volumes:
+      - /opt/cloud-forge/data/grafana:/var/lib/grafana
+
+    networks:
+      - cloud-forge
+
+networks:
+  cloud-forge:
+    name: cloud-forge

@@ -1,0 +1,19 @@
+services:
+  mariadb:
+    image: mariadb:11.4.4
+    restart: unless-stopped
+
+
+    env_file:
+      - /opt/cloud-forge/compose.app.env
+    ports:
+      - 3306:3306
+    volumes:
+      - /opt/cloud-forge/data/mariadb:/var/lib/mysql
+
+    networks:
+      - cloud-forge
+
+networks:
+  cloud-forge:
+    name: cloud-forge

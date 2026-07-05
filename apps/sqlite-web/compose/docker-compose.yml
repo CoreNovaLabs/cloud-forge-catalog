@@ -1,0 +1,15 @@
+services:
+  sqlite_web:
+    image: coleifer/sqlite-web:0.6.4
+    restart: unless-stopped
+
+
+
+
+
+    networks:
+      - cloud-forge
+
+networks:
+  cloud-forge:
+    name: cloud-forge

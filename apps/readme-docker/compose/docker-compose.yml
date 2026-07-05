@@ -1,0 +1,15 @@
+services:
+  readme_docker:
+    image: readmeio/rdme:1.0.0
+    restart: unless-stopped
+
+
+
+
+
+    networks:
+      - cloud-forge
+
+networks:
+  cloud-forge:
+    name: cloud-forge

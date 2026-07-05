@@ -5,7 +5,7 @@
     "InstanceType": {
       "Type": "String",
       "Default": "ecs.t6-c1m1.large",
-      "AllowedValues": ["ecs.t6-c1m1.large", "ecs.t6-c1m2.large", "ecs.t6-c1m4.large"]
+      "AllowedValues": ["ecs.t6-c1m1.large"]
     },
     "ImageId": {
       "Type": "String",
@@ -20,7 +20,7 @@
       "Default": "ip-letsencrypt",
       "AllowedValues": ["auto", "ip-letsencrypt", "http", "internal"]
     },
-    "DiskSize": { "Type": "Number", "Default": 40, "MinValue": 20, "MaxValue": 500 },
+    "DiskSize": { "Type": "Number", "Default": 20, "MinValue": 20, "MaxValue": 500 },
     "DomainName": { "Type": "String", "Default": "" },
     "DnsDomainName": { "Type": "String", "Default": "" },
     "DnsRR": { "Type": "String", "Default": "" },
@@ -105,25 +105,7 @@
   "Outputs": {
     "ServiceURL": {
       "Description": "Primary endpoint for gitea.",
-      "Value": {
-        "Fn::If": [
-          "HasDomain",
-          {
-            "Fn::If": [
-              "UseHttp",
-              { "Fn::Join": ["", ["http://", { "Ref": "DomainName" }]] },
-              { "Fn::Join": ["", ["https://", { "Ref": "DomainName" }]] }
-            ]
-          },
-          {
-            "Fn::If": [
-              "UseHttp",
-              { "Fn::Join": ["", ["http://", { "Fn::GetAtt": ["GiteaEIP", "EipAddress"] }]] },
-              { "Fn::Join": ["", ["https://", { "Fn::GetAtt": ["GiteaEIP", "EipAddress"] }]] }
-            ]
-          }
-        ]
-      }
+      "Value": {"Fn::If": ["HasDomain", {"Fn::If": ["UseHttp", {"Fn::Sub": "http://${DomainName}"}, {"Fn::Sub": "https://${DomainName}"}]}, {"Fn::If": ["UseHttp", {"Fn::Sub": "http://${GiteaEIP}"}, {"Fn::Sub": "https://${GiteaEIP}"}]}]}
     },
     "DomainName": {
       "Description": "Custom domain when configured.",

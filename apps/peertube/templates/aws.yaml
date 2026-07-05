@@ -1,0 +1,173 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Description: 'PeerTube on Cloud Forge CLI - one-command deployment'
+
+Parameters:
+  InstanceType:
+    Type: String
+    Default: t3.medium
+    AllowedValues: [t3.medium, t3.medium]
+  LatestAmiId:
+    Type: AWS::EC2::Image::Id
+    Default: ami-04cf9ac8716f030d6
+  CaddyTlsMode:
+    Type: String
+    Default: ip-letsencrypt
+    AllowedValues: [auto, ip-letsencrypt, http, internal]
+    Description: Caddy TLS mode for the public endpoint.
+  KeyName:
+    Type: String
+    Default: ''
+    Description: Optional EC2 key pair name for SSH access.
+  DomainName:
+    Type: String
+    Default: ''
+  HostedZoneId:
+    Type: String
+    Default: ''
+  CaddyEmail:
+    Type: String
+    Default: ''
+    Description: Optional ACME contact email for Caddy public certificates.
+  DiskSize:
+    Type: Number
+    Default: 40
+    MinValue: 20
+    MaxValue: 500
+  VpcId:
+    Type: String
+    Default: ''
+  SubnetId:
+    Type: String
+    Default: ''
+  AllowedIP:
+    Type: String
+    Default: 0.0.0.0/0
+    AllowedPattern: '^(([0-9]{1,3}\.){3}[0-9]{1,3}/([0-9]|[1-2][0-9]|3[0-2]))$'
+
+
+Conditions:
+  HasKeyName: !Not [!Equals [!Ref KeyName, '']]
+  HasDomain: !Not [!Equals [!Ref DomainName, '']]
+  HasHostedZone: !Not [!Equals [!Ref HostedZoneId, '']]
+  HasDNS: !And [!Condition HasDomain, !Condition HasHostedZone]
+  HasVpc: !Not [!Equals [!Ref VpcId, '']]
+  HasSubnet: !Not [!Equals [!Ref SubnetId, '']]
+  UseHttp: !Equals [!Ref CaddyTlsMode, http]
+
+Resources:
+  PeertubeSecurityGroup:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      GroupDescription: Allow app traffic and restricted SSH for peertube
+      VpcId: !If [HasVpc, !Ref VpcId, !Ref AWS::NoValue]
+      SecurityGroupIngress:
+        - IpProtocol: tcp
+          FromPort: 80
+          ToPort: 80
+          CidrIp: 0.0.0.0/0
+        - IpProtocol: tcp
+          FromPort: 443
+          ToPort: 443
+          CidrIp: 0.0.0.0/0
+
+        - IpProtocol: tcp
+          FromPort: 22
+          ToPort: 22
+          CidrIp: !Ref AllowedIP
+      Tags:
+        - Key: cloud-forge:app
+          Value: peertube
+
+  PeertubeInstance:
+    Type: AWS::EC2::Instance
+    Properties:
+      ImageId: !Ref LatestAmiId
+      InstanceType: !Ref InstanceType
+      KeyName: !If [HasKeyName, !Ref KeyName, !Ref AWS::NoValue]
+      SubnetId: !If [HasSubnet, !Ref SubnetId, !Ref AWS::NoValue]
+      BlockDeviceMappings:
+        - DeviceName: /dev/xvda
+          Ebs:
+            VolumeSize: !Ref DiskSize
+            VolumeType: gp3
+      SecurityGroupIds:
+        - !Ref PeertubeSecurityGroup
+      UserData:
+        Fn::Base64: !Sub |
+          #!/bin/bash
+          set -euxo pipefail
+          export CLOUD_FORGE_CADDY_PUBLIC_IP=${PeertubeEIP}
+          export CLOUD_FORGE_CADDY_TLS_MODE=${CaddyTlsMode}
+          export CLOUD_FORGE_DOMAIN_NAME=${DomainName}
+          export CLOUD_FORGE_CADDY_EMAIL=${CaddyEmail}
+
+          curl -fsSL https://cdn.jsdelivr.net/gh/CoreNovaLabs/cloud-forge-catalog@main/scripts/aws/bootstrap-app.sh -o /tmp/cf-bootstrap.sh
+          if grep -q 'run_as_root CLOUD_FORGE_CATALOG_URL=' /tmp/cf-bootstrap.sh; then
+            curl -fsSL https://cdn.jsdelivr.net/gh/CoreNovaLabs/cloud-forge-catalog@34993eb/scripts/aws/bootstrap-app.sh -o /tmp/cf-bootstrap.sh
+          fi
+          bash /tmp/cf-bootstrap.sh peertube
+      Tags:
+        - Key: Name
+          Value: cloud-forge-peertube
+        - Key: cloud-forge:app
+          Value: peertube
+
+  PeertubeEIP:
+    Type: AWS::EC2::EIP
+    Properties:
+      Domain: vpc
+      Tags:
+        - Key: cloud-forge:app
+          Value: peertube
+
+  PeertubeEIPAssociation:
+    Type: AWS::EC2::EIPAssociation
+    Properties:
+      AllocationId: !GetAtt PeertubeEIP.AllocationId
+      InstanceId: !Ref PeertubeInstance
+
+  PeertubeDNS:
+    Type: AWS::Route53::RecordSet
+    Condition: HasDNS
+    Properties:
+      HostedZoneId: !Ref HostedZoneId
+      Name: !Ref DomainName
+      Type: A
+      TTL: 300
+      ResourceRecords:
+        - !Ref PeertubeEIP
+
+Outputs:
+  ServiceURL:
+    Description: Primary endpoint for peertube.
+    Value: !If
+      - HasDomain
+      - !If
+        - UseHttp
+        - !Sub 'http://${DomainName}'
+        - !Sub 'https://${DomainName}'
+      - !If
+        - UseHttp
+        - !Sub 'http://${PeertubeEIP}'
+        - !Sub 'https://${PeertubeEIP}'
+  DomainName:
+    Description: Custom domain when configured.
+    Value: !Ref DomainName
+  PublicIP:
+    Description: Elastic IP address assigned to the service.
+    Value: !Ref PeertubeEIP
+  InstanceId:
+    Description: Created EC2 instance ID.
+    Value: !Ref PeertubeInstance
+  AWSRegion:
+    Description: AWS region where the stack is deployed.
+    Value: !Ref AWS::Region
+  AmiId:
+    Description: AMI ID used by the EC2 instance.
+    Value: !Ref LatestAmiId
+  InstanceType:
+    Description: EC2 instance type.
+    Value: !Ref InstanceType
+  SecurityGroupId:
+    Description: Security group attached to the instance.
+    Value: !Ref PeertubeSecurityGroup

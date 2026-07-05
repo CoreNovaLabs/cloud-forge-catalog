@@ -1,0 +1,17 @@
+services:
+  jellyseerr:
+    image: fallenbagel/jellyseerr:v2.4.0
+    restart: unless-stopped
+
+
+
+
+    volumes:
+      - /opt/cloud-forge/data/jellyseerr:/app/config
+
+    networks:
+      - cloud-forge
+
+networks:
+  cloud-forge:
+    name: cloud-forge

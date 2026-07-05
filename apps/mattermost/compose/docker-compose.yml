@@ -1,0 +1,17 @@
+services:
+  mattermost:
+    image: mattermost/mattermost-team-edition:10.4.1
+    restart: unless-stopped
+
+
+
+
+    volumes:
+      - /opt/cloud-forge/data/mattermost:/mattermost/data
+
+    networks:
+      - cloud-forge
+
+networks:
+  cloud-forge:
+    name: cloud-forge

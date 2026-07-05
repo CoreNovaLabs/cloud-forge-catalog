@@ -1,0 +1,17 @@
+services:
+  sonarr:
+    image: lscr.io/linuxserver/sonarr:4.0.11
+    restart: unless-stopped
+
+
+
+
+    volumes:
+      - /opt/cloud-forge/data/sonarr:/config
+
+    networks:
+      - cloud-forge
+
+networks:
+  cloud-forge:
+    name: cloud-forge

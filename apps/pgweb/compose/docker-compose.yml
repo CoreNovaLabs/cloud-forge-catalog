@@ -1,0 +1,15 @@
+services:
+  pgweb:
+    image: sosedoff/pgweb:0.15.0
+    restart: unless-stopped
+
+
+
+
+
+    networks:
+      - cloud-forge
+
+networks:
+  cloud-forge:
+    name: cloud-forge

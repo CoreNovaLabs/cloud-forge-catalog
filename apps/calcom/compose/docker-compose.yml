@@ -1,0 +1,17 @@
+services:
+  calcom:
+    image: calcom/cal.com:4.8.3
+    restart: unless-stopped
+
+
+
+
+    volumes:
+      - /opt/cloud-forge/data/calcom:/app
+
+    networks:
+      - cloud-forge
+
+networks:
+  cloud-forge:
+    name: cloud-forge

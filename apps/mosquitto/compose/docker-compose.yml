@@ -1,0 +1,18 @@
+services:
+  mosquitto:
+    image: eclipse-mosquitto:2.0.21
+    restart: unless-stopped
+    command: ["sh", "-c", "printf '%s\\n' 'listener 1883 0.0.0.0' 'allow_anonymous true' 'persistence true' 'persistence_location /mosquitto/data/' > /tmp/mosquitto.conf && exec mosquitto -c /tmp/mosquitto.conf\n"]
+
+
+    ports:
+      - 1883:1883
+    volumes:
+      - /opt/cloud-forge/data/mosquitto:/mosquitto
+
+    networks:
+      - cloud-forge
+
+networks:
+  cloud-forge:
+    name: cloud-forge

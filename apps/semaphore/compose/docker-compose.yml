@@ -1,0 +1,17 @@
+services:
+  semaphore:
+    image: semaphoreui/semaphore:v2.13.18
+    restart: unless-stopped
+
+
+
+
+    volumes:
+      - /opt/cloud-forge/data/semaphore:/etc/semaphore
+
+    networks:
+      - cloud-forge
+
+networks:
+  cloud-forge:
+    name: cloud-forge

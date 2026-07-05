@@ -1,0 +1,17 @@
+services:
+  kutt:
+    image: kutt/kutt:3.2.3
+    restart: unless-stopped
+
+
+
+
+    volumes:
+      - /opt/cloud-forge/data/kutt:/app/uploads
+
+    networks:
+      - cloud-forge
+
+networks:
+  cloud-forge:
+    name: cloud-forge

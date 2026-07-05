@@ -1,0 +1,17 @@
+services:
+  drone:
+    image: drone/drone:2.25.0
+    restart: unless-stopped
+
+
+
+
+    volumes:
+      - /opt/cloud-forge/data/drone:/data
+
+    networks:
+      - cloud-forge
+
+networks:
+  cloud-forge:
+    name: cloud-forge

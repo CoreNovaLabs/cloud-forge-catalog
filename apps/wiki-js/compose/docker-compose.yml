@@ -1,0 +1,17 @@
+services:
+  wiki_js:
+    image: ghcr.io/requarks/wiki:2.5.306
+    restart: unless-stopped
+
+
+
+
+    volumes:
+      - /opt/cloud-forge/data/wiki-js:/wiki/data
+
+    networks:
+      - cloud-forge
+
+networks:
+  cloud-forge:
+    name: cloud-forge

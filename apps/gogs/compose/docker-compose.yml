@@ -1,0 +1,17 @@
+services:
+  gogs:
+    image: gogs/gogs:0.13.0
+    restart: unless-stopped
+
+
+
+
+    volumes:
+      - /opt/cloud-forge/data/gogs:/data
+
+    networks:
+      - cloud-forge
+
+networks:
+  cloud-forge:
+    name: cloud-forge

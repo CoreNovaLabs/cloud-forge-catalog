@@ -1,0 +1,15 @@
+services:
+  redis_commander:
+    image: rediscommander/redis-commander:0.8.0
+    restart: unless-stopped
+
+
+
+
+
+    networks:
+      - cloud-forge
+
+networks:
+  cloud-forge:
+    name: cloud-forge

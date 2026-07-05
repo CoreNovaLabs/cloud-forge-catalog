@@ -1,0 +1,17 @@
+services:
+  ghost:
+    image: ghost:5.109.1
+    restart: unless-stopped
+
+
+
+
+    volumes:
+      - /opt/cloud-forge/data/ghost:/var/lib/ghost/content
+
+    networks:
+      - cloud-forge
+
+networks:
+  cloud-forge:
+    name: cloud-forge

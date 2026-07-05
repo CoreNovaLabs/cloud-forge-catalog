@@ -1,0 +1,17 @@
+services:
+  docuseal:
+    image: docuseal/docuseal:1.12.1
+    restart: unless-stopped
+
+
+
+
+    volumes:
+      - /opt/cloud-forge/data/docuseal:/data
+
+    networks:
+      - cloud-forge
+
+networks:
+  cloud-forge:
+    name: cloud-forge

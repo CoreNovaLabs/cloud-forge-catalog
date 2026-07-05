@@ -1,0 +1,17 @@
+services:
+  arq:
+    image: argoproj/workflows-controller:v3.6.11
+    restart: unless-stopped
+
+
+
+
+    volumes:
+      - /opt/cloud-forge/data/arq:/tmp
+
+    networks:
+      - cloud-forge
+
+networks:
+  cloud-forge:
+    name: cloud-forge

@@ -1,0 +1,17 @@
+services:
+  forgejo:
+    image: codeberg.org/forgejo/forgejo:11.0.2
+    restart: unless-stopped
+
+
+
+
+    volumes:
+      - /opt/cloud-forge/data/forgejo:/data
+
+    networks:
+      - cloud-forge
+
+networks:
+  cloud-forge:
+    name: cloud-forge

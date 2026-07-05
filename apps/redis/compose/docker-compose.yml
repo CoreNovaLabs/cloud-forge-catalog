@@ -1,0 +1,19 @@
+services:
+  redis:
+    image: redis:7.4.2
+    restart: unless-stopped
+    command: ["sh", "-lc", "exec redis-server --requirepass \"$$REDIS_PASSWORD\""]
+
+    env_file:
+      - /opt/cloud-forge/compose.app.env
+    ports:
+      - 6379:6379
+    volumes:
+      - /opt/cloud-forge/data/redis:/data
+
+    networks:
+      - cloud-forge
+
+networks:
+  cloud-forge:
+    name: cloud-forge

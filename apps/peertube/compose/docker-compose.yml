@@ -1,0 +1,17 @@
+services:
+  peertube:
+    image: chocobozzz/peertube:v7.0.1-bookworm
+    restart: unless-stopped
+
+
+
+
+    volumes:
+      - /opt/cloud-forge/data/peertube:/data
+
+    networks:
+      - cloud-forge
+
+networks:
+  cloud-forge:
+    name: cloud-forge

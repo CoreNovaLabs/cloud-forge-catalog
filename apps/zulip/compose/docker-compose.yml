@@ -1,0 +1,17 @@
+services:
+  zulip:
+    image: zulip/zulip:10.0-0
+    restart: unless-stopped
+
+
+
+
+    volumes:
+      - /opt/cloud-forge/data/zulip:/data
+
+    networks:
+      - cloud-forge
+
+networks:
+  cloud-forge:
+    name: cloud-forge

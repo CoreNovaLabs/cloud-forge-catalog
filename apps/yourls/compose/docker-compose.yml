@@ -1,0 +1,17 @@
+services:
+  yourls:
+    image: yourls:1.9.2
+    restart: unless-stopped
+
+
+
+
+    volumes:
+      - /opt/cloud-forge/data/yourls:/var/www/html
+
+    networks:
+      - cloud-forge
+
+networks:
+  cloud-forge:
+    name: cloud-forge

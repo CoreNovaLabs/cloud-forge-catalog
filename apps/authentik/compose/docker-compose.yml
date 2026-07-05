@@ -1,0 +1,17 @@
+services:
+  authentik:
+    image: ghcr.io/goauthentik/server:2025.2.3
+    restart: unless-stopped
+
+
+
+
+    volumes:
+      - /opt/cloud-forge/data/authentik:/media
+
+    networks:
+      - cloud-forge
+
+networks:
+  cloud-forge:
+    name: cloud-forge

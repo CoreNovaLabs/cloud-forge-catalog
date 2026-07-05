@@ -1,0 +1,17 @@
+services:
+  flowise:
+    image: flowiseai/flowise:2.2.6
+    restart: unless-stopped
+
+
+
+
+    volumes:
+      - /opt/cloud-forge/data/flowise:/root/.flowise
+
+    networks:
+      - cloud-forge
+
+networks:
+  cloud-forge:
+    name: cloud-forge

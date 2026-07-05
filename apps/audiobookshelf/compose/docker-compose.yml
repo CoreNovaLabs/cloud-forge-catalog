@@ -5,10 +5,9 @@ services:
 
 
 
+
     volumes:
       - /opt/cloud-forge/data/audiobookshelf/config:/config
-      - /opt/cloud-forge/data/audiobookshelf/metadata:/metadata
-      - /opt/cloud-forge/data/audiobookshelf/audiobooks:/audiobooks
 
     networks:
       - cloud-forge

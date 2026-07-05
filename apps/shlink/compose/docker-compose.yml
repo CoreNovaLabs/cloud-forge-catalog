@@ -1,0 +1,17 @@
+services:
+  shlink:
+    image: shlinkio/shlink:4.4.2
+    restart: unless-stopped
+
+
+
+
+    volumes:
+      - /opt/cloud-forge/data/shlink:/etc/shlink
+
+    networks:
+      - cloud-forge
+
+networks:
+  cloud-forge:
+    name: cloud-forge

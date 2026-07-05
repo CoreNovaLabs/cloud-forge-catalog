@@ -1,258 +1,2944 @@
-# Seed catalog for scripts/generate-app.sh and scripts/onboard-seed.sh
-# Requires: python3 -m pip install pyyaml
-#
-# Local smoke pulls images via docker.1ms.run (see scripts/local-smoke.sh).
-# Committed compose files always use official Docker Hub image names.
-
 apps:
-  - id: vaultwarden
-    name: Vaultwarden
-    desc: Unofficial Bitwarden-compatible password manager server
-    icon: "🔐"
-    category: devtools
-    tier: community
-    tags: [passwords, security, self-hosted]
-    image: vaultwarden/server:1.32.5
-    service_name: vaultwarden
-    port: 80
-    data_path: /opt/cloud-forge/data/vaultwarden
-    uid: 1000
-    volume_mount: "/opt/cloud-forge/data/vaultwarden:/data"
-    aws_instance_default: t3.small
-    aws_instance_options: [t3.micro, t3.small, t3.medium]
-    aliyun_instance_default: ecs.t6-c1m1.large
-    aws_disk_gb: 20
-    aliyun_disk_gb: 40
-    smoke_health_paths: ["/alive", "/"]
-    smoke_wait_seconds: 120
-
-  - id: minio
-    name: MinIO
-    desc: S3-compatible object storage for self-hosted workloads
-    icon: "🪣"
-    category: devtools
-    tier: community
-    tags: [storage, s3, self-hosted]
-    image: minio/minio:RELEASE.2024-12-18T13-15-44Z
-    service_name: minio
-    port: 9000
-    command: ["server", "/data", "--console-address", ":9001"]
-    environment:
-      MINIO_ROOT_USER: cloudforge
-    secrets:
-      - param: AdminPassword
-        env: MINIO_ROOT_PASSWORD
-    data_path: /opt/cloud-forge/data/minio
-    volume_mount: "/opt/cloud-forge/data/minio:/data"
-    aws_instance_default: t3.small
-    aws_instance_options: [t3.small, t3.medium, t3.large]
-    aliyun_instance_default: ecs.t6-c1m2.large
-    aws_disk_gb: 40
-    aliyun_disk_gb: 40
-    smoke_health_paths: ["/minio/health/live"]
-    smoke_wait_seconds: 90
-
-  - id: code-server
-    name: code-server
-    desc: VS Code in the browser for remote development
-    icon: "💻"
-    category: devtools
-    tier: community
-    tags: [ide, vscode, devtools]
-    image: codercom/code-server:4.96.2
-    service_name: code_server
-    port: 8080
-    secrets:
-      - param: AdminPassword
-        env: PASSWORD
-    data_path: /opt/cloud-forge/data/code-server
-    uid: 1000
-    volume_mount: "/opt/cloud-forge/data/code-server:/home/coder"
-    aws_instance_default: t3.medium
-    aws_instance_options: [t3.small, t3.medium, t3.large]
-    aliyun_instance_default: ecs.t6-c1m2.large
-    aws_disk_gb: 30
-    aliyun_disk_gb: 40
-    smoke_health_paths: ["/", "/healthz"]
-    smoke_wait_seconds: 120
-
-  - id: freshrss
-    name: FreshRSS
-    desc: Self-hosted RSS feed aggregator and reader
-    icon: "📰"
-    category: cms
-    tier: community
-    tags: [rss, reader, self-hosted]
-    image: freshrss/freshrss@sha256:ab6b363102ccdbc39f6a62db926f567c61a5289bf25ba460f1c34423d8cc1a4d
-    service_name: freshrss
-    port: 80
-    data_path: /opt/cloud-forge/data/freshrss
-    uid: 1000
-    volume_mount: "/opt/cloud-forge/data/freshrss:/var/www/FreshRSS/data"
-    aws_instance_default: t3.small
-    aws_instance_options: [t3.micro, t3.small, t3.medium]
-    aliyun_instance_default: ecs.t6-c1m1.large
-    aws_disk_gb: 20
-    aliyun_disk_gb: 40
-    smoke_health_paths: ["/i/", "/"]
-    smoke_wait_seconds: 120
-
-  - id: it-tools
-    name: IT-Tools
-    desc: Collection of handy developer tools in a single web app
-    icon: "🧰"
-    category: devtools
-    tier: community
-    stateless: true
-    tags: [devtools, utilities, self-hosted]
-    image: corentinth/it-tools@sha256:8b8128748339583ca951af03dfe02a9a4d7363f61a216226fc28030731a5a61f
-    service_name: it_tools
-    port: 80
-    aws_instance_default: t3.micro
-    aws_instance_options: [t3.micro, t3.small]
-    aliyun_instance_default: ecs.t6-c1m1.large
-    aws_disk_gb: 20
-    aliyun_disk_gb: 20
-    smoke_health_paths: ["/"]
-    smoke_wait_seconds: 60
-
-  - id: linkding
-    name: Linkding
-    desc: Self-hosted bookmark manager with a clean UI
-    icon: "🔖"
-    category: devtools
-    tier: community
-    tags: [bookmarks, productivity, self-hosted]
-    image: sissbruecker/linkding:1.37.0
-    service_name: linkding
-    port: 9090
-    data_path: /opt/cloud-forge/data/linkding
-    volume_mount: "/opt/cloud-forge/data/linkding:/etc/linkding/data"
-    aws_instance_default: t3.small
-    aws_instance_options: [t3.micro, t3.small, t3.medium]
-    aliyun_instance_default: ecs.t6-c1m1.large
-    aws_disk_gb: 20
-    aliyun_disk_gb: 40
-    smoke_health_paths: ["/health", "/"]
-    smoke_wait_seconds: 90
-
-  - id: excalidraw
-    name: Excalidraw
-    desc: Virtual whiteboard for sketching hand-drawn diagrams
-    icon: "✏️"
-    category: devtools
-    tier: community
-    stateless: true
-    tags: [whiteboard, diagrams, collaboration]
-    image: excalidraw/excalidraw@sha256:f7ee194addd607bf831d2af0f0a34463dd4225e426cf35199ef0b12a803398e9
-    service_name: excalidraw
-    port: 80
-    aws_instance_default: t3.small
-    aws_instance_options: [t3.micro, t3.small, t3.medium]
-    aliyun_instance_default: ecs.t6-c1m1.large
-    aws_disk_gb: 20
-    aliyun_disk_gb: 20
-    smoke_health_paths: ["/"]
-    smoke_wait_seconds: 90
-
-  - id: uptime-kuma
-    name: Uptime Kuma
-    desc: A clean self-hosted uptime monitoring tool
-    icon: "🟢"
-    category: monitoring
-    tier: community
-    tags: [monitoring, uptime, alerting]
-    image: louislam/uptime-kuma:1.21.3
-    service_name: uptime_kuma
-    port: 3001
-    data_path: /opt/cloud-forge/data/uptime-kuma
-    volume_mount: "/opt/cloud-forge/data/uptime-kuma:/app/data"
-    aws_instance_default: t3.micro
-    aws_instance_options: [t3.micro, t3.small]
-    aliyun_instance_default: ecs.t6-c1m1.large
-    aws_disk_gb: 20
-    aliyun_disk_gb: 20
-    smoke_health_paths: ["/"]
-    smoke_wait_seconds: 120
-
-  - id: homer
-    name: Homer
-    desc: A dead simple homepage / dashboard for your services
-    icon: "🏠"
-    category: other
-    tier: community
-    tags: [dashboard, homepage, self-hosted]
-    image: b4bz/homer:v22.11.1
-    service_name: homer
-    port: 8080
-    data_path: /opt/cloud-forge/data/homer
-    volume_mount: "/opt/cloud-forge/data/homer:/www/assets"
-    aws_instance_default: t3.micro
-    aws_instance_options: [t3.micro, t3.small]
-    aliyun_instance_default: ecs.t6-c1m1.large
-    aws_disk_gb: 20
-    aliyun_disk_gb: 20
-    smoke_health_paths: ["/"]
-    smoke_wait_seconds: 60
-
-  - id: stirling-pdf
-    name: Stirling-PDF
-    desc: Locally hosted web app for manipulating PDF files
-    icon: "📄"
-    category: devtools
-    tier: community
-    stateless: true
-    tags: [pdf, tools, self-hosted]
-    image: frooodle/s-pdf@sha256:a6c5e627ceef6ed323a63da13e0d44ef68503320d1917cbc7ca2fd8e4a827aae
-    service_name: stirling_pdf
-    port: 8080
-    aws_instance_default: t3.small
-    aws_instance_options: [t3.small, t3.medium]
-    aliyun_instance_default: ecs.t6-c1m2.large
-    aws_disk_gb: 20
-    aliyun_disk_gb: 20
-    smoke_health_paths: ["/api/v1/info/status"]
-    smoke_wait_seconds: 120
-
-  - id: mealie
-    name: Mealie
-    desc: Recipe management and meal planning for self-hosters
-    icon: "🍽️"
-    category: other
-    tier: community
-    tags: [recipes, meal-planning, self-hosted]
-    image: ghcr.io/mealie-recipes/mealie:v3.20.1
-    service_name: mealie
-    port: 9000
-    secrets:
-      - param: AdminPassword
-        env: MEALIE_ADMIN_PASSWORD
-    data_path: /opt/cloud-forge/data/mealie
-    volume_mount: "/opt/cloud-forge/data/mealie:/app/data"
-    aws_instance_default: t3.small
-    aws_instance_options: [t3.small, t3.medium]
-    aliyun_instance_default: ecs.t6-c1m2.large
-    aws_disk_gb: 20
-    aliyun_disk_gb: 20
-    smoke_health_paths: ["/api/app/about"]
-    smoke_wait_seconds: 120
-
-  - id: audiobookshelf
-    name: Audiobookshelf
-    desc: Self-hosted audiobook and podcast server
-    icon: "🎧"
-    category: other
-    tier: community
-    tags: [audiobooks, podcasts, self-hosted]
-    image: ghcr.io/advplyr/audiobookshelf:2.15.0
-    service_name: audiobookshelf
-    port: 80
-    data_path: /opt/cloud-forge/data/audiobookshelf
-    volume_mount: "/opt/cloud-forge/data/audiobookshelf/config:/config"
-    aws_instance_default: t3.small
-    aws_instance_options: [t3.small, t3.medium]
-    aliyun_instance_default: ecs.t6-c1m2.large
-    aws_disk_gb: 30
-    aliyun_disk_gb: 40
-    smoke_health_paths: ["/"]
-    smoke_wait_seconds: 90
+- id: vaultwarden
+  name: Vaultwarden
+  desc: Unofficial Bitwarden-compatible password manager server
+  icon: 🔐
+  category: devtools
+  tier: community
+  tags:
+  - passwords
+  - security
+  - self-hosted
+  image: vaultwarden/server:1.32.5
+  service_name: vaultwarden
+  port: 80
+  data_path: /opt/cloud-forge/data/vaultwarden
+  uid: 1000
+  volume_mount: /opt/cloud-forge/data/vaultwarden:/data
+  aws_instance_default: t3.small
+  aws_instance_options:
+  - t3.micro
+  - t3.small
+  - t3.medium
+  aliyun_instance_default: ecs.t6-c1m1.large
+  aws_disk_gb: 20
+  aliyun_disk_gb: 40
+  smoke_health_paths:
+  - /alive
+  - /
+  smoke_wait_seconds: 120
+- id: minio
+  name: MinIO
+  desc: S3-compatible object storage for self-hosted workloads
+  icon: 🪣
+  category: devtools
+  tier: community
+  tags:
+  - storage
+  - s3
+  - self-hosted
+  image: minio/minio:RELEASE.2024-12-18T13-15-44Z
+  service_name: minio
+  port: 9000
+  command:
+  - server
+  - /data
+  - --console-address
+  - :9001
+  environment:
+    MINIO_ROOT_USER: cloudforge
+  secrets:
+  - param: AdminPassword
+    env: MINIO_ROOT_PASSWORD
+  data_path: /opt/cloud-forge/data/minio
+  volume_mount: /opt/cloud-forge/data/minio:/data
+  aws_instance_default: t3.small
+  aws_instance_options:
+  - t3.small
+  - t3.medium
+  - t3.large
+  aliyun_instance_default: ecs.t6-c1m2.large
+  aws_disk_gb: 40
+  aliyun_disk_gb: 40
+  smoke_health_paths:
+  - /minio/health/live
+  smoke_wait_seconds: 90
+- id: code-server
+  name: code-server
+  desc: VS Code in the browser for remote development
+  icon: 💻
+  category: devtools
+  tier: community
+  tags:
+  - ide
+  - vscode
+  - devtools
+  image: codercom/code-server:4.96.2
+  service_name: code_server
+  port: 8080
+  secrets:
+  - param: AdminPassword
+    env: PASSWORD
+  data_path: /opt/cloud-forge/data/code-server
+  uid: 1000
+  volume_mount: /opt/cloud-forge/data/code-server:/home/coder
+  aws_instance_default: t3.medium
+  aws_instance_options:
+  - t3.small
+  - t3.medium
+  - t3.large
+  aliyun_instance_default: ecs.t6-c1m2.large
+  aws_disk_gb: 30
+  aliyun_disk_gb: 40
+  smoke_health_paths:
+  - /
+  - /healthz
+  smoke_wait_seconds: 120
+- id: freshrss
+  name: FreshRSS
+  desc: Self-hosted RSS feed aggregator and reader
+  icon: 📰
+  category: cms
+  tier: community
+  tags:
+  - rss
+  - reader
+  - self-hosted
+  image: freshrss/freshrss@sha256:ab6b363102ccdbc39f6a62db926f567c61a5289bf25ba460f1c34423d8cc1a4d
+  service_name: freshrss
+  port: 80
+  data_path: /opt/cloud-forge/data/freshrss
+  uid: 1000
+  volume_mount: /opt/cloud-forge/data/freshrss:/var/www/FreshRSS/data
+  aws_instance_default: t3.small
+  aws_instance_options:
+  - t3.micro
+  - t3.small
+  - t3.medium
+  aliyun_instance_default: ecs.t6-c1m1.large
+  aws_disk_gb: 20
+  aliyun_disk_gb: 40
+  smoke_health_paths:
+  - /i/
+  - /
+  smoke_wait_seconds: 120
+- id: it-tools
+  name: IT-Tools
+  desc: Collection of handy developer tools in a single web app
+  icon: 🧰
+  category: devtools
+  tier: community
+  stateless: true
+  tags:
+  - devtools
+  - utilities
+  - self-hosted
+  image: corentinth/it-tools@sha256:8b8128748339583ca951af03dfe02a9a4d7363f61a216226fc28030731a5a61f
+  service_name: it_tools
+  port: 80
+  aws_instance_default: t3.micro
+  aws_instance_options:
+  - t3.micro
+  - t3.small
+  aliyun_instance_default: ecs.t6-c1m1.large
+  aws_disk_gb: 20
+  aliyun_disk_gb: 20
+  smoke_health_paths:
+  - /
+  smoke_wait_seconds: 60
+- id: linkding
+  name: Linkding
+  desc: Self-hosted bookmark manager with a clean UI
+  icon: 🔖
+  category: devtools
+  tier: community
+  tags:
+  - bookmarks
+  - productivity
+  - self-hosted
+  image: sissbruecker/linkding:1.37.0
+  service_name: linkding
+  port: 9090
+  data_path: /opt/cloud-forge/data/linkding
+  volume_mount: /opt/cloud-forge/data/linkding:/etc/linkding/data
+  aws_instance_default: t3.small
+  aws_instance_options:
+  - t3.micro
+  - t3.small
+  - t3.medium
+  aliyun_instance_default: ecs.t6-c1m1.large
+  aws_disk_gb: 20
+  aliyun_disk_gb: 40
+  smoke_health_paths:
+  - /health
+  - /
+  smoke_wait_seconds: 90
+- id: excalidraw
+  name: Excalidraw
+  desc: Virtual whiteboard for sketching hand-drawn diagrams
+  icon: ✏️
+  category: devtools
+  tier: community
+  stateless: true
+  tags:
+  - whiteboard
+  - diagrams
+  - collaboration
+  image: excalidraw/excalidraw@sha256:f7ee194addd607bf831d2af0f0a34463dd4225e426cf35199ef0b12a803398e9
+  service_name: excalidraw
+  port: 80
+  aws_instance_default: t3.small
+  aws_instance_options:
+  - t3.micro
+  - t3.small
+  - t3.medium
+  aliyun_instance_default: ecs.t6-c1m1.large
+  aws_disk_gb: 20
+  aliyun_disk_gb: 20
+  smoke_health_paths:
+  - /
+  smoke_wait_seconds: 90
+- id: uptime-kuma
+  name: Uptime Kuma
+  desc: A clean self-hosted uptime monitoring tool
+  icon: 🟢
+  category: monitoring
+  tier: community
+  tags:
+  - monitoring
+  - uptime
+  - alerting
+  image: louislam/uptime-kuma:1.21.3
+  service_name: uptime_kuma
+  port: 3001
+  data_path: /opt/cloud-forge/data/uptime-kuma
+  volume_mount: /opt/cloud-forge/data/uptime-kuma:/app/data
+  aws_instance_default: t3.micro
+  aws_instance_options:
+  - t3.micro
+  - t3.small
+  aliyun_instance_default: ecs.t6-c1m1.large
+  aws_disk_gb: 20
+  aliyun_disk_gb: 20
+  smoke_health_paths:
+  - /
+  smoke_wait_seconds: 120
+- id: homer
+  name: Homer
+  desc: A dead simple homepage / dashboard for your services
+  icon: 🏠
+  category: other
+  tier: community
+  tags:
+  - dashboard
+  - homepage
+  - self-hosted
+  image: b4bz/homer:v22.11.1
+  service_name: homer
+  port: 8080
+  data_path: /opt/cloud-forge/data/homer
+  volume_mount: /opt/cloud-forge/data/homer:/www/assets
+  aws_instance_default: t3.micro
+  aws_instance_options:
+  - t3.micro
+  - t3.small
+  aliyun_instance_default: ecs.t6-c1m1.large
+  aws_disk_gb: 20
+  aliyun_disk_gb: 20
+  smoke_health_paths:
+  - /
+  smoke_wait_seconds: 60
+- id: stirling-pdf
+  name: Stirling-PDF
+  desc: Locally hosted web app for manipulating PDF files
+  icon: 📄
+  category: devtools
+  tier: community
+  stateless: true
+  tags:
+  - pdf
+  - tools
+  - self-hosted
+  image: frooodle/s-pdf@sha256:a6c5e627ceef6ed323a63da13e0d44ef68503320d1917cbc7ca2fd8e4a827aae
+  service_name: stirling_pdf
+  port: 8080
+  aws_instance_default: t3.small
+  aws_instance_options:
+  - t3.small
+  - t3.medium
+  aliyun_instance_default: ecs.t6-c1m2.large
+  aws_disk_gb: 20
+  aliyun_disk_gb: 20
+  smoke_health_paths:
+  - /api/v1/info/status
+  smoke_wait_seconds: 120
+- id: mealie
+  name: Mealie
+  desc: Recipe management and meal planning for self-hosters
+  icon: 🍽️
+  category: other
+  tier: community
+  tags:
+  - recipes
+  - meal-planning
+  - self-hosted
+  image: ghcr.io/mealie-recipes/mealie:v3.20.1
+  service_name: mealie
+  port: 9000
+  secrets:
+  - param: AdminPassword
+    env: MEALIE_ADMIN_PASSWORD
+  data_path: /opt/cloud-forge/data/mealie
+  volume_mount: /opt/cloud-forge/data/mealie:/app/data
+  aws_instance_default: t3.small
+  aws_instance_options:
+  - t3.small
+  - t3.medium
+  aliyun_instance_default: ecs.t6-c1m2.large
+  aws_disk_gb: 20
+  aliyun_disk_gb: 20
+  smoke_health_paths:
+  - /api/app/about
+  smoke_wait_seconds: 120
+- id: audiobookshelf
+  name: Audiobookshelf
+  desc: Self-hosted audiobook and podcast server
+  icon: 🎧
+  category: other
+  tier: community
+  tags:
+  - audiobooks
+  - podcasts
+  - self-hosted
+  image: ghcr.io/advplyr/audiobookshelf:2.15.0
+  service_name: audiobookshelf
+  port: 80
+  data_path: /opt/cloud-forge/data/audiobookshelf
+  volume_mount: /opt/cloud-forge/data/audiobookshelf/config:/config
+  aws_instance_default: t3.small
+  aws_instance_options:
+  - t3.small
+  - t3.medium
+  aliyun_instance_default: ecs.t6-c1m2.large
+  aws_disk_gb: 30
+  aliyun_disk_gb: 40
+  smoke_health_paths:
+  - /
+  smoke_wait_seconds: 90
+- id: nextcloud
+  name: Nextcloud
+  desc: Private cloud files and collaboration
+  icon: ☁️
+  category: cms
+  tier: community
+  tags:
+  - files
+  - calendar
+  - collaboration
+  image: nextcloud:30.0.5-apache
+  service_name: nextcloud
+  port: 80
+  aws_instance_default: t3.medium
+  aws_instance_options:
+  - t3.medium
+  - t3.medium
+  aliyun_instance_default: ecs.t6-c1m2.large
+  aws_disk_gb: 40
+  aliyun_disk_gb: 40
+  smoke_health_paths:
+  - /status.php
+  - /
+  smoke_wait_seconds: 180
+  data_path: /opt/cloud-forge/data/nextcloud
+  volume_mount: /opt/cloud-forge/data/nextcloud:/var/www/html
+  uid: 33
+- id: paperless-ngx
+  name: Paperless-ngx
+  desc: Document management with OCR search
+  icon: 📄
+  category: other
+  tier: community
+  tags:
+  - documents
+  - ocr
+  - search
+  image: ghcr.io/paperless-ngx/paperless-ngx:2.14.7
+  service_name: paperless_ngx
+  port: 8000
+  aws_instance_default: t3.medium
+  aws_instance_options:
+  - t3.medium
+  - t3.medium
+  aliyun_instance_default: ecs.t6-c1m2.large
+  aws_disk_gb: 40
+  aliyun_disk_gb: 40
+  smoke_health_paths:
+  - /api/
+  smoke_wait_seconds: 180
+  data_path: /opt/cloud-forge/data/paperless-ngx
+  volume_mount: /opt/cloud-forge/data/paperless-ngx:/usr/src/paperless/data
+  uid: 1000
+- id: searxng
+  name: SearXNG
+  desc: Privacy-respecting metasearch engine
+  icon: 🔎
+  category: devtools
+  tier: community
+  tags:
+  - search
+  - privacy
+  - meta-search
+  image: searxng/searxng:2025.2.14
+  service_name: searxng
+  port: 8080
+  aws_instance_default: t3.small
+  aws_instance_options:
+  - t3.small
+  - t3.medium
+  aliyun_instance_default: ecs.t6-c1m1.large
+  aws_disk_gb: 20
+  aliyun_disk_gb: 20
+  smoke_health_paths:
+  - /
+  smoke_wait_seconds: 120
+  data_path: /opt/cloud-forge/data/searxng
+  volume_mount: /opt/cloud-forge/data/searxng:/etc/searxng
+  uid: 1000
+- id: open-webui
+  name: Open WebUI
+  desc: Chat UI for local and remote models
+  icon: 💬
+  category: devtools
+  tier: community
+  tags:
+  - chat
+  - ai
+  - llm
+  image: ghcr.io/open-webui/open-webui:0.5.20
+  service_name: open_webui
+  port: 8080
+  aws_instance_default: t3.medium
+  aws_instance_options:
+  - t3.medium
+  - t3.medium
+  aliyun_instance_default: ecs.t6-c1m2.large
+  aws_disk_gb: 20
+  aliyun_disk_gb: 20
+  smoke_health_paths:
+  - /
+  smoke_wait_seconds: 120
+  data_path: /opt/cloud-forge/data/open-webui
+  volume_mount: /opt/cloud-forge/data/open-webui:/app/backend/data
+  uid: 1000
+- id: ollama
+  name: Ollama
+  desc: Local LLM runtime and API server
+  icon: 🧠
+  category: devtools
+  tier: community
+  tags:
+  - llm
+  - ai
+  - models
+  image: ollama/ollama:0.5.13
+  service_name: ollama
+  port: 11434
+  aws_instance_default: t3.large
+  aws_instance_options:
+  - t3.large
+  - t3.medium
+  aliyun_instance_default: ecs.t6-c2m4.large
+  aws_disk_gb: 40
+  aliyun_disk_gb: 40
+  smoke_health_paths:
+  - /api/tags
+  smoke_wait_seconds: 120
+  stateless: true
+- id: changedetection
+  name: Changedetection.io
+  desc: Website change monitoring and alerts
+  icon: 👀
+  category: monitoring
+  tier: community
+  tags:
+  - monitoring
+  - alerts
+  - web
+  image: dgtlmoon/changedetection.io:0.49.2
+  service_name: changedetection
+  port: 5000
+  aws_instance_default: t3.small
+  aws_instance_options:
+  - t3.small
+  - t3.medium
+  aliyun_instance_default: ecs.t6-c1m1.large
+  aws_disk_gb: 20
+  aliyun_disk_gb: 20
+  smoke_health_paths:
+  - /
+  smoke_wait_seconds: 120
+  data_path: /opt/cloud-forge/data/changedetection
+  volume_mount: /opt/cloud-forge/data/changedetection:/datastore
+  uid: 1000
+- id: grocy
+  name: Grocy
+  desc: Household inventory and kitchen management
+  icon: 🧾
+  category: other
+  tier: community
+  tags:
+  - inventory
+  - home
+  - kitchen
+  image: lscr.io/linuxserver/grocy:4.4.2
+  service_name: grocy
+  port: 80
+  aws_instance_default: t3.small
+  aws_instance_options:
+  - t3.small
+  - t3.medium
+  aliyun_instance_default: ecs.t6-c1m1.large
+  aws_disk_gb: 20
+  aliyun_disk_gb: 20
+  smoke_health_paths:
+  - /manifest.php
+  smoke_wait_seconds: 120
+  data_path: /opt/cloud-forge/data/grocy
+  volume_mount: /opt/cloud-forge/data/grocy:/config
+  uid: 1000
+- id: planka
+  name: Planka
+  desc: Trello-like project management board
+  icon: 🗂️
+  category: automation
+  tier: community
+  tags:
+  - kanban
+  - projects
+  - tasks
+  image: ghcr.io/plankanban/planka:1.25.1
+  service_name: planka
+  port: 1337
+  aws_instance_default: t3.small
+  aws_instance_options:
+  - t3.small
+  - t3.medium
+  aliyun_instance_default: ecs.t6-c1m1.large
+  aws_disk_gb: 20
+  aliyun_disk_gb: 20
+  smoke_health_paths:
+  - /
+  smoke_wait_seconds: 120
+  data_path: /opt/cloud-forge/data/planka
+  volume_mount: /opt/cloud-forge/data/planka:/var/lib/planka
+  uid: 1000
+- id: bookstack
+  name: BookStack
+  desc: Simple wiki for technical documentation
+  icon: 📖
+  category: cms
+  tier: community
+  tags:
+  - wiki
+  - docs
+  - knowledge
+  image: lscr.io/linuxserver/bookstack:24.12.1
+  service_name: bookstack
+  port: 80
+  aws_instance_default: t3.small
+  aws_instance_options:
+  - t3.small
+  - t3.medium
+  aliyun_instance_default: ecs.t6-c1m1.large
+  aws_disk_gb: 20
+  aliyun_disk_gb: 20
+  smoke_health_paths:
+  - /login
+  smoke_wait_seconds: 120
+  data_path: /opt/cloud-forge/data/bookstack
+  volume_mount: /opt/cloud-forge/data/bookstack:/config
+  uid: 1000
+- id: wiki-js
+  name: Wiki.js
+  desc: Modern wiki engine
+  icon: 📝
+  category: cms
+  tier: community
+  tags:
+  - wiki
+  - docs
+  - knowledge
+  image: ghcr.io/requarks/wiki:2.5.306
+  service_name: wiki_js
+  port: 3000
+  aws_instance_default: t3.small
+  aws_instance_options:
+  - t3.small
+  - t3.medium
+  aliyun_instance_default: ecs.t6-c1m1.large
+  aws_disk_gb: 20
+  aliyun_disk_gb: 20
+  smoke_health_paths:
+  - /
+  smoke_wait_seconds: 120
+  data_path: /opt/cloud-forge/data/wiki-js
+  volume_mount: /opt/cloud-forge/data/wiki-js:/wiki/data
+  uid: 1000
+- id: noco-db
+  name: NocoDB
+  desc: Airtable-like database UI
+  icon: 📊
+  category: database
+  ami_role: web
+  tier: community
+  tags:
+  - database
+  - no-code
+  - tables
+  image: nocodb/nocodb:0.262.5
+  service_name: noco_db
+  port: 8080
+  aws_instance_default: t3.small
+  aws_instance_options:
+  - t3.small
+  - t3.medium
+  aliyun_instance_default: ecs.t6-c1m1.large
+  aws_disk_gb: 20
+  aliyun_disk_gb: 20
+  smoke_health_paths:
+  - /
+  smoke_wait_seconds: 120
+  data_path: /opt/cloud-forge/data/noco-db
+  volume_mount: /opt/cloud-forge/data/noco-db:/usr/app/data
+  uid: 1000
+- id: actual-budget
+  name: Actual Budget
+  desc: Personal finance and budgeting
+  icon: 💰
+  category: other
+  tier: community
+  tags:
+  - finance
+  - budget
+  - personal
+  image: actualbudget/actual-server:25.2.0
+  service_name: actual_budget
+  port: 5006
+  aws_instance_default: t3.small
+  aws_instance_options:
+  - t3.small
+  - t3.medium
+  aliyun_instance_default: ecs.t6-c1m1.large
+  aws_disk_gb: 20
+  aliyun_disk_gb: 20
+  smoke_health_paths:
+  - /
+  smoke_wait_seconds: 120
+  data_path: /opt/cloud-forge/data/actual-budget
+  volume_mount: /opt/cloud-forge/data/actual-budget:/data
+  uid: 1000
+- id: jellyfin
+  name: Jellyfin
+  desc: Media server for movies and TV
+  icon: 🎬
+  category: other
+  tier: community
+  tags:
+  - media
+  - movies
+  - tv
+  image: jellyfin/jellyfin:10.10.7
+  service_name: jellyfin
+  port: 8096
+  aws_instance_default: t3.medium
+  aws_instance_options:
+  - t3.medium
+  - t3.medium
+  aliyun_instance_default: ecs.t6-c1m2.large
+  aws_disk_gb: 20
+  aliyun_disk_gb: 20
+  smoke_health_paths:
+  - /
+  smoke_wait_seconds: 180
+  data_path: /opt/cloud-forge/data/jellyfin
+  volume_mount: /opt/cloud-forge/data/jellyfin:/config
+  uid: 1000
+- id: navidrome
+  name: Navidrome
+  desc: Personal music streaming server
+  icon: 🎵
+  category: other
+  tier: community
+  tags:
+  - music
+  - streaming
+  - audio
+  image: deluan/navidrome:0.55.0
+  service_name: navidrome
+  port: 4533
+  aws_instance_default: t3.small
+  aws_instance_options:
+  - t3.small
+  - t3.medium
+  aliyun_instance_default: ecs.t6-c1m1.large
+  aws_disk_gb: 20
+  aliyun_disk_gb: 20
+  smoke_health_paths:
+  - /
+  smoke_wait_seconds: 120
+  data_path: /opt/cloud-forge/data/navidrome
+  volume_mount: /opt/cloud-forge/data/navidrome:/data
+  uid: 1000
+- id: immich
+  name: Immich
+  desc: Self-hosted photo backup and gallery
+  icon: 📷
+  category: cms
+  tier: community
+  tags:
+  - photos
+  - backup
+  - gallery
+  image: ghcr.io/immich-app/immich-server:v1.130.2
+  service_name: immich
+  port: 3001
+  aws_instance_default: t3.medium
+  aws_instance_options:
+  - t3.medium
+  - t3.medium
+  aliyun_instance_default: ecs.t6-c1m2.large
+  aws_disk_gb: 40
+  aliyun_disk_gb: 40
+  smoke_health_paths:
+  - /api/server-info/ping
+  smoke_wait_seconds: 180
+  data_path: /opt/cloud-forge/data/immich
+  volume_mount: /opt/cloud-forge/data/immich:/usr/src/app/upload
+  uid: 1000
+- id: photoprism
+  name: PhotoPrism
+  desc: AI-powered photo management and search
+  icon: 🖼️
+  category: cms
+  tier: community
+  tags:
+  - photos
+  - gallery
+  - search
+  image: photoprism/photoprism:250101
+  service_name: photoprism
+  port: 2342
+  aws_instance_default: t3.medium
+  aws_instance_options:
+  - t3.medium
+  - t3.medium
+  aliyun_instance_default: ecs.t6-c1m2.large
+  aws_disk_gb: 40
+  aliyun_disk_gb: 40
+  smoke_health_paths:
+  - /
+  smoke_wait_seconds: 180
+  data_path: /opt/cloud-forge/data/photoprism
+  volume_mount: /opt/cloud-forge/data/photoprism:/photoprism/storage
+  uid: 1000
+- id: miniflux
+  name: Miniflux
+  desc: Minimalist RSS reader
+  icon: 📰
+  category: cms
+  tier: community
+  tags:
+  - rss
+  - reader
+  - feeds
+  image: miniflux/miniflux:2.2.3
+  service_name: miniflux
+  port: 8080
+  aws_instance_default: t3.small
+  aws_instance_options:
+  - t3.small
+  - t3.medium
+  aliyun_instance_default: ecs.t6-c1m1.large
+  aws_disk_gb: 20
+  aliyun_disk_gb: 20
+  smoke_health_paths:
+  - /
+  smoke_wait_seconds: 120
+  data_path: /opt/cloud-forge/data/miniflux
+  volume_mount: /opt/cloud-forge/data/miniflux:/var/lib/miniflux
+  uid: 1000
+- id: fider
+  name: Fider
+  desc: Feature request and feedback board
+  icon: 💡
+  category: automation
+  tier: community
+  tags:
+  - feedback
+  - roadmap
+  - ideas
+  image: getfider/fider:0.24.0
+  service_name: fider
+  port: 3000
+  aws_instance_default: t3.small
+  aws_instance_options:
+  - t3.small
+  - t3.medium
+  aliyun_instance_default: ecs.t6-c1m1.large
+  aws_disk_gb: 20
+  aliyun_disk_gb: 20
+  smoke_health_paths:
+  - /
+  smoke_wait_seconds: 120
+  data_path: /opt/cloud-forge/data/fider
+  volume_mount: /opt/cloud-forge/data/fider:/app/.fider
+  uid: 1000
+- id: calcom
+  name: Cal.com
+  desc: Scheduling and booking platform
+  icon: 📅
+  category: automation
+  tier: community
+  tags:
+  - calendar
+  - booking
+  - meetings
+  image: calcom/cal.com:4.8.3
+  service_name: calcom
+  port: 3000
+  aws_instance_default: t3.medium
+  aws_instance_options:
+  - t3.medium
+  - t3.medium
+  aliyun_instance_default: ecs.t6-c1m2.large
+  aws_disk_gb: 20
+  aliyun_disk_gb: 20
+  smoke_health_paths:
+  - /
+  smoke_wait_seconds: 180
+  data_path: /opt/cloud-forge/data/calcom
+  volume_mount: /opt/cloud-forge/data/calcom:/app
+  uid: 1000
+- id: docuseal
+  name: Docuseal
+  desc: Document signing workflows
+  icon: 🖊️
+  category: automation
+  tier: community
+  tags:
+  - signing
+  - documents
+  - workflow
+  image: docuseal/docuseal:1.12.1
+  service_name: docuseal
+  port: 3000
+  aws_instance_default: t3.small
+  aws_instance_options:
+  - t3.small
+  - t3.medium
+  aliyun_instance_default: ecs.t6-c1m1.large
+  aws_disk_gb: 20
+  aliyun_disk_gb: 20
+  smoke_health_paths:
+  - /
+  smoke_wait_seconds: 120
+  data_path: /opt/cloud-forge/data/docuseal
+  volume_mount: /opt/cloud-forge/data/docuseal:/data
+  uid: 1000
+- id: matomo
+  name: Matomo
+  desc: Open-source analytics platform
+  icon: 📈
+  category: monitoring
+  tier: community
+  tags:
+  - analytics
+  - metrics
+  - privacy
+  image: matomo:5.2.2-apache
+  service_name: matomo
+  port: 80
+  aws_instance_default: t3.small
+  aws_instance_options:
+  - t3.small
+  - t3.medium
+  aliyun_instance_default: ecs.t6-c1m1.large
+  aws_disk_gb: 20
+  aliyun_disk_gb: 20
+  smoke_health_paths:
+  - /
+  smoke_wait_seconds: 120
+  data_path: /opt/cloud-forge/data/matomo
+  volume_mount: /opt/cloud-forge/data/matomo:/var/www/html
+  uid: 1000
+- id: ghost
+  name: Ghost
+  desc: Publishing platform for blogs and newsletters
+  icon: ✍️
+  category: cms
+  tier: community
+  tags:
+  - blog
+  - newsletter
+  - publishing
+  image: ghost:5.109.1
+  service_name: ghost
+  port: 2368
+  aws_instance_default: t3.small
+  aws_instance_options:
+  - t3.small
+  - t3.medium
+  aliyun_instance_default: ecs.t6-c1m1.large
+  aws_disk_gb: 20
+  aliyun_disk_gb: 20
+  smoke_health_paths:
+  - /ghost/api/admin/
+  smoke_wait_seconds: 120
+  data_path: /opt/cloud-forge/data/ghost
+  volume_mount: /opt/cloud-forge/data/ghost:/var/lib/ghost/content
+  uid: 1000
+- id: discourse
+  name: Discourse
+  desc: Community discussion forum
+  icon: 🧵
+  category: cms
+  tier: community
+  tags:
+  - forum
+  - community
+  - discussion
+  image: discourse/discourse:3.4.0
+  service_name: discourse
+  port: 80
+  aws_instance_default: t3.medium
+  aws_instance_options:
+  - t3.medium
+  - t3.medium
+  aliyun_instance_default: ecs.t6-c1m2.large
+  aws_disk_gb: 20
+  aliyun_disk_gb: 20
+  smoke_health_paths:
+  - /
+  smoke_wait_seconds: 180
+  data_path: /opt/cloud-forge/data/discourse
+  volume_mount: /opt/cloud-forge/data/discourse:/shared
+  uid: 1000
+- id: peertube
+  name: PeerTube
+  desc: Federated video platform
+  icon: 📺
+  category: cms
+  tier: community
+  tags:
+  - video
+  - federated
+  - streaming
+  image: chocobozzz/peertube:v7.0.1-bookworm
+  service_name: peertube
+  port: 9000
+  aws_instance_default: t3.medium
+  aws_instance_options:
+  - t3.medium
+  - t3.medium
+  aliyun_instance_default: ecs.t6-c1m2.large
+  aws_disk_gb: 40
+  aliyun_disk_gb: 40
+  smoke_health_paths:
+  - /api/v1/config
+  smoke_wait_seconds: 180
+  data_path: /opt/cloud-forge/data/peertube
+  volume_mount: /opt/cloud-forge/data/peertube:/data
+  uid: 1000
+- id: keycloak
+  name: Keycloak
+  desc: Identity and access management
+  icon: 🔐
+  category: automation
+  tier: community
+  tags:
+  - iam
+  - sso
+  - auth
+  image: quay.io/keycloak/keycloak:26.0.7
+  service_name: keycloak
+  port: 8080
+  aws_instance_default: t3.medium
+  aws_instance_options:
+  - t3.medium
+  - t3.medium
+  aliyun_instance_default: ecs.t6-c1m2.large
+  aws_disk_gb: 20
+  aliyun_disk_gb: 20
+  smoke_health_paths:
+  - /
+  smoke_wait_seconds: 180
+  data_path: /opt/cloud-forge/data/keycloak
+  volume_mount: /opt/cloud-forge/data/keycloak:/opt/keycloak/data
+  uid: 1000
+- id: authentik
+  name: Authentik
+  desc: Flexible identity provider and SSO
+  icon: 🔐
+  category: automation
+  tier: community
+  tags:
+  - iam
+  - sso
+  - auth
+  image: ghcr.io/goauthentik/server:2025.2.3
+  service_name: authentik
+  port: 9000
+  aws_instance_default: t3.medium
+  aws_instance_options:
+  - t3.medium
+  - t3.medium
+  aliyun_instance_default: ecs.t6-c1m2.large
+  aws_disk_gb: 20
+  aliyun_disk_gb: 20
+  smoke_health_paths:
+  - /if/health/live/
+  smoke_wait_seconds: 180
+  data_path: /opt/cloud-forge/data/authentik
+  volume_mount: /opt/cloud-forge/data/authentik:/media
+  uid: 1000
+- id: mattermost
+  name: Mattermost
+  desc: Team messaging platform
+  icon: 🗨️
+  category: automation
+  tier: community
+  tags:
+  - chat
+  - team
+  - messaging
+  image: mattermost/mattermost-team-edition:10.4.1
+  service_name: mattermost
+  port: 8065
+  aws_instance_default: t3.medium
+  aws_instance_options:
+  - t3.medium
+  - t3.medium
+  aliyun_instance_default: ecs.t6-c1m2.large
+  aws_disk_gb: 20
+  aliyun_disk_gb: 20
+  smoke_health_paths:
+  - /api/v4/system/ping
+  smoke_wait_seconds: 180
+  data_path: /opt/cloud-forge/data/mattermost
+  volume_mount: /opt/cloud-forge/data/mattermost:/mattermost/data
+  uid: 1000
+- id: zulip
+  name: Zulip
+  desc: Team chat with threaded conversations
+  icon: 💬
+  category: automation
+  tier: community
+  tags:
+  - chat
+  - team
+  - messaging
+  image: zulip/zulip:10.0-0
+  service_name: zulip
+  port: 9991
+  aws_instance_default: t3.medium
+  aws_instance_options:
+  - t3.medium
+  - t3.medium
+  aliyun_instance_default: ecs.t6-c1m2.large
+  aws_disk_gb: 20
+  aliyun_disk_gb: 20
+  smoke_health_paths:
+  - /
+  smoke_wait_seconds: 180
+  data_path: /opt/cloud-forge/data/zulip
+  volume_mount: /opt/cloud-forge/data/zulip:/data
+  uid: 1000
+- id: gitea
+  name: Gitea
+  desc: Lightweight Git hosting and code review
+  icon: 🏷️
+  category: devtools
+  tier: community
+  tags:
+  - git
+  - code
+  - devops
+  image: gitea/gitea:1.22.4
+  service_name: gitea
+  port: 3000
+  aws_instance_default: t3.small
+  aws_instance_options:
+  - t3.small
+  - t3.medium
+  aliyun_instance_default: ecs.t6-c1m1.large
+  aws_disk_gb: 20
+  aliyun_disk_gb: 20
+  smoke_health_paths:
+  - /api/healthz
+  smoke_wait_seconds: 180
+  data_path: /opt/cloud-forge/data/gitea
+  volume_mount: /opt/cloud-forge/data/gitea:/data
+  uid: 1000
+- id: forgejo
+  name: Forgejo
+  desc: Self-hosted code hosting platform
+  icon: 🏷️
+  category: devtools
+  tier: community
+  tags:
+  - git
+  - code
+  - devops
+  image: codeberg.org/forgejo/forgejo:11.0.2
+  service_name: forgejo
+  port: 3000
+  aws_instance_default: t3.small
+  aws_instance_options:
+  - t3.small
+  - t3.medium
+  aliyun_instance_default: ecs.t6-c1m1.large
+  aws_disk_gb: 20
+  aliyun_disk_gb: 20
+  smoke_health_paths:
+  - /api/healthz
+  smoke_wait_seconds: 180
+  data_path: /opt/cloud-forge/data/forgejo
+  volume_mount: /opt/cloud-forge/data/forgejo:/data
+  uid: 1000
+- id: gitlab
+  name: GitLab
+  desc: Dev platform with repos, issues, and CI
+  icon: 🦊
+  category: devtools
+  tier: community
+  tags:
+  - git
+  - ci
+  - devops
+  image: gitlab/gitlab-ee:17.8.3-ee.0
+  service_name: gitlab
+  port: 80
+  aws_instance_default: t3.medium
+  aws_instance_options:
+  - t3.medium
+  - t3.medium
+  aliyun_instance_default: ecs.t6-c1m2.large
+  aws_disk_gb: 40
+  aliyun_disk_gb: 40
+  smoke_health_paths:
+  - /
+  smoke_wait_seconds: 180
+  data_path: /opt/cloud-forge/data/gitlab
+  volume_mount: /opt/cloud-forge/data/gitlab:/var/opt/gitlab
+  uid: 1000
+- id: jenkins
+  name: Jenkins
+  desc: Automation server for CI/CD
+  icon: ⚙️
+  category: devtools
+  tier: community
+  tags:
+  - ci
+  - builds
+  - automation
+  image: jenkins/jenkins:lts-jdk21
+  service_name: jenkins
+  port: 8080
+  aws_instance_default: t3.small
+  aws_instance_options:
+  - t3.small
+  - t3.medium
+  aliyun_instance_default: ecs.t6-c1m1.large
+  aws_disk_gb: 20
+  aliyun_disk_gb: 20
+  smoke_health_paths:
+  - /login
+  smoke_wait_seconds: 180
+  data_path: /opt/cloud-forge/data/jenkins
+  volume_mount: /opt/cloud-forge/data/jenkins:/var/jenkins_home
+  uid: 1000
+- id: drone
+  name: Drone CI
+  desc: Continuous integration and delivery
+  icon: 🚀
+  category: devtools
+  tier: community
+  tags:
+  - ci
+  - builds
+  - automation
+  image: drone/drone:2.25.0
+  service_name: drone
+  port: 80
+  aws_instance_default: t3.small
+  aws_instance_options:
+  - t3.small
+  - t3.medium
+  aliyun_instance_default: ecs.t6-c1m1.large
+  aws_disk_gb: 20
+  aliyun_disk_gb: 20
+  smoke_health_paths:
+  - /healthz
+  smoke_wait_seconds: 120
+  data_path: /opt/cloud-forge/data/drone
+  volume_mount: /opt/cloud-forge/data/drone:/data
+  uid: 1000
+- id: woodpecker
+  name: Woodpecker CI
+  desc: Continuous integration server
+  icon: 🚀
+  category: devtools
+  tier: community
+  tags:
+  - ci
+  - builds
+  - automation
+  image: woodpeckerci/woodpecker-server:v3.5.1
+  service_name: woodpecker
+  port: 8000
+  aws_instance_default: t3.small
+  aws_instance_options:
+  - t3.small
+  - t3.medium
+  aliyun_instance_default: ecs.t6-c1m1.large
+  aws_disk_gb: 20
+  aliyun_disk_gb: 20
+  smoke_health_paths:
+  - /health
+  smoke_wait_seconds: 120
+  data_path: /opt/cloud-forge/data/woodpecker
+  volume_mount: /opt/cloud-forge/data/woodpecker:/var/lib/woodpecker
+  uid: 1000
+- id: sonarqube
+  name: SonarQube
+  desc: Code quality and security analysis
+  icon: 🔍
+  category: devtools
+  tier: community
+  tags:
+  - code-quality
+  - security
+  - analysis
+  image: sonarqube:lts-community
+  service_name: sonarqube
+  port: 9000
+  aws_instance_default: t3.medium
+  aws_instance_options:
+  - t3.medium
+  - t3.medium
+  aliyun_instance_default: ecs.t6-c1m2.large
+  aws_disk_gb: 20
+  aliyun_disk_gb: 20
+  smoke_health_paths:
+  - /api/system/status
+  smoke_wait_seconds: 180
+  data_path: /opt/cloud-forge/data/sonarqube
+  volume_mount: /opt/cloud-forge/data/sonarqube:/opt/sonarqube/data
+  uid: 1000
+- id: semaphore
+  name: Semaphore UI
+  desc: Pipeline orchestration and automation
+  icon: 🚦
+  category: devtools
+  tier: community
+  tags:
+  - ci
+  - automation
+  - orchestration
+  image: semaphoreui/semaphore:v2.13.18
+  service_name: semaphore
+  port: 3000
+  aws_instance_default: t3.small
+  aws_instance_options:
+  - t3.small
+  - t3.medium
+  aliyun_instance_default: ecs.t6-c1m1.large
+  aws_disk_gb: 20
+  aliyun_disk_gb: 20
+  smoke_health_paths:
+  - /api/ping
+  smoke_wait_seconds: 120
+  data_path: /opt/cloud-forge/data/semaphore
+  volume_mount: /opt/cloud-forge/data/semaphore:/etc/semaphore
+  uid: 1000
+- id: homepage
+  name: Homepage
+  desc: Simple dashboard for self-hosted services
+  icon: 🏠
+  category: other
+  tier: community
+  tags:
+  - dashboard
+  - homepage
+  - links
+  image: gethomepage/homepage:v0.10.9
+  service_name: homepage
+  port: 3000
+  aws_instance_default: t3.small
+  aws_instance_options:
+  - t3.small
+  - t3.medium
+  aliyun_instance_default: ecs.t6-c1m1.large
+  aws_disk_gb: 20
+  aliyun_disk_gb: 20
+  smoke_health_paths:
+  - /
+  smoke_wait_seconds: 120
+  data_path: /opt/cloud-forge/data/homepage
+  volume_mount: /opt/cloud-forge/data/homepage:/app/config
+  uid: 1000
+- id: dashy
+  name: Dashy
+  desc: Personal dashboard for apps and links
+  icon: 🏠
+  category: other
+  tier: community
+  tags:
+  - dashboard
+  - homepage
+  - links
+  image: lissy93/dashy:3.1.0
+  service_name: dashy
+  port: 80
+  aws_instance_default: t3.small
+  aws_instance_options:
+  - t3.small
+  - t3.medium
+  aliyun_instance_default: ecs.t6-c1m1.large
+  aws_disk_gb: 20
+  aliyun_disk_gb: 20
+  smoke_health_paths:
+  - /
+  smoke_wait_seconds: 120
+  data_path: /opt/cloud-forge/data/dashy
+  volume_mount: /opt/cloud-forge/data/dashy:/app/user-data
+  uid: 1000
+- id: homarr
+  name: Homarr
+  desc: Configurable app dashboard
+  icon: 🏠
+  category: other
+  tier: community
+  tags:
+  - dashboard
+  - homepage
+  - links
+  image: ghcr.io/ajnart/homarr:0.15.7
+  service_name: homarr
+  port: 7575
+  aws_instance_default: t3.small
+  aws_instance_options:
+  - t3.small
+  - t3.medium
+  aliyun_instance_default: ecs.t6-c1m1.large
+  aws_disk_gb: 20
+  aliyun_disk_gb: 20
+  smoke_health_paths:
+  - /
+  smoke_wait_seconds: 120
+  data_path: /opt/cloud-forge/data/homarr
+  volume_mount: /opt/cloud-forge/data/homarr:/app/data/configs
+  uid: 1000
+- id: heimdall
+  name: Heimdall
+  desc: Application dashboard launcher
+  icon: 🏠
+  category: other
+  tier: community
+  tags:
+  - dashboard
+  - launcher
+  - links
+  image: lscr.io/linuxserver/heimdall:2.6.3
+  service_name: heimdall
+  port: 80
+  aws_instance_default: t3.small
+  aws_instance_options:
+  - t3.small
+  - t3.medium
+  aliyun_instance_default: ecs.t6-c1m1.large
+  aws_disk_gb: 20
+  aliyun_disk_gb: 20
+  smoke_health_paths:
+  - /
+  smoke_wait_seconds: 120
+  data_path: /opt/cloud-forge/data/heimdall
+  volume_mount: /opt/cloud-forge/data/heimdall:/config
+  uid: 1000
+- id: organizr
+  name: Organizr
+  desc: Homepage and media hub
+  icon: 🏠
+  category: other
+  tier: community
+  tags:
+  - dashboard
+  - homepage
+  - media
+  image: organizr/organizr:v2.1.1800
+  service_name: organizr
+  port: 80
+  aws_instance_default: t3.small
+  aws_instance_options:
+  - t3.small
+  - t3.medium
+  aliyun_instance_default: ecs.t6-c1m1.large
+  aws_disk_gb: 20
+  aliyun_disk_gb: 20
+  smoke_health_paths:
+  - /
+  smoke_wait_seconds: 120
+  data_path: /opt/cloud-forge/data/organizr
+  volume_mount: /opt/cloud-forge/data/organizr:/config
+  uid: 1000
+- id: filebrowser
+  name: File Browser
+  desc: File manager with sharing
+  icon: 📁
+  category: other
+  tier: community
+  tags:
+  - files
+  - sharing
+  - storage
+  image: filebrowser/filebrowser:v2.33.1
+  service_name: filebrowser
+  port: 80
+  aws_instance_default: t3.small
+  aws_instance_options:
+  - t3.small
+  - t3.medium
+  aliyun_instance_default: ecs.t6-c1m1.large
+  aws_disk_gb: 20
+  aliyun_disk_gb: 20
+  smoke_health_paths:
+  - /
+  smoke_wait_seconds: 120
+  data_path: /opt/cloud-forge/data/filebrowser
+  volume_mount: /opt/cloud-forge/data/filebrowser:/srv
+  uid: 1000
+- id: syncthing
+  name: Syncthing
+  desc: Decentralized file synchronization
+  icon: 🔄
+  category: other
+  tier: community
+  tags:
+  - sync
+  - files
+  - backup
+  image: syncthing/syncthing:1.29.7
+  service_name: syncthing
+  port: 8384
+  aws_instance_default: t3.small
+  aws_instance_options:
+  - t3.small
+  - t3.medium
+  aliyun_instance_default: ecs.t6-c1m1.large
+  aws_disk_gb: 20
+  aliyun_disk_gb: 20
+  smoke_health_paths:
+  - /
+  smoke_wait_seconds: 120
+  data_path: /opt/cloud-forge/data/syncthing
+  volume_mount: /opt/cloud-forge/data/syncthing:/var/syncthing
+  uid: 1000
+- id: restic-rest-server
+  name: Restic REST Server
+  desc: Backup repository service
+  icon: 💾
+  category: other
+  tier: community
+  tags:
+  - backup
+  - storage
+  - restic
+  image: b26e/rest-server:0.13.0
+  service_name: restic_rest_server
+  port: 8000
+  aws_instance_default: t3.small
+  aws_instance_options:
+  - t3.small
+  - t3.medium
+  aliyun_instance_default: ecs.t6-c1m1.large
+  aws_disk_gb: 20
+  aliyun_disk_gb: 20
+  smoke_health_paths:
+  - /
+  smoke_wait_seconds: 120
+  data_path: /opt/cloud-forge/data/restic-rest-server
+  volume_mount: /opt/cloud-forge/data/restic-rest-server:/data
+  uid: 1000
+- id: duplicati
+  name: Duplicati
+  desc: Encrypted backup client and scheduler
+  icon: 💾
+  category: other
+  tier: community
+  tags:
+  - backup
+  - storage
+  - encrypted
+  image: duplicati/duplicati:2.1.0.5
+  service_name: duplicati
+  port: 8200
+  aws_instance_default: t3.small
+  aws_instance_options:
+  - t3.small
+  - t3.medium
+  aliyun_instance_default: ecs.t6-c1m1.large
+  aws_disk_gb: 20
+  aliyun_disk_gb: 20
+  smoke_health_paths:
+  - /
+  smoke_wait_seconds: 120
+  data_path: /opt/cloud-forge/data/duplicati
+  volume_mount: /opt/cloud-forge/data/duplicati:/data
+  uid: 1000
+- id: restic
+  name: Restic Server
+  desc: Repository for backups and snapshots
+  icon: 💾
+  category: other
+  tier: community
+  tags:
+  - backup
+  - storage
+  - snapshots
+  image: restic/rest-server:0.13.0
+  service_name: restic
+  port: 8000
+  aws_instance_default: t3.small
+  aws_instance_options:
+  - t3.small
+  - t3.medium
+  aliyun_instance_default: ecs.t6-c1m1.large
+  aws_disk_gb: 20
+  aliyun_disk_gb: 20
+  smoke_health_paths:
+  - /
+  smoke_wait_seconds: 120
+  data_path: /opt/cloud-forge/data/restic
+  volume_mount: /opt/cloud-forge/data/restic:/data
+  uid: 1000
+- id: wallabag
+  name: wallabag
+  desc: Save and read articles later
+  icon: 📎
+  category: cms
+  tier: community
+  tags:
+  - read-it-later
+  - articles
+  - bookmarks
+  image: wallabag/wallabag:2.6.10
+  service_name: wallabag
+  port: 80
+  aws_instance_default: t3.small
+  aws_instance_options:
+  - t3.small
+  - t3.medium
+  aliyun_instance_default: ecs.t6-c1m1.large
+  aws_disk_gb: 20
+  aliyun_disk_gb: 20
+  smoke_health_paths:
+  - /
+  smoke_wait_seconds: 120
+  data_path: /opt/cloud-forge/data/wallabag
+  volume_mount: /opt/cloud-forge/data/wallabag:/var/www/wallabag/data
+  uid: 1000
+- id: shlink
+  name: Shlink
+  desc: Self-hosted URL shortener
+  icon: 🔗
+  category: automation
+  tier: community
+  tags:
+  - shortener
+  - links
+  - analytics
+  image: shlinkio/shlink:4.4.2
+  service_name: shlink
+  port: 8080
+  aws_instance_default: t3.small
+  aws_instance_options:
+  - t3.small
+  - t3.medium
+  aliyun_instance_default: ecs.t6-c1m1.large
+  aws_disk_gb: 20
+  aliyun_disk_gb: 20
+  smoke_health_paths:
+  - /
+  smoke_wait_seconds: 120
+  data_path: /opt/cloud-forge/data/shlink
+  volume_mount: /opt/cloud-forge/data/shlink:/etc/shlink
+  uid: 1000
+- id: yourls
+  name: YOURLS
+  desc: URL shortener
+  icon: 🔗
+  category: automation
+  tier: community
+  tags:
+  - shortener
+  - links
+  - analytics
+  image: yourls:1.9.2
+  service_name: yourls
+  port: 80
+  aws_instance_default: t3.small
+  aws_instance_options:
+  - t3.small
+  - t3.medium
+  aliyun_instance_default: ecs.t6-c1m1.large
+  aws_disk_gb: 20
+  aliyun_disk_gb: 20
+  smoke_health_paths:
+  - /
+  smoke_wait_seconds: 120
+  data_path: /opt/cloud-forge/data/yourls
+  volume_mount: /opt/cloud-forge/data/yourls:/var/www/html
+  uid: 1000
+- id: kutt
+  name: Kutt
+  desc: URL shortener with analytics
+  icon: 🔗
+  category: automation
+  tier: community
+  tags:
+  - shortener
+  - links
+  - analytics
+  image: kutt/kutt:3.2.3
+  service_name: kutt
+  port: 3000
+  aws_instance_default: t3.small
+  aws_instance_options:
+  - t3.small
+  - t3.medium
+  aliyun_instance_default: ecs.t6-c1m1.large
+  aws_disk_gb: 20
+  aliyun_disk_gb: 20
+  smoke_health_paths:
+  - /
+  smoke_wait_seconds: 120
+  data_path: /opt/cloud-forge/data/kutt
+  volume_mount: /opt/cloud-forge/data/kutt:/app/uploads
+  uid: 1000
+- id: rallly
+  name: Rallly
+  desc: Scheduling polls for groups
+  icon: 📅
+  category: automation
+  tier: community
+  tags:
+  - scheduling
+  - polls
+  - meetings
+  image: daveearley/rallly:3.10.2
+  service_name: rallly
+  port: 3000
+  aws_instance_default: t3.small
+  aws_instance_options:
+  - t3.small
+  - t3.medium
+  aliyun_instance_default: ecs.t6-c1m1.large
+  aws_disk_gb: 20
+  aliyun_disk_gb: 20
+  smoke_health_paths:
+  - /
+  smoke_wait_seconds: 120
+  data_path: /opt/cloud-forge/data/rallly
+  volume_mount: /opt/cloud-forge/data/rallly:/app/data
+  uid: 1000
+- id: ntfy
+  name: ntfy
+  desc: Simple push notifications
+  icon: 📣
+  category: automation
+  tier: community
+  tags:
+  - notifications
+  - push
+  - alerts
+  image: binwiederhier/ntfy:2.11.0
+  service_name: ntfy
+  port: 80
+  aws_instance_default: t3.small
+  aws_instance_options:
+  - t3.small
+  - t3.medium
+  aliyun_instance_default: ecs.t6-c1m1.large
+  aws_disk_gb: 20
+  aliyun_disk_gb: 20
+  smoke_health_paths:
+  - /
+  smoke_wait_seconds: 120
+  data_path: /opt/cloud-forge/data/ntfy
+  volume_mount: /opt/cloud-forge/data/ntfy:/var/cache/ntfy
+  uid: 1000
+- id: gotify
+  name: Gotify
+  desc: Simple push notification server
+  icon: 📣
+  category: automation
+  tier: community
+  tags:
+  - notifications
+  - push
+  - alerts
+  image: gotify/server:2.6.1
+  service_name: gotify
+  port: 80
+  aws_instance_default: t3.small
+  aws_instance_options:
+  - t3.small
+  - t3.medium
+  aliyun_instance_default: ecs.t6-c1m1.large
+  aws_disk_gb: 20
+  aliyun_disk_gb: 20
+  smoke_health_paths:
+  - /
+  smoke_wait_seconds: 120
+  data_path: /opt/cloud-forge/data/gotify
+  volume_mount: /opt/cloud-forge/data/gotify:/app/data
+  uid: 1000
+- id: gatus
+  name: Gatus
+  desc: Health checks and uptime monitoring
+  icon: 🧪
+  category: monitoring
+  tier: community
+  tags:
+  - monitoring
+  - uptime
+  - checks
+  image: twin/gatus:v5.14.0
+  service_name: gatus
+  port: 8080
+  aws_instance_default: t3.small
+  aws_instance_options:
+  - t3.small
+  - t3.medium
+  aliyun_instance_default: ecs.t6-c1m1.large
+  aws_disk_gb: 20
+  aliyun_disk_gb: 20
+  smoke_health_paths:
+  - /
+  smoke_wait_seconds: 120
+  data_path: /opt/cloud-forge/data/gatus
+  volume_mount: /opt/cloud-forge/data/gatus:/data
+  uid: 1000
+- id: uptime-kuma-alt
+  name: Uptime Kuma Alt
+  desc: Alternative uptime monitor preset
+  icon: 🟢
+  category: monitoring
+  tier: community
+  tags:
+  - monitoring
+  - uptime
+  - alerts
+  image: louislam/uptime-kuma:1.23.16
+  service_name: uptime_kuma_alt
+  port: 3001
+  aws_instance_default: t3.small
+  aws_instance_options:
+  - t3.small
+  - t3.medium
+  aliyun_instance_default: ecs.t6-c1m1.large
+  aws_disk_gb: 20
+  aliyun_disk_gb: 20
+  smoke_health_paths:
+  - /
+  smoke_wait_seconds: 120
+  data_path: /opt/cloud-forge/data/uptime-kuma-alt
+  volume_mount: /opt/cloud-forge/data/uptime-kuma-alt:/app/data
+  uid: 1000
+- id: prometheus
+  name: Prometheus
+  desc: Metrics collection and alerting
+  icon: 📈
+  category: monitoring
+  tier: community
+  tags:
+  - metrics
+  - monitoring
+  - alerts
+  image: prom/prometheus:v3.1.0
+  service_name: prometheus
+  port: 9090
+  aws_instance_default: t3.small
+  aws_instance_options:
+  - t3.small
+  - t3.medium
+  aliyun_instance_default: ecs.t6-c1m1.large
+  aws_disk_gb: 20
+  aliyun_disk_gb: 20
+  smoke_health_paths:
+  - /-/ready
+  smoke_wait_seconds: 120
+  data_path: /opt/cloud-forge/data/prometheus
+  volume_mount: /opt/cloud-forge/data/prometheus:/prometheus
+  uid: 65534
+- id: grafana
+  name: Grafana
+  desc: Observability dashboards and charts
+  icon: 📊
+  category: monitoring
+  tier: community
+  tags:
+  - metrics
+  - dashboards
+  - observability
+  image: grafana/grafana:11.4.0
+  service_name: grafana
+  port: 3000
+  aws_instance_default: t3.small
+  aws_instance_options:
+  - t3.small
+  - t3.medium
+  aliyun_instance_default: ecs.t6-c1m1.large
+  aws_disk_gb: 20
+  aliyun_disk_gb: 20
+  smoke_health_paths:
+  - /api/health
+  smoke_wait_seconds: 120
+  data_path: /opt/cloud-forge/data/grafana
+  volume_mount: /opt/cloud-forge/data/grafana:/var/lib/grafana
+  uid: 472
+- id: loki
+  name: Loki
+  desc: Log aggregation system
+  icon: 🪵
+  category: monitoring
+  tier: community
+  tags:
+  - logs
+  - monitoring
+  - observability
+  image: grafana/loki:3.3.2
+  service_name: loki
+  port: 3100
+  aws_instance_default: t3.small
+  aws_instance_options:
+  - t3.small
+  - t3.medium
+  aliyun_instance_default: ecs.t6-c1m1.large
+  aws_disk_gb: 20
+  aliyun_disk_gb: 20
+  smoke_health_paths:
+  - /ready
+  smoke_wait_seconds: 120
+  data_path: /opt/cloud-forge/data/loki
+  volume_mount: /opt/cloud-forge/data/loki:/loki
+  uid: 10001
+- id: alertmanager
+  name: Alertmanager
+  desc: Prometheus alert routing
+  icon: 🚨
+  category: monitoring
+  tier: community
+  tags:
+  - alerts
+  - monitoring
+  - routing
+  image: prom/alertmanager:v0.28.0
+  service_name: alertmanager
+  port: 9093
+  aws_instance_default: t3.small
+  aws_instance_options:
+  - t3.small
+  - t3.medium
+  aliyun_instance_default: ecs.t6-c1m1.large
+  aws_disk_gb: 20
+  aliyun_disk_gb: 20
+  smoke_health_paths:
+  - /-/ready
+  smoke_wait_seconds: 120
+  data_path: /opt/cloud-forge/data/alertmanager
+  volume_mount: /opt/cloud-forge/data/alertmanager:/alertmanager
+  uid: 65534
+- id: loki-stack
+  name: Loki Stack
+  desc: Logs and alerts bundle preset
+  icon: 🪵
+  category: monitoring
+  tier: community
+  tags:
+  - logs
+  - monitoring
+  - stack
+  image: grafana/loki:3.3.2
+  service_name: loki_stack
+  port: 3100
+  aws_instance_default: t3.small
+  aws_instance_options:
+  - t3.small
+  - t3.medium
+  aliyun_instance_default: ecs.t6-c1m1.large
+  aws_disk_gb: 20
+  aliyun_disk_gb: 20
+  smoke_health_paths:
+  - /ready
+  smoke_wait_seconds: 120
+  data_path: /opt/cloud-forge/data/loki-stack
+  volume_mount: /opt/cloud-forge/data/loki-stack:/loki
+  uid: 10001
+- id: postgrest
+  name: PostgREST
+  desc: REST API for PostgreSQL
+  icon: 🗃️
+  category: database
+  ami_role: web
+  tier: community
+  tags:
+  - database
+  - api
+  - postgres
+  image: postgrest/postgrest:v12.2.8
+  service_name: postgrest
+  port: 3000
+  aws_instance_default: t3.small
+  aws_instance_options:
+  - t3.small
+  - t3.medium
+  aliyun_instance_default: ecs.t6-c1m1.large
+  aws_disk_gb: 20
+  aliyun_disk_gb: 20
+  smoke_health_paths:
+  - /
+  smoke_wait_seconds: 120
+  data_path: /opt/cloud-forge/data/postgrest
+  volume_mount: /opt/cloud-forge/data/postgrest:/etc/postgrest
+  uid: 1000
+- id: pgadmin
+  name: pgAdmin 4
+  desc: PostgreSQL management UI
+  icon: 🗃️
+  category: database
+  ami_role: web
+  tier: community
+  tags:
+  - database
+  - postgres
+  - admin
+  image: dpage/pgadmin4:9.8
+  service_name: pgadmin
+  port: 80
+  aws_instance_default: t3.small
+  aws_instance_options:
+  - t3.small
+  - t3.medium
+  aliyun_instance_default: ecs.t6-c1m1.large
+  aws_disk_gb: 20
+  aliyun_disk_gb: 20
+  smoke_health_paths:
+  - /
+  smoke_wait_seconds: 120
+  data_path: /opt/cloud-forge/data/pgadmin
+  volume_mount: /opt/cloud-forge/data/pgadmin:/var/lib/pgadmin
+  uid: 5050
+- id: adminer
+  name: Adminer
+  desc: Single-file database management UI
+  icon: 🛠️
+  category: database
+  ami_role: web
+  tier: community
+  tags:
+  - database
+  - admin
+  - sql
+  image: adminer:4.8.1
+  service_name: adminer
+  port: 8080
+  aws_instance_default: t3.small
+  aws_instance_options:
+  - t3.small
+  - t3.medium
+  aliyun_instance_default: ecs.t6-c1m1.large
+  aws_disk_gb: 20
+  aliyun_disk_gb: 20
+  smoke_health_paths:
+  - /
+  smoke_wait_seconds: 120
+  stateless: true
+- id: phpmyadmin
+  name: phpMyAdmin
+  desc: MySQL and MariaDB administration UI
+  icon: 🛠️
+  category: database
+  ami_role: web
+  tier: community
+  tags:
+  - database
+  - mysql
+  - admin
+  image: phpmyadmin:5.2.1
+  service_name: phpmyadmin
+  port: 80
+  aws_instance_default: t3.small
+  aws_instance_options:
+  - t3.small
+  - t3.medium
+  aliyun_instance_default: ecs.t6-c1m1.large
+  aws_disk_gb: 20
+  aliyun_disk_gb: 20
+  smoke_health_paths:
+  - /
+  smoke_wait_seconds: 120
+  data_path: /opt/cloud-forge/data/phpmyadmin
+  volume_mount: /opt/cloud-forge/data/phpmyadmin:/sessions
+  uid: 1000
+- id: redis-commander
+  name: Redis Commander
+  desc: Browser UI for Redis
+  icon: 🧰
+  category: database
+  ami_role: web
+  tier: community
+  tags:
+  - database
+  - redis
+  - admin
+  image: rediscommander/redis-commander:0.8.0
+  service_name: redis_commander
+  port: 8081
+  aws_instance_default: t3.small
+  aws_instance_options:
+  - t3.small
+  - t3.medium
+  aliyun_instance_default: ecs.t6-c1m1.large
+  aws_disk_gb: 20
+  aliyun_disk_gb: 20
+  smoke_health_paths:
+  - /
+  smoke_wait_seconds: 120
+  stateless: true
+- id: mongo-express
+  name: mongo-express
+  desc: MongoDB administration interface
+  icon: 🧰
+  category: database
+  ami_role: web
+  tier: community
+  tags:
+  - database
+  - mongodb
+  - admin
+  image: mongo-express:1.0.2-20
+  service_name: mongo_express
+  port: 8081
+  aws_instance_default: t3.small
+  aws_instance_options:
+  - t3.small
+  - t3.medium
+  aliyun_instance_default: ecs.t6-c1m1.large
+  aws_disk_gb: 20
+  aliyun_disk_gb: 20
+  smoke_health_paths:
+  - /
+  smoke_wait_seconds: 120
+  stateless: true
+- id: pgweb
+  name: pgWeb
+  desc: Browser-based PostgreSQL explorer
+  icon: 🗃️
+  category: database
+  ami_role: web
+  tier: community
+  tags:
+  - database
+  - postgres
+  - explorer
+  image: sosedoff/pgweb:0.15.0
+  service_name: pgweb
+  port: 8081
+  aws_instance_default: t3.small
+  aws_instance_options:
+  - t3.small
+  - t3.medium
+  aliyun_instance_default: ecs.t6-c1m1.large
+  aws_disk_gb: 20
+  aliyun_disk_gb: 20
+  smoke_health_paths:
+  - /
+  smoke_wait_seconds: 120
+  stateless: true
+- id: mariadb
+  name: MariaDB
+  desc: Drop-in MySQL-compatible database
+  icon: 🗄️
+  category: database
+  ami_role: db
+  tier: community
+  tags:
+  - database
+  - sql
+  - storage
+  image: mariadb:11.4.4
+  service_name: mariadb
+  port: 3306
+  secrets:
+  - env: MARIADB_ROOT_PASSWORD
+  aws_instance_default: t3.small
+  aws_instance_options:
+  - t3.small
+  - t3.medium
+  aliyun_instance_default: ecs.t6-c1m1.large
+  aws_disk_gb: 20
+  aliyun_disk_gb: 20
+  smoke_health_paths:
+  - /
+  smoke_wait_seconds: 120
+  data_path: /opt/cloud-forge/data/mariadb
+  volume_mount: /opt/cloud-forge/data/mariadb:/var/lib/mysql
+  uid: 999
+- id: postgresql
+  name: PostgreSQL
+  desc: Reliable relational database server
+  icon: 🗄️
+  category: database
+  ami_role: db
+  tier: community
+  tags:
+  - database
+  - sql
+  - storage
+  image: postgres:17.2
+  service_name: postgresql
+  port: 5432
+  secrets:
+  - env: POSTGRES_PASSWORD
+  aws_instance_default: t3.small
+  aws_instance_options:
+  - t3.small
+  - t3.medium
+  aliyun_instance_default: ecs.t6-c1m1.large
+  aws_disk_gb: 20
+  aliyun_disk_gb: 20
+  smoke_health_paths:
+  - /
+  smoke_wait_seconds: 120
+  data_path: /opt/cloud-forge/data/postgresql
+  volume_mount: /opt/cloud-forge/data/postgresql:/var/lib/postgresql/data
+  uid: 999
+- id: redis
+  name: Redis
+  desc: In-memory data store and cache
+  icon: 🗄️
+  category: database
+  ami_role: db
+  tier: community
+  tags:
+  - database
+  - cache
+  - storage
+  image: redis:7.4.2
+  service_name: redis
+  port: 6379
+  secrets:
+  - env: REDIS_PASSWORD
+  command:
+  - sh
+  - -lc
+  - exec redis-server --requirepass "$REDIS_PASSWORD"
+  aws_instance_default: t3.small
+  aws_instance_options:
+  - t3.small
+  - t3.medium
+  aliyun_instance_default: ecs.t6-c1m1.large
+  aws_disk_gb: 20
+  aliyun_disk_gb: 20
+  smoke_health_paths:
+  - /
+  smoke_wait_seconds: 120
+  data_path: /opt/cloud-forge/data/redis
+  volume_mount: /opt/cloud-forge/data/redis:/data
+  uid: 999
+- id: mongodb
+  name: MongoDB
+  desc: NoSQL document database
+  icon: 🗄️
+  category: database
+  ami_role: db
+  tier: community
+  tags:
+  - database
+  - nosql
+  - storage
+  image: mongo:8.0.4
+  service_name: mongodb
+  port: 27017
+  environment:
+    MONGO_INITDB_ROOT_USERNAME: cloudforge
+  secrets:
+  - env: MONGO_INITDB_ROOT_PASSWORD
+  aws_instance_default: t3.small
+  aws_instance_options:
+  - t3.small
+  - t3.medium
+  aliyun_instance_default: ecs.t6-c1m1.large
+  aws_disk_gb: 20
+  aliyun_disk_gb: 20
+  smoke_health_paths:
+  - /
+  smoke_wait_seconds: 120
+  data_path: /opt/cloud-forge/data/mongodb
+  volume_mount: /opt/cloud-forge/data/mongodb:/data/db
+  uid: 999
+- id: sqlite-web
+  name: SQLite Web
+  desc: Browser UI for SQLite databases
+  icon: 🗄️
+  category: database
+  ami_role: web
+  tier: community
+  tags:
+  - database
+  - sqlite
+  - admin
+  image: coleifer/sqlite-web:0.6.4
+  service_name: sqlite_web
+  port: 8080
+  aws_instance_default: t3.small
+  aws_instance_options:
+  - t3.small
+  - t3.medium
+  aliyun_instance_default: ecs.t6-c1m1.large
+  aws_disk_gb: 20
+  aliyun_disk_gb: 20
+  smoke_health_paths:
+  - /
+  smoke_wait_seconds: 120
+  stateless: true
+- id: mosquitto
+  name: Mosquitto
+  desc: MQTT broker for IoT workloads
+  icon: 📡
+  category: automation
+  tier: community
+  tags:
+  - mqtt
+  - iot
+  - automation
+  image: eclipse-mosquitto:2.0.21
+  service_name: mosquitto
+  ami_role: tcp
+  service_scheme: mqtt
+  port: 1883
+  command:
+  - sh
+  - -c
+  - |
+    printf '%s\n' 'listener 1883 0.0.0.0' 'allow_anonymous true' 'persistence true' 'persistence_location /mosquitto/data/' > /tmp/mosquitto.conf && exec mosquitto -c /tmp/mosquitto.conf
+  aws_instance_default: t3.small
+  aws_instance_options:
+  - t3.small
+  - t3.medium
+  aliyun_instance_default: ecs.t6-c1m1.large
+  aws_disk_gb: 20
+  aliyun_disk_gb: 20
+  smoke_health_paths:
+  - /
+  smoke_wait_seconds: 120
+  data_path: /opt/cloud-forge/data/mosquitto
+  volume_mount: /opt/cloud-forge/data/mosquitto:/mosquitto
+  uid: 1883
+- id: home-assistant
+  name: Home Assistant
+  desc: Home automation control center
+  icon: 🏡
+  category: automation
+  tier: community
+  tags:
+  - home
+  - automation
+  - iot
+  image: homeassistant/home-assistant:2025.1.4
+  service_name: home_assistant
+  port: 8123
+  aws_instance_default: t3.medium
+  aws_instance_options:
+  - t3.medium
+  - t3.medium
+  aliyun_instance_default: ecs.t6-c1m2.large
+  aws_disk_gb: 20
+  aliyun_disk_gb: 20
+  smoke_health_paths:
+  - /
+  smoke_wait_seconds: 180
+  data_path: /opt/cloud-forge/data/home-assistant
+  volume_mount: /opt/cloud-forge/data/home-assistant:/config
+  uid: 1000
+- id: n8n-cloud
+  name: n8n Cloud
+  desc: Workflow automation and integrations
+  icon: 🔁
+  category: automation
+  tier: community
+  tags:
+  - workflow
+  - automation
+  - integrations
+  image: n8nio/n8n:1.78.1
+  service_name: n8n_cloud
+  port: 5678
+  aws_instance_default: t3.medium
+  aws_instance_options:
+  - t3.medium
+  - t3.medium
+  aliyun_instance_default: ecs.t6-c1m2.large
+  aws_disk_gb: 20
+  aliyun_disk_gb: 20
+  smoke_health_paths:
+  - /healthz
+  smoke_wait_seconds: 180
+  data_path: /opt/cloud-forge/data/n8n-cloud
+  volume_mount: /opt/cloud-forge/data/n8n-cloud:/home/node/.n8n
+  uid: 1000
+- id: huginn
+  name: Huginn
+  desc: Agents that monitor and act on events
+  icon: 🤖
+  category: automation
+  tier: community
+  tags:
+  - automation
+  - agents
+  - events
+  image: huginn/huginn:2.0.4
+  service_name: huginn
+  port: 3000
+  aws_instance_default: t3.small
+  aws_instance_options:
+  - t3.small
+  - t3.medium
+  aliyun_instance_default: ecs.t6-c1m1.large
+  aws_disk_gb: 20
+  aliyun_disk_gb: 20
+  smoke_health_paths:
+  - /
+  smoke_wait_seconds: 180
+  data_path: /opt/cloud-forge/data/huginn
+  volume_mount: /opt/cloud-forge/data/huginn:/var/lib/huginn
+  uid: 1000
+- id: trilium
+  name: Trilium Notes
+  desc: Hierarchical note taking app
+  icon: 🗒️
+  category: cms
+  tier: community
+  tags:
+  - notes
+  - knowledge
+  - writing
+  image: triliumnext/trilium:0.91.7
+  service_name: trilium
+  port: 8080
+  aws_instance_default: t3.small
+  aws_instance_options:
+  - t3.small
+  - t3.medium
+  aliyun_instance_default: ecs.t6-c1m1.large
+  aws_disk_gb: 20
+  aliyun_disk_gb: 20
+  smoke_health_paths:
+  - /
+  smoke_wait_seconds: 120
+  data_path: /opt/cloud-forge/data/trilium
+  volume_mount: /opt/cloud-forge/data/trilium:/home/node/trilium-data
+  uid: 1000
+- id: silverbullet
+  name: SilverBullet
+  desc: Markdown-first personal knowledge base
+  icon: 🧠
+  category: cms
+  tier: community
+  tags:
+  - notes
+  - wiki
+  - knowledge
+  image: silverbulletmd/silverbullet:0.10.1
+  service_name: silverbullet
+  port: 3000
+  aws_instance_default: t3.small
+  aws_instance_options:
+  - t3.small
+  - t3.medium
+  aliyun_instance_default: ecs.t6-c1m1.large
+  aws_disk_gb: 20
+  aliyun_disk_gb: 20
+  smoke_health_paths:
+  - /
+  smoke_wait_seconds: 120
+  data_path: /opt/cloud-forge/data/silverbullet
+  volume_mount: /opt/cloud-forge/data/silverbullet:/space
+  uid: 1000
+- id: memos
+  name: Memos
+  desc: Lightweight note taking service
+  icon: 🗒️
+  category: cms
+  tier: community
+  tags:
+  - notes
+  - journal
+  - knowledge
+  image: neosmemo/memos:0.22.1
+  service_name: memos
+  port: 5230
+  aws_instance_default: t3.small
+  aws_instance_options:
+  - t3.small
+  - t3.medium
+  aliyun_instance_default: ecs.t6-c1m1.large
+  aws_disk_gb: 20
+  aliyun_disk_gb: 20
+  smoke_health_paths:
+  - /
+  smoke_wait_seconds: 120
+  data_path: /opt/cloud-forge/data/memos
+  volume_mount: /opt/cloud-forge/data/memos:/var/opt/memos
+  uid: 1000
+- id: outline
+  name: Outline
+  desc: Team knowledge base and internal docs
+  icon: 📚
+  category: cms
+  tier: community
+  tags:
+  - wiki
+  - docs
+  - knowledge
+  image: outlinewiki/outline:0.82.1
+  service_name: outline
+  port: 3000
+  aws_instance_default: t3.medium
+  aws_instance_options:
+  - t3.medium
+  - t3.medium
+  aliyun_instance_default: ecs.t6-c1m2.large
+  aws_disk_gb: 20
+  aliyun_disk_gb: 20
+  smoke_health_paths:
+  - /
+  smoke_wait_seconds: 180
+  data_path: /opt/cloud-forge/data/outline
+  volume_mount: /opt/cloud-forge/data/outline:/var/lib/outline
+  uid: 1001
+- id: lobe-chat
+  name: Lobe Chat
+  desc: AI chat and prompt management
+  icon: 💬
+  category: devtools
+  tier: community
+  tags:
+  - chat
+  - ai
+  - prompting
+  image: lobehub/lobe-chat:1.54.3
+  service_name: lobe_chat
+  port: 3210
+  aws_instance_default: t3.medium
+  aws_instance_options:
+  - t3.medium
+  - t3.medium
+  aliyun_instance_default: ecs.t6-c1m2.large
+  aws_disk_gb: 20
+  aliyun_disk_gb: 20
+  smoke_health_paths:
+  - /
+  smoke_wait_seconds: 180
+  data_path: /opt/cloud-forge/data/lobe-chat
+  volume_mount: /opt/cloud-forge/data/lobe-chat:/app/data
+  uid: 1000
+- id: anythingllm
+  name: AnythingLLM
+  desc: All-in-one AI workspace
+  icon: 🧠
+  category: devtools
+  tier: community
+  tags:
+  - ai
+  - chat
+  - knowledge
+  image: mintplexlabs/anythingllm:1.7.2
+  service_name: anythingllm
+  port: 3001
+  aws_instance_default: t3.medium
+  aws_instance_options:
+  - t3.medium
+  - t3.medium
+  aliyun_instance_default: ecs.t6-c1m2.large
+  aws_disk_gb: 20
+  aliyun_disk_gb: 20
+  smoke_health_paths:
+  - /
+  smoke_wait_seconds: 180
+  data_path: /opt/cloud-forge/data/anythingllm
+  volume_mount: /opt/cloud-forge/data/anythingllm:/app/server/storage
+  uid: 1000
+- id: dify
+  name: Dify
+  desc: LLM app development platform
+  icon: 🧱
+  category: devtools
+  tier: community
+  tags:
+  - ai
+  - llm
+  - platform
+  image: langgenius/dify-api:0.15.3
+  service_name: dify
+  port: 5001
+  aws_instance_default: t3.medium
+  aws_instance_options:
+  - t3.medium
+  - t3.medium
+  aliyun_instance_default: ecs.t6-c1m2.large
+  aws_disk_gb: 20
+  aliyun_disk_gb: 20
+  smoke_health_paths:
+  - /health
+  smoke_wait_seconds: 180
+  data_path: /opt/cloud-forge/data/dify
+  volume_mount: /opt/cloud-forge/data/dify:/app/api/storage
+  uid: 1000
+- id: flowise
+  name: Flowise
+  desc: Visual builder for LLM workflows
+  icon: 🔗
+  category: devtools
+  tier: community
+  tags:
+  - ai
+  - workflow
+  - llm
+  image: flowiseai/flowise:2.2.6
+  service_name: flowise
+  port: 3000
+  aws_instance_default: t3.medium
+  aws_instance_options:
+  - t3.medium
+  - t3.medium
+  aliyun_instance_default: ecs.t6-c1m2.large
+  aws_disk_gb: 20
+  aliyun_disk_gb: 20
+  smoke_health_paths:
+  - /
+  smoke_wait_seconds: 180
+  data_path: /opt/cloud-forge/data/flowise
+  volume_mount: /opt/cloud-forge/data/flowise:/root/.flowise
+  uid: 1000
+- id: n8n
+  name: n8n
+  desc: Workflow automation platform
+  icon: 🔁
+  category: automation
+  tier: community
+  tags:
+  - workflow
+  - automation
+  - integrations
+  image: n8nio/n8n:1.78.1
+  service_name: n8n
+  port: 5678
+  aws_instance_default: t3.medium
+  aws_instance_options:
+  - t3.medium
+  - t3.medium
+  aliyun_instance_default: ecs.t6-c1m2.large
+  aws_disk_gb: 20
+  aliyun_disk_gb: 20
+  smoke_health_paths:
+  - /healthz
+  smoke_wait_seconds: 180
+  data_path: /opt/cloud-forge/data/n8n
+  volume_mount: /opt/cloud-forge/data/n8n:/home/node/.n8n
+  uid: 1000
+- id: temporal
+  name: Temporal
+  desc: Durable workflow orchestration
+  icon: ⏱️
+  category: automation
+  tier: community
+  tags:
+  - workflow
+  - orchestration
+  - backend
+  image: temporalio/server:1.26.2
+  service_name: temporal
+  port: 7233
+  aws_instance_default: t3.medium
+  aws_instance_options:
+  - t3.medium
+  - t3.medium
+  aliyun_instance_default: ecs.t6-c1m2.large
+  aws_disk_gb: 20
+  aliyun_disk_gb: 20
+  smoke_health_paths:
+  - /health
+  smoke_wait_seconds: 180
+  data_path: /opt/cloud-forge/data/temporal
+  volume_mount: /opt/cloud-forge/data/temporal:/etc/temporal
+  uid: 1000
+- id: arq
+  name: Argo Workflows
+  desc: Kubernetes-native workflow engine
+  icon: 🧩
+  category: automation
+  tier: community
+  tags:
+  - workflow
+  - automation
+  - orchestration
+  image: argoproj/workflows-controller:v3.6.11
+  service_name: arq
+  port: 2746
+  aws_instance_default: t3.small
+  aws_instance_options:
+  - t3.small
+  - t3.medium
+  aliyun_instance_default: ecs.t6-c1m1.large
+  aws_disk_gb: 20
+  aliyun_disk_gb: 20
+  smoke_health_paths:
+  - /
+  smoke_wait_seconds: 120
+  data_path: /opt/cloud-forge/data/arq
+  volume_mount: /opt/cloud-forge/data/arq:/tmp
+  uid: 1000
+- id: gogs
+  name: Gogs
+  desc: Self-hosted Git service
+  icon: 🏷️
+  category: devtools
+  tier: community
+  tags:
+  - git
+  - code
+  - devops
+  image: gogs/gogs:0.13.0
+  service_name: gogs
+  port: 3000
+  aws_instance_default: t3.small
+  aws_instance_options:
+  - t3.small
+  - t3.medium
+  aliyun_instance_default: ecs.t6-c1m1.large
+  aws_disk_gb: 20
+  aliyun_disk_gb: 20
+  smoke_health_paths:
+  - /
+  smoke_wait_seconds: 120
+  data_path: /opt/cloud-forge/data/gogs
+  volume_mount: /opt/cloud-forge/data/gogs:/data
+  uid: 1000
+- id: radarr
+  name: Radarr
+  desc: Movie collection manager
+  icon: 🎬
+  category: other
+  tier: community
+  tags:
+  - media
+  - movies
+  - automation
+  image: lscr.io/linuxserver/radarr:5.18.4
+  service_name: radarr
+  port: 7878
+  aws_instance_default: t3.small
+  aws_instance_options:
+  - t3.small
+  - t3.medium
+  aliyun_instance_default: ecs.t6-c1m1.large
+  aws_disk_gb: 20
+  aliyun_disk_gb: 20
+  smoke_health_paths:
+  - /
+  smoke_wait_seconds: 120
+  data_path: /opt/cloud-forge/data/radarr
+  volume_mount: /opt/cloud-forge/data/radarr:/config
+  uid: 1000
+- id: sonarr
+  name: Sonarr
+  desc: TV show collection manager
+  icon: 📺
+  category: other
+  tier: community
+  tags:
+  - media
+  - tv
+  - automation
+  image: lscr.io/linuxserver/sonarr:4.0.11
+  service_name: sonarr
+  port: 8989
+  aws_instance_default: t3.small
+  aws_instance_options:
+  - t3.small
+  - t3.medium
+  aliyun_instance_default: ecs.t6-c1m1.large
+  aws_disk_gb: 20
+  aliyun_disk_gb: 20
+  smoke_health_paths:
+  - /
+  smoke_wait_seconds: 120
+  data_path: /opt/cloud-forge/data/sonarr
+  volume_mount: /opt/cloud-forge/data/sonarr:/config
+  uid: 1000
+- id: lidarr
+  name: Lidarr
+  desc: Music collection manager
+  icon: 🎵
+  category: other
+  tier: community
+  tags:
+  - media
+  - music
+  - automation
+  image: lscr.io/linuxserver/lidarr:2.10.1
+  service_name: lidarr
+  port: 8686
+  aws_instance_default: t3.small
+  aws_instance_options:
+  - t3.small
+  - t3.medium
+  aliyun_instance_default: ecs.t6-c1m1.large
+  aws_disk_gb: 20
+  aliyun_disk_gb: 20
+  smoke_health_paths:
+  - /
+  smoke_wait_seconds: 120
+  data_path: /opt/cloud-forge/data/lidarr
+  volume_mount: /opt/cloud-forge/data/lidarr:/config
+  uid: 1000
+- id: readarr
+  name: Readarr
+  desc: Book collection manager
+  icon: 📚
+  category: other
+  tier: community
+  tags:
+  - media
+  - books
+  - automation
+  image: lscr.io/linuxserver/readarr:0.4.8
+  service_name: readarr
+  port: 8787
+  aws_instance_default: t3.small
+  aws_instance_options:
+  - t3.small
+  - t3.medium
+  aliyun_instance_default: ecs.t6-c1m1.large
+  aws_disk_gb: 20
+  aliyun_disk_gb: 20
+  smoke_health_paths:
+  - /
+  smoke_wait_seconds: 120
+  data_path: /opt/cloud-forge/data/readarr
+  volume_mount: /opt/cloud-forge/data/readarr:/config
+  uid: 1000
+- id: prowlarr
+  name: Prowlarr
+  desc: Indexer manager for media automation
+  icon: 🔎
+  category: automation
+  tier: community
+  tags:
+  - media
+  - indexers
+  - automation
+  image: lscr.io/linuxserver/prowlarr:1.30.2
+  service_name: prowlarr
+  port: 9696
+  aws_instance_default: t3.small
+  aws_instance_options:
+  - t3.small
+  - t3.medium
+  aliyun_instance_default: ecs.t6-c1m1.large
+  aws_disk_gb: 20
+  aliyun_disk_gb: 20
+  smoke_health_paths:
+  - /
+  smoke_wait_seconds: 120
+  data_path: /opt/cloud-forge/data/prowlarr
+  volume_mount: /opt/cloud-forge/data/prowlarr:/config
+  uid: 1000
+- id: bazarr
+  name: Bazarr
+  desc: Subtitle management for media libraries
+  icon: 💬
+  category: other
+  tier: community
+  tags:
+  - media
+  - subtitles
+  - automation
+  image: lscr.io/linuxserver/bazarr:1.5.1
+  service_name: bazarr
+  port: 6767
+  aws_instance_default: t3.small
+  aws_instance_options:
+  - t3.small
+  - t3.medium
+  aliyun_instance_default: ecs.t6-c1m1.large
+  aws_disk_gb: 20
+  aliyun_disk_gb: 20
+  smoke_health_paths:
+  - /
+  smoke_wait_seconds: 120
+  data_path: /opt/cloud-forge/data/bazarr
+  volume_mount: /opt/cloud-forge/data/bazarr:/config
+  uid: 1000
+- id: tautulli
+  name: Tautulli
+  desc: Plex monitoring and notifications
+  icon: 🎥
+  category: monitoring
+  tier: community
+  tags:
+  - media
+  - monitoring
+  - plex
+  image: tautulli/tautulli:v2.15.0
+  service_name: tautulli
+  port: 8181
+  aws_instance_default: t3.small
+  aws_instance_options:
+  - t3.small
+  - t3.medium
+  aliyun_instance_default: ecs.t6-c1m1.large
+  aws_disk_gb: 20
+  aliyun_disk_gb: 20
+  smoke_health_paths:
+  - /
+  smoke_wait_seconds: 120
+  data_path: /opt/cloud-forge/data/tautulli
+  volume_mount: /opt/cloud-forge/data/tautulli:/config
+  uid: 1000
+- id: jellyseerr
+  name: Jellyseerr
+  desc: Media requests and discovery
+  icon: 🎟️
+  category: other
+  tier: community
+  tags:
+  - media
+  - requests
+  - discovery
+  image: fallenbagel/jellyseerr:v2.4.0
+  service_name: jellyseerr
+  port: 5055
+  aws_instance_default: t3.small
+  aws_instance_options:
+  - t3.small
+  - t3.medium
+  aliyun_instance_default: ecs.t6-c1m1.large
+  aws_disk_gb: 20
+  aliyun_disk_gb: 20
+  smoke_health_paths:
+  - /
+  smoke_wait_seconds: 120
+  data_path: /opt/cloud-forge/data/jellyseerr
+  volume_mount: /opt/cloud-forge/data/jellyseerr:/app/config
+  uid: 1000
+- id: komga
+  name: Komga
+  desc: Comic and manga library manager
+  icon: 📚
+  category: other
+  tier: community
+  tags:
+  - comics
+  - manga
+  - library
+  image: gotson/komga:1.21.0
+  service_name: komga
+  port: 8080
+  aws_instance_default: t3.small
+  aws_instance_options:
+  - t3.small
+  - t3.medium
+  aliyun_instance_default: ecs.t6-c1m1.large
+  aws_disk_gb: 20
+  aliyun_disk_gb: 20
+  smoke_health_paths:
+  - /
+  smoke_wait_seconds: 120
+  data_path: /opt/cloud-forge/data/komga
+  volume_mount: /opt/cloud-forge/data/komga:/config
+  uid: 1000
+- id: readme-docker
+  name: README-DS
+  desc: Documentation site builder
+  icon: 📘
+  category: cms
+  tier: community
+  tags:
+  - docs
+  - site
+  - publishing
+  image: readmeio/rdme:1.0.0
+  service_name: readme_docker
+  port: 3000
+  aws_instance_default: t3.small
+  aws_instance_options:
+  - t3.small
+  - t3.medium
+  aliyun_instance_default: ecs.t6-c1m1.large
+  aws_disk_gb: 20
+  aliyun_disk_gb: 20
+  smoke_health_paths:
+  - /
+  smoke_wait_seconds: 120
+  stateless: true
+- id: stirling-pdf-extra
+  name: Stirling PDF Extra
+  desc: PDF manipulation toolkit preset
+  icon: 📄
+  category: devtools
+  tier: community
+  tags:
+  - pdf
+  - tools
+  - documents
+  image: frooodle/s-pdf:0.30.1
+  service_name: stirling_pdf_extra
+  port: 8080
+  aws_instance_default: t3.small
+  aws_instance_options:
+  - t3.small
+  - t3.medium
+  aliyun_instance_default: ecs.t6-c1m1.large
+  aws_disk_gb: 20
+  aliyun_disk_gb: 20
+  smoke_health_paths:
+  - /api/v1/info/status
+  smoke_wait_seconds: 120
+  stateless: true
+- id: excalidraw-plus
+  name: Excalidraw Plus
+  desc: Virtual whiteboard for diagrams
+  icon: ✏️
+  category: devtools
+  tier: community
+  tags:
+  - whiteboard
+  - diagrams
+  - collaboration
+  image: excalidraw/excalidraw@sha256:f7ee194addd607bf831d2af0f0a34463dd4225e426cf35199ef0b12a803398e9
+  service_name: excalidraw_plus
+  port: 80
+  aws_instance_default: t3.small
+  aws_instance_options:
+  - t3.small
+  - t3.medium
+  aliyun_instance_default: ecs.t6-c1m1.large
+  aws_disk_gb: 20
+  aliyun_disk_gb: 20
+  smoke_health_paths:
+  - /
+  smoke_wait_seconds: 120
+  stateless: true

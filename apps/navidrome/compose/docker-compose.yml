@@ -1,0 +1,17 @@
+services:
+  navidrome:
+    image: deluan/navidrome:0.55.0
+    restart: unless-stopped
+
+
+
+
+    volumes:
+      - /opt/cloud-forge/data/navidrome:/data
+
+    networks:
+      - cloud-forge
+
+networks:
+  cloud-forge:
+    name: cloud-forge

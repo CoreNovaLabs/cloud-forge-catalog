@@ -1,0 +1,15 @@
+services:
+  ollama:
+    image: ollama/ollama:0.5.13
+    restart: unless-stopped
+
+
+
+
+
+    networks:
+      - cloud-forge
+
+networks:
+  cloud-forge:
+    name: cloud-forge

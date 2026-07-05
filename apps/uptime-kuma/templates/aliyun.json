@@ -5,7 +5,7 @@
     "InstanceType": {
       "Type": "String",
       "Default": "ecs.t6-c1m1.large",
-      "AllowedValues": ["ecs.t6-c1m1.large", "ecs.t6-c1m2.large"]
+      "AllowedValues": ["ecs.t6-c1m1.large"]
     },
     "ImageId": {
       "Type": "String",
@@ -105,25 +105,7 @@
   "Outputs": {
     "ServiceURL": {
       "Description": "Primary endpoint for uptime-kuma.",
-      "Value": {
-        "Fn::If": [
-          "HasDomain",
-          {
-            "Fn::If": [
-              "UseHttp",
-              { "Fn::Join": ["", ["http://", { "Ref": "DomainName" }]] },
-              { "Fn::Join": ["", ["https://", { "Ref": "DomainName" }]] }
-            ]
-          },
-          {
-            "Fn::If": [
-              "UseHttp",
-              { "Fn::Join": ["", ["http://", { "Fn::GetAtt": ["UptimeKumaEIP", "EipAddress"] }]] },
-              { "Fn::Join": ["", ["https://", { "Fn::GetAtt": ["UptimeKumaEIP", "EipAddress"] }]] }
-            ]
-          }
-        ]
-      }
+      "Value": {"Fn::If": ["HasDomain", {"Fn::If": ["UseHttp", {"Fn::Sub": "http://${DomainName}"}, {"Fn::Sub": "https://${DomainName}"}]}, {"Fn::If": ["UseHttp", {"Fn::Sub": "http://${UptimeKumaEIP}"}, {"Fn::Sub": "https://${UptimeKumaEIP}"}]}]}
     },
     "DomainName": {
       "Description": "Custom domain when configured.",

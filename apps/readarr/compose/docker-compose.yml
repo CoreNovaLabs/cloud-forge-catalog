@@ -1,0 +1,17 @@
+services:
+  readarr:
+    image: lscr.io/linuxserver/readarr:0.4.8
+    restart: unless-stopped
+
+
+
+
+    volumes:
+      - /opt/cloud-forge/data/readarr:/config
+
+    networks:
+      - cloud-forge
+
+networks:
+  cloud-forge:
+    name: cloud-forge

@@ -1,0 +1,17 @@
+services:
+  komga:
+    image: gotson/komga:1.21.0
+    restart: unless-stopped
+
+
+
+
+    volumes:
+      - /opt/cloud-forge/data/komga:/config
+
+    networks:
+      - cloud-forge
+
+networks:
+  cloud-forge:
+    name: cloud-forge

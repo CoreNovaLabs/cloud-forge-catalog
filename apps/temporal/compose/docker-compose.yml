@@ -1,0 +1,17 @@
+services:
+  temporal:
+    image: temporalio/server:1.26.2
+    restart: unless-stopped
+
+
+
+
+    volumes:
+      - /opt/cloud-forge/data/temporal:/etc/temporal
+
+    networks:
+      - cloud-forge
+
+networks:
+  cloud-forge:
+    name: cloud-forge

@@ -1,0 +1,17 @@
+services:
+  gatus:
+    image: twin/gatus:v5.14.0
+    restart: unless-stopped
+
+
+
+
+    volumes:
+      - /opt/cloud-forge/data/gatus:/data
+
+    networks:
+      - cloud-forge
+
+networks:
+  cloud-forge:
+    name: cloud-forge

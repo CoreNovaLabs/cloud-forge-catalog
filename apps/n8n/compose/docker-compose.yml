@@ -1,12 +1,14 @@
 services:
   n8n:
-    image: n8nio/n8n:1.76.1
+    image: n8nio/n8n:1.78.1
     restart: unless-stopped
-    environment:
-      - N8N_PORT=5678
-      - N8N_PROTOCOL=http
+
+
+
+
     volumes:
       - /opt/cloud-forge/data/n8n:/home/node/.n8n
+
     networks:
       - cloud-forge
 

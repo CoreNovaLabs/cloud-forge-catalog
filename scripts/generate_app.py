@@ -17,6 +17,7 @@ DEFAULT_AWS_AMI = "ami-04cf9ac8716f030d6"
 DEFAULT_ALIYUN_IMAGE = "aliyun_3_x64_20G_alibase_20260122.vhd"
 VALID_TIERS = {"certified", "community", "experimental"}
 VALID_CATEGORIES = {"devtools", "automation", "monitoring", "database", "cms", "other"}
+DIRECT_TCP_ROLES = {"db", "tcp"}
 
 
 def fail(message: str) -> None:
@@ -79,11 +80,60 @@ def build_compose_env_file_block(entry: dict) -> str:
     return "    env_file:\n      - /opt/cloud-forge/compose.app.env"
 
 
+def build_compose_ports_block(entry: dict, service_port: int) -> str:
+    if not is_direct_tcp_entry(entry):
+        return ""
+    return f"    ports:\n      - {service_port}:{service_port}"
+
+
 def build_secret_env_line(entry: dict) -> str:
     names = secret_env_names(entry)
     if not names:
         return ""
     return f"CLOUD_FORGE_SECRET_ENV={names[0]}"
+
+
+def build_caddy_upstream_line(entry: dict, service_name: str, upstream_port: int) -> str:
+    if is_direct_tcp_entry(entry):
+        return ""
+    return f"CLOUD_FORGE_CADDY_UPSTREAM=http://{service_name}:{upstream_port}"
+
+
+def build_security_group_ingress_block(entry: dict, service_port: int) -> str:
+    if is_direct_tcp_entry(entry):
+        return (
+            "        - IpProtocol: tcp\n"
+            f"          FromPort: {service_port}\n"
+            f"          ToPort: {service_port}\n"
+            "          CidrIp: !Ref AllowedIP\n"
+        )
+    return (
+        "        - IpProtocol: tcp\n"
+        "          FromPort: 80\n"
+        "          ToPort: 80\n"
+        "          CidrIp: 0.0.0.0/0\n"
+        "        - IpProtocol: tcp\n"
+        "          FromPort: 443\n"
+        "          ToPort: 443\n"
+        "          CidrIp: 0.0.0.0/0\n"
+    )
+
+
+def build_aliyun_security_group_ingress_block(entry: dict, service_port: int) -> str:
+    if is_direct_tcp_entry(entry):
+        return (
+            "[\n"
+            f'          {{ "IpProtocol": "tcp", "PortRange": "{service_port}/{service_port}", "SourceCidrIp": {{ "Ref": "AllowedIP" }} }},\n'
+            '          { "IpProtocol": "tcp", "PortRange": "22/22", "SourceCidrIp": { "Ref": "AllowedIP" } }\n'
+            "        ]"
+        )
+    return (
+        "[\n"
+        '          { "IpProtocol": "tcp", "PortRange": "80/80", "SourceCidrIp": "0.0.0.0/0" },\n'
+        '          { "IpProtocol": "tcp", "PortRange": "443/443", "SourceCidrIp": "0.0.0.0/0" },\n'
+        '          { "IpProtocol": "tcp", "PortRange": "22/22", "SourceCidrIp": { "Ref": "AllowedIP" } }\n'
+        "        ]"
+    )
 
 
 def build_admin_password_param_json(entry: dict) -> str:
@@ -102,8 +152,12 @@ def build_compose_command(entry: dict) -> str:
     if not command:
         return ""
     if isinstance(command, list):
-        return f"    command: {json.dumps(command)}"
-    return f"    command: {command}"
+        return f"    command: {json.dumps([escape_compose_value(item) for item in command])}"
+    return f"    command: {escape_compose_value(command)}"
+
+
+def escape_compose_value(value: object) -> str:
+    return str(value).replace("$", "$$")
 
 
 def build_compose_volumes(entry: dict, app_id: str) -> str:
@@ -123,6 +177,30 @@ def build_compose_volumes_section(entry: dict, app_id: str) -> str:
     return f"    volumes:\n{block}\n"
 
 
+def build_service_url_value(app_id: str, app_prefix: str, entry: dict, service_port: int) -> str:
+    if not is_direct_tcp_entry(entry):
+        return (
+            "!If\n"
+            "      - HasDomain\n"
+            "      - !If\n"
+            "        - UseHttp\n"
+            "        - !Sub 'http://${DomainName}'\n"
+            "        - !Sub 'https://${DomainName}'\n"
+            "      - !If\n"
+            "        - UseHttp\n"
+            "        - !Sub 'http://${" + app_prefix + "EIP}'\n"
+            "        - !Sub 'https://${" + app_prefix + "EIP}'"
+        )
+
+    scheme = service_scheme(app_id, entry)
+    return (
+        "!If\n"
+        "      - HasDomain\n"
+        f"      - !Sub '{scheme}://${{DomainName}}:{service_port}'\n"
+        "      - !Sub '" + scheme + "://${" + app_prefix + "EIP}:" + str(service_port) + "'"
+    )
+
+
 def build_chown_line(entry: dict) -> str:
     uid = entry.get("uid")
     gid = entry.get("gid", uid)
@@ -132,16 +210,60 @@ def build_chown_line(entry: dict) -> str:
     return f"chown -R {uid}:{gid} {data_path}"
 
 
+def app_role(entry: dict) -> str:
+    return str(entry.get("ami_role") or "web")
+
+
+def is_direct_tcp_entry(entry: dict) -> bool:
+    return app_role(entry) in DIRECT_TCP_ROLES
+
+
+def service_scheme(app_id: str, entry: dict) -> str:
+    if entry.get("service_scheme"):
+        return str(entry["service_scheme"])
+    return {
+        "postgresql": "postgresql",
+        "mariadb": "mysql",
+        "mongodb": "mongodb",
+        "redis": "redis",
+    }.get(app_id, "tcp")
+
+
+def service_scheme_json(entry: dict) -> str:
+    scheme = entry.get("service_scheme")
+    if not scheme:
+        return ""
+    return ",\n  \"service_scheme\": " + json.dumps(str(scheme), ensure_ascii=False)
+
+
+def min_cli_version(entry: dict) -> str:
+    if entry.get("min_cli_version"):
+        return str(entry["min_cli_version"])
+    if is_direct_tcp_entry(entry):
+        return "0.3.3"
+    return "0.3.0"
+
+
 def write_executable(path: Path, content: str) -> None:
     path.parent.mkdir(parents=True, exist_ok=True)
-    path.write_text(content if content.endswith("\n") else content + "\n", encoding="utf-8")
+    path.write_text(normalize_generated_text(content), encoding="utf-8")
     path.chmod(0o755)
+
+
+def write_generated_text(path: Path, content: str) -> None:
+    path.parent.mkdir(parents=True, exist_ok=True)
+    path.write_text(normalize_generated_text(content), encoding="utf-8")
+
+
+def normalize_generated_text(content: str) -> str:
+    return content.rstrip() + "\n"
 
 
 def generate_app(root: Path, entry: dict, *, force: bool = False) -> None:
     app_id = entry["id"]
     if not re.fullmatch(r"[a-z0-9]([a-z0-9-]*[a-z0-9])?", app_id):
         fail(f"invalid app id: {app_id!r}")
+    app_prefix = "".join(part[:1].upper() + part[1:] for part in app_id.split("-") if part)
 
     app_dir = root / "apps" / app_id
     manifest_path = app_dir / "manifest.json"
@@ -150,6 +272,7 @@ def generate_app(root: Path, entry: dict, *, force: bool = False) -> None:
 
     service_name = entry.get("service_name") or app_id.replace("-", "_")
     upstream_port = int(entry["port"])
+    service_port = int(entry.get("service_port", upstream_port))
     data_path = entry.get("data_path") or f"/opt/cloud-forge/data/{app_id}"
     tier = entry.get("tier", "community")
     if tier not in VALID_TIERS:
@@ -178,6 +301,9 @@ def generate_app(root: Path, entry: dict, *, force: bool = False) -> None:
         "APP_DESC": entry.get("desc", f"Deploy {entry.get('name', app_id)} with Cloud Forge"),
         "APP_ICON": entry.get("icon", "📦"),
         "CATEGORY": category,
+        "AMI_ROLE": entry.get("ami_role", "web"),
+        "MIN_CLI_VERSION": min_cli_version(entry),
+        "SERVICE_SCHEME_JSON": service_scheme_json(entry),
         "TAGS_JSON": json.dumps(tags, ensure_ascii=False),
         "STARS": str(int(entry.get("stars", 0))),
         "TIER": tier,
@@ -194,14 +320,19 @@ def generate_app(root: Path, entry: dict, *, force: bool = False) -> None:
         "SERVICE_NAME": service_name,
         "DOCKER_IMAGE": entry["image"],
         "UPSTREAM_PORT": str(upstream_port),
+        "SERVICE_PORT": str(service_port),
         "DATA_PATH": data_path,
         "COMPOSE_ENV_BLOCK": build_compose_env(entry),
         "COMPOSE_ENV_FILE_BLOCK": build_compose_env_file_block(entry),
+        "COMPOSE_PORTS_BLOCK": build_compose_ports_block(entry, service_port),
         "SECRET_ENV_LINE": build_secret_env_line(entry),
+        "CADDY_UPSTREAM_LINE": build_caddy_upstream_line(entry, service_name, upstream_port),
         "ADMIN_PASSWORD_PARAM_JSON": build_admin_password_param_json(entry),
         "COMPOSE_COMMAND_BLOCK": build_compose_command(entry),
         "COMPOSE_VOLUMES_SECTION": build_compose_volumes_section(entry, app_id),
         "CHOWN_LINE": build_chown_line(entry),
+        "APP_SECURITY_GROUP_INGRESS_BLOCK": build_security_group_ingress_block(entry, service_port),
+        "APP_SERVICE_URL_VALUE": build_service_url_value(app_id, app_prefix, entry, service_port),
     }
 
     template_dir = root / "apps" / "_template"
@@ -227,12 +358,11 @@ def generate_app(root: Path, entry: dict, *, force: bool = False) -> None:
         template_values,
     )
 
-    (app_dir / "compose").mkdir(parents=True, exist_ok=True)
-    (app_dir / "compose" / "docker-compose.yml").write_text(compose_yml, encoding="utf-8")
-    (app_dir / "compose" / "app.env").write_text(app_env, encoding="utf-8")
+    write_generated_text(app_dir / "compose" / "docker-compose.yml", compose_yml)
+    write_generated_text(app_dir / "compose" / "app.env", app_env)
     write_executable(app_dir / "aws" / "setup.sh", aws_setup)
     write_executable(app_dir / "aliyun" / "setup.sh", aliyun_setup)
-    manifest_path.write_text(manifest, encoding="utf-8")
+    write_generated_text(manifest_path, manifest)
 
     manifest_data = json.loads(manifest)
     generate_iac(root, app_id, manifest_data)

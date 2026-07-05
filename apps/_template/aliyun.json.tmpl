@@ -48,11 +48,7 @@
       "Properties": {
         "VpcId": { "Ref": "VpcId" },
         "SecurityGroupName": "cloud-forge-{{APP_ID}}",
-        "SecurityGroupIngress": [
-          { "IpProtocol": "tcp", "PortRange": "80/80", "SourceCidrIp": "0.0.0.0/0" },
-          { "IpProtocol": "tcp", "PortRange": "443/443", "SourceCidrIp": "0.0.0.0/0" },
-          { "IpProtocol": "tcp", "PortRange": "22/22", "SourceCidrIp": { "Ref": "AllowedIP" } }
-        ]
+        "SecurityGroupIngress": {{APP_SECURITY_GROUP_INGRESS_BLOCK}}
       }
     },
     "{{APP_PREFIX}}Instance": {
@@ -105,25 +101,7 @@
   "Outputs": {
     "ServiceURL": {
       "Description": "Primary endpoint for {{APP_ID}}.",
-      "Value": {
-        "Fn::If": [
-          "HasDomain",
-          {
-            "Fn::If": [
-              "UseHttp",
-              { "Fn::Join": ["", ["http://", { "Ref": "DomainName" }]] },
-              { "Fn::Join": ["", ["https://", { "Ref": "DomainName" }]] }
-            ]
-          },
-          {
-            "Fn::If": [
-              "UseHttp",
-              { "Fn::Join": ["", ["http://", { "Fn::GetAtt": ["{{APP_PREFIX}}EIP", "EipAddress"] }]] },
-              { "Fn::Join": ["", ["https://", { "Fn::GetAtt": ["{{APP_PREFIX}}EIP", "EipAddress"] }]] }
-            ]
-          }
-        ]
-      }
+      "Value": {{APP_SERVICE_URL_VALUE}}
     },
     "DomainName": {
       "Description": "Custom domain when configured.",

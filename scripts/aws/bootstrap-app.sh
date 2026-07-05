@@ -60,6 +60,37 @@ fi
 source "$catalog_app_env"
 rm -f "$catalog_app_env"
 
+APP_ROLE="${CLOUD_FORGE_AMI_ROLE:-web}"
+
+if [[ "$APP_ROLE" == "db" || "$APP_ROLE" == "tcp" ]]; then
+  if ! curl -fsSL "${COMPOSE_BASE}/docker-compose.yml" | run_as_root tee /opt/cloud-forge/docker-compose.app.yml >/dev/null; then
+    echo "missing ${COMPOSE_BASE}/docker-compose.yml" >&2
+    exit 1
+  fi
+
+  if [[ -n "${CLOUD_FORGE_SECRET_ENV:-}" ]]; then
+    admin_password="${CLOUD_FORGE_APP_ADMIN_PASSWORD:-}"
+    if [[ -z "$admin_password" ]]; then
+      echo "missing required AdminPassword (pass --admin-password or --param AdminPassword=...)" >&2
+      exit 1
+    fi
+    run_as_root tee /opt/cloud-forge/compose.app.env >/dev/null <<EOF
+${CLOUD_FORGE_SECRET_ENV}=${admin_password}
+EOF
+    run_as_root chmod 600 /opt/cloud-forge/compose.app.env
+  fi
+
+  run_as_root systemctl start docker || true
+  run_as_root docker compose -f /opt/cloud-forge/docker-compose.app.yml up -d --remove-orphans
+  echo "==> Cloud Forge AWS app bootstrap complete: ${APP_ID}"
+  exit 0
+fi
+
+if [[ -z "${CLOUD_FORGE_CADDY_PUBLIC_IP:-}" ]]; then
+  echo "missing CLOUD_FORGE_CADDY_PUBLIC_IP (set from CloudFormation UserData)" >&2
+  exit 1
+fi
+
 UPSTREAM="${CLOUD_FORGE_CADDY_UPSTREAM:-}"
 if [[ -z "$UPSTREAM" ]]; then
   echo "missing CLOUD_FORGE_CADDY_UPSTREAM in ${COMPOSE_BASE}/app.env" >&2

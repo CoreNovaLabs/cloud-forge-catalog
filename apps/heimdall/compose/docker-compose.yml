@@ -1,0 +1,17 @@
+services:
+  heimdall:
+    image: lscr.io/linuxserver/heimdall:2.6.3
+    restart: unless-stopped
+
+
+
+
+    volumes:
+      - /opt/cloud-forge/data/heimdall:/config
+
+    networks:
+      - cloud-forge
+
+networks:
+  cloud-forge:
+    name: cloud-forge

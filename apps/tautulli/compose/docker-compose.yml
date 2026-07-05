@@ -1,0 +1,17 @@
+services:
+  tautulli:
+    image: tautulli/tautulli:v2.15.0
+    restart: unless-stopped
+
+
+
+
+    volumes:
+      - /opt/cloud-forge/data/tautulli:/config
+
+    networks:
+      - cloud-forge
+
+networks:
+  cloud-forge:
+    name: cloud-forge

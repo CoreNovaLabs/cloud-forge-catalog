@@ -9,9 +9,11 @@ POLL_INTERVAL="${CLOUD_FORGE_SMOKE_POLL_INTERVAL:-3}"
 # Local smoke only: pull via registry mirror (default 毫秒镜像). Production compose keeps official image names.
 SMOKE_REGISTRY_MIRROR="${CLOUD_FORGE_SMOKE_REGISTRY_MIRROR:-docker.1ms.run}"
 SMOKE_PROBE_IMAGE="${CLOUD_FORGE_SMOKE_PROBE_IMAGE:-curlimages/curl:8.5.0}"
+SMOKE_TCP_PROBE_IMAGE="${CLOUD_FORGE_SMOKE_TCP_PROBE_IMAGE:-busybox:1.36.1}"
 # Remove app images after each smoke run (default on) to avoid filling disk during batch onboard.
 SMOKE_CLEAN_IMAGES="${CLOUD_FORGE_SMOKE_CLEAN_IMAGES:-1}"
 PROBE_IMAGE_READY=0
+TCP_PROBE_IMAGE_READY=0
 TIER_FILTER=""
 MODE=""
 APP_ID=""
@@ -159,6 +161,18 @@ parse_upstream() {
   UPSTREAM_PORT="${upstream##*:}"
 }
 
+is_direct_tcp_app() {
+  local app="$1"
+  local role
+  role="$(read_manifest_field "$app" '.ami_role // "web"')"
+  [[ "$role" == "db" || "$role" == "tcp" ]]
+}
+
+compose_service_name() {
+  local compose_file="$1"
+  sed -n '/^services:/,/^[^[:space:]]/s/^  \([A-Za-z0-9_-][A-Za-z0-9_-]*\):.*/\1/p' "$compose_file" | head -n1
+}
+
 probe_paths() {
   local app="$1"
   read_manifest_field "$app" '.smoke.health_paths // ["/", "/health"]' | jq -r '.[]'
@@ -181,6 +195,21 @@ ensure_probe_image() {
     docker pull "$SMOKE_PROBE_IMAGE" >/dev/null 2>&1 || true
   fi
   PROBE_IMAGE_READY=1
+}
+
+ensure_tcp_probe_image() {
+  if [[ "$TCP_PROBE_IMAGE_READY" -eq 1 ]]; then
+    return 0
+  fi
+  local mirror probe="$SMOKE_TCP_PROBE_IMAGE"
+  mirror="$(mirror_host "$SMOKE_REGISTRY_MIRROR")"
+  if [[ -n "$mirror" ]] && docker pull "${mirror}/${probe}" >/dev/null 2>&1; then
+    SMOKE_TCP_PROBE_IMAGE="${mirror}/${probe}"
+  else
+    SMOKE_TCP_PROBE_IMAGE="busybox:1.36.1"
+    docker pull "$SMOKE_TCP_PROBE_IMAGE" >/dev/null 2>&1 || true
+  fi
+  TCP_PROBE_IMAGE_READY=1
 }
 
 wait_for_http() {
@@ -207,6 +236,26 @@ wait_for_http() {
   done
 
   echo "  FAIL ${url} (timeout ${WAIT_SECONDS}s)" >&2
+  return 1
+}
+
+wait_for_tcp() {
+  local svc="$1"
+  local port="$2"
+  local endpoint="${svc}:${port}"
+  local deadline=$((SECONDS + WAIT_SECONDS))
+
+  ensure_tcp_probe_image
+
+  while (( SECONDS < deadline )); do
+    if docker run --rm --network "$NETWORK" "$SMOKE_TCP_PROBE_IMAGE" sh -c "nc -z -w 3 '$svc' '$port'" >/dev/null 2>&1; then
+      echo "  OK tcp://${endpoint}"
+      return 0
+    fi
+    sleep "$POLL_INTERVAL"
+  done
+
+  echo "  FAIL tcp://${endpoint} (timeout ${WAIT_SECONDS}s)" >&2
   return 1
 }
 
@@ -277,13 +326,23 @@ smoke_one() {
   echo "==> local-smoke $app (tier=$tier)"
 
   local project="cf-smoke-${app//[^a-z0-9]/}"
-  local svc ok=0 path
+  local svc ok=0 path direct_tcp=0
   local smoke_compose
 
-  parse_upstream "$app"
-  svc="$UPSTREAM_HOST"
-
   smoke_compose="$(prepare_smoke_compose "$app" "$compose")"
+
+  if is_direct_tcp_app "$app"; then
+    direct_tcp=1
+    svc="$(compose_service_name "$smoke_compose")"
+    UPSTREAM_PORT="$(read_manifest_field "$app" '.service_port // empty')"
+    if [[ -z "$svc" || -z "$UPSTREAM_PORT" || "$UPSTREAM_PORT" == "null" ]]; then
+      echo "FAIL $app: direct TCP smoke requires a compose service and service_port" >&2
+      return 1
+    fi
+  else
+    parse_upstream "$app"
+    svc="$UPSTREAM_HOST"
+  fi
 
   ensure_network
   docker compose -f "$smoke_compose" -p "$project" down -v --remove-orphans >/dev/null 2>&1 || true
@@ -297,7 +356,11 @@ smoke_one() {
 
   pull_compose_images_via_mirror "$smoke_compose"
 
-  if ! docker compose -f "$smoke_compose" -p "$project" up -d --wait; then
+  compose_up_args=(up -d)
+  if [[ "$direct_tcp" -eq 0 ]]; then
+    compose_up_args+=(--wait)
+  fi
+  if ! docker compose -f "$smoke_compose" -p "$project" "${compose_up_args[@]}"; then
     echo "FAIL $app: docker compose up failed" >&2
     docker compose -f "$smoke_compose" -p "$project" logs >&2 || true
     docker compose -f "$smoke_compose" -p "$project" down -v --remove-orphans >/dev/null 2>&1 || true
@@ -305,13 +368,19 @@ smoke_one() {
     return 1
   fi
 
-  while IFS= read -r path; do
-    [[ -z "$path" ]] && continue
-    if wait_for_http "$project" "$svc" "$UPSTREAM_PORT" "$path"; then
+  if [[ "$direct_tcp" -eq 1 ]]; then
+    if wait_for_tcp "$svc" "$UPSTREAM_PORT"; then
       ok=1
-      break
     fi
-  done < <(probe_paths "$app")
+  else
+    while IFS= read -r path; do
+      [[ -z "$path" ]] && continue
+      if wait_for_http "$project" "$svc" "$UPSTREAM_PORT" "$path"; then
+        ok=1
+        break
+      fi
+    done < <(probe_paths "$app")
+  fi
 
   docker compose -f "$smoke_compose" -p "$project" down -v --remove-orphans >/dev/null 2>&1 || true
   cleanup_smoke_images "$smoke_compose"
@@ -321,7 +390,7 @@ smoke_one() {
     return 0
   fi
 
-  echo "FAIL $app: no health path responded" >&2
+  echo "FAIL $app: service did not become ready" >&2
   return 1
 }
 

@@ -4,8 +4,8 @@ Description: 'Gitea on Cloud Forge CLI - one-command deployment'
 Parameters:
   InstanceType:
     Type: String
-    Default: t3.medium
-    AllowedValues: [t3.micro, t3.small, t3.medium, t3.large]
+    Default: t3.small
+    AllowedValues: [t3.small, t3.medium]
   LatestAmiId:
     Type: AWS::EC2::Image::Id
     Default: ami-04cf9ac8716f030d6
@@ -58,7 +58,7 @@ Resources:
   GiteaSecurityGroup:
     Type: AWS::EC2::SecurityGroup
     Properties:
-      GroupDescription: Allow HTTP, HTTPS, and restricted SSH for gitea
+      GroupDescription: Allow app traffic and restricted SSH for gitea
       VpcId: !If [HasVpc, !Ref VpcId, !Ref AWS::NoValue]
       SecurityGroupIngress:
         - IpProtocol: tcp
@@ -69,6 +69,7 @@ Resources:
           FromPort: 443
           ToPort: 443
           CidrIp: 0.0.0.0/0
+
         - IpProtocol: tcp
           FromPort: 22
           ToPort: 22

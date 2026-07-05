@@ -61,7 +61,7 @@ Resources:
   MealieSecurityGroup:
     Type: AWS::EC2::SecurityGroup
     Properties:
-      GroupDescription: Allow HTTP, HTTPS, and restricted SSH for mealie
+      GroupDescription: Allow app traffic and restricted SSH for mealie
       VpcId: !If [HasVpc, !Ref VpcId, !Ref AWS::NoValue]
       SecurityGroupIngress:
         - IpProtocol: tcp
@@ -72,6 +72,7 @@ Resources:
           FromPort: 443
           ToPort: 443
           CidrIp: 0.0.0.0/0
+
         - IpProtocol: tcp
           FromPort: 22
           ToPort: 22

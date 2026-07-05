@@ -106,25 +106,7 @@
   "Outputs": {
     "ServiceURL": {
       "Description": "Primary endpoint for minio.",
-      "Value": {
-        "Fn::If": [
-          "HasDomain",
-          {
-            "Fn::If": [
-              "UseHttp",
-              { "Fn::Join": ["", ["http://", { "Ref": "DomainName" }]] },
-              { "Fn::Join": ["", ["https://", { "Ref": "DomainName" }]] }
-            ]
-          },
-          {
-            "Fn::If": [
-              "UseHttp",
-              { "Fn::Join": ["", ["http://", { "Fn::GetAtt": ["MinioEIP", "EipAddress"] }]] },
-              { "Fn::Join": ["", ["https://", { "Fn::GetAtt": ["MinioEIP", "EipAddress"] }]] }
-            ]
-          }
-        ]
-      }
+      "Value": {"Fn::If": ["HasDomain", {"Fn::If": ["UseHttp", {"Fn::Sub": "http://${DomainName}"}, {"Fn::Sub": "https://${DomainName}"}]}, {"Fn::If": ["UseHttp", {"Fn::Sub": "http://${MinioEIP}"}, {"Fn::Sub": "https://${MinioEIP}"}]}]}
     },
     "DomainName": {
       "Description": "Custom domain when configured.",

@@ -19,6 +19,8 @@ IMAGE_RE = {
 VALID_CATEGORIES = {"devtools", "automation", "monitoring", "database", "cms", "other"}
 VALID_CLOUDS = {"aws", "aliyun"}
 VALID_TIERS = {"certified", "community", "experimental"}
+VALID_AMI_ROLES = {"web", "db", "tcp"}
+DIRECT_TCP_ROLES = {"db", "tcp"}
 
 
 def fail(message: str) -> None:
@@ -54,6 +56,8 @@ def validate_template_path(root: Path, rel_path: str, manifest: Path) -> None:
 
 
 def validate_compose_package(root: Path, app_id: str, manifest: Path) -> None:
+    manifest_data = read_json(manifest)
+    role = str(manifest_data.get("ami_role") or "web")
     compose_dir = root / "apps" / app_id / "compose"
     compose_path = compose_dir / "docker-compose.yml"
     app_env_path = compose_dir / "app.env"
@@ -68,7 +72,11 @@ def validate_compose_package(root: Path, app_id: str, manifest: Path) -> None:
     if "external: true" in compose_text:
         fail(f"{compose_path}: app compose must not declare cloud-forge as external (platform creates the network on merge)")
 
-    if re.search(r"^\s*ports\s*:", compose_text, re.MULTILINE):
+    has_host_ports = re.search(r"^\s*ports\s*:", compose_text, re.MULTILINE) is not None
+    if role in DIRECT_TCP_ROLES:
+        if not has_host_ports:
+            fail(f"{compose_path}: {role} apps must publish the service port for direct TCP access")
+    elif has_host_ports:
         fail(f"{compose_path}: must not publish host ports (Caddy is the edge proxy)")
 
     if "privileged:" in compose_text or "network_mode:" in compose_text:
@@ -87,17 +95,24 @@ def validate_compose_package(root: Path, app_id: str, manifest: Path) -> None:
         fail(f"{manifest}: missing shared compose env {app_env_path.relative_to(root)}")
 
     app_env_text = app_env_path.read_text(encoding="utf-8")
-    if "CLOUD_FORGE_CADDY_UPSTREAM=" not in app_env_text:
-        fail(f"{app_env_path}: must define CLOUD_FORGE_CADDY_UPSTREAM")
+    if role in DIRECT_TCP_ROLES:
+        service_port = manifest_data.get("service_port")
+        if not isinstance(service_port, int) or service_port <= 0:
+            fail(f"{manifest}: {role} apps must declare a positive service_port")
+        if f"CLOUD_FORGE_SERVICE_PORT={service_port}" not in app_env_text:
+            fail(f"{app_env_path}: {role} apps must define CLOUD_FORGE_SERVICE_PORT={service_port}")
+    else:
+        if "CLOUD_FORGE_CADDY_UPSTREAM=" not in app_env_text:
+            fail(f"{app_env_path}: must define CLOUD_FORGE_CADDY_UPSTREAM")
 
-    upstream_match = re.search(r"CLOUD_FORGE_CADDY_UPSTREAM=http://([^:/]+):(\d+)", app_env_text)
-    if not upstream_match:
-        fail(f"{app_env_path}: CLOUD_FORGE_CADDY_UPSTREAM must be http://<service>:<port>")
-    upstream_host = upstream_match.group(1)
-    if not re.search(rf"^\s*{re.escape(upstream_host)}\s*:", compose_text, re.MULTILINE):
-        fail(
-            f"{app_env_path}: upstream host {upstream_host!r} must match a service name in {compose_path.name}"
-        )
+        upstream_match = re.search(r"CLOUD_FORGE_CADDY_UPSTREAM=http://([^:/]+):(\d+)", app_env_text)
+        if not upstream_match:
+            fail(f"{app_env_path}: CLOUD_FORGE_CADDY_UPSTREAM must be http://<service>:<port>")
+        upstream_host = upstream_match.group(1)
+        if not re.search(rf"^\s*{re.escape(upstream_host)}\s*:", compose_text, re.MULTILINE):
+            fail(
+                f"{app_env_path}: upstream host {upstream_host!r} must match a service name in {compose_path.name}"
+            )
 
     uses_secret_file = "/opt/cloud-forge/compose.app.env" in compose_text
     has_secret_env = "CLOUD_FORGE_SECRET_ENV=" in app_env_text
@@ -144,6 +159,12 @@ def validate_manifest(root: Path, manifest: Path) -> None:
     tier = data.get("tier", "community")
     if tier not in VALID_TIERS:
         fail(f"{manifest}: unsupported tier {tier!r}")
+
+    role = str(data.get("ami_role") or "web")
+    if role not in VALID_AMI_ROLES:
+        fail(f"{manifest}: unsupported ami_role {role!r}")
+    if "service_scheme" in data:
+        assert_string(data.get("service_scheme"), "service_scheme", manifest)
 
     smoke = data.get("smoke")
     if smoke is not None:

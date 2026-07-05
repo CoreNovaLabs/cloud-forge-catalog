@@ -1,0 +1,17 @@
+services:
+  changedetection:
+    image: dgtlmoon/changedetection.io:0.49.2
+    restart: unless-stopped
+
+
+
+
+    volumes:
+      - /opt/cloud-forge/data/changedetection:/datastore
+
+    networks:
+      - cloud-forge
+
+networks:
+  cloud-forge:
+    name: cloud-forge

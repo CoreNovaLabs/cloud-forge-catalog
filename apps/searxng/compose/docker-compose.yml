@@ -1,0 +1,17 @@
+services:
+  searxng:
+    image: searxng/searxng:2025.2.14
+    restart: unless-stopped
+
+
+
+
+    volumes:
+      - /opt/cloud-forge/data/searxng:/etc/searxng
+
+    networks:
+      - cloud-forge
+
+networks:
+  cloud-forge:
+    name: cloud-forge

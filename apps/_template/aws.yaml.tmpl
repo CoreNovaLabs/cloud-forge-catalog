@@ -58,17 +58,10 @@ Resources:
   {{APP_PREFIX}}SecurityGroup:
     Type: AWS::EC2::SecurityGroup
     Properties:
-      GroupDescription: Allow HTTP, HTTPS, and restricted SSH for {{APP_ID}}
+      GroupDescription: Allow app traffic and restricted SSH for {{APP_ID}}
       VpcId: !If [HasVpc, !Ref VpcId, !Ref AWS::NoValue]
       SecurityGroupIngress:
-        - IpProtocol: tcp
-          FromPort: 80
-          ToPort: 80
-          CidrIp: 0.0.0.0/0
-        - IpProtocol: tcp
-          FromPort: 443
-          ToPort: 443
-          CidrIp: 0.0.0.0/0
+{{APP_SECURITY_GROUP_INGRESS_BLOCK}}
         - IpProtocol: tcp
           FromPort: 22
           ToPort: 22
@@ -139,16 +132,7 @@ Resources:
 Outputs:
   ServiceURL:
     Description: Primary endpoint for {{APP_ID}}.
-    Value: !If
-      - HasDomain
-      - !If
-        - UseHttp
-        - !Sub 'http://${DomainName}'
-        - !Sub 'https://${DomainName}'
-      - !If
-        - UseHttp
-        - !Sub 'http://${{{APP_PREFIX}}EIP}'
-        - !Sub 'https://${{{APP_PREFIX}}EIP}'
+    Value: {{APP_SERVICE_URL_VALUE}}
   DomainName:
     Description: Custom domain when configured.
     Value: !Ref DomainName

@@ -1,0 +1,17 @@
+services:
+  outline:
+    image: outlinewiki/outline:0.82.1
+    restart: unless-stopped
+
+
+
+
+    volumes:
+      - /opt/cloud-forge/data/outline:/var/lib/outline
+
+    networks:
+      - cloud-forge
+
+networks:
+  cloud-forge:
+    name: cloud-forge

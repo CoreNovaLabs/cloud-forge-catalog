@@ -1,0 +1,20 @@
+services:
+  mongodb:
+    image: mongo:8.0.4
+    restart: unless-stopped
+
+    environment:
+      - MONGO_INITDB_ROOT_USERNAME=cloudforge
+    env_file:
+      - /opt/cloud-forge/compose.app.env
+    ports:
+      - 27017:27017
+    volumes:
+      - /opt/cloud-forge/data/mongodb:/data/db
+
+    networks:
+      - cloud-forge
+
+networks:
+  cloud-forge:
+    name: cloud-forge

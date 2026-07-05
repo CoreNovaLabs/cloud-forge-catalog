@@ -1,0 +1,17 @@
+services:
+  postgrest:
+    image: postgrest/postgrest:v12.2.8
+    restart: unless-stopped
+
+
+
+
+    volumes:
+      - /opt/cloud-forge/data/postgrest:/etc/postgrest
+
+    networks:
+      - cloud-forge
+
+networks:
+  cloud-forge:
+    name: cloud-forge

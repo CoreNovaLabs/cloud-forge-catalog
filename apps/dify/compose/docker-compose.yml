@@ -1,0 +1,17 @@
+services:
+  dify:
+    image: langgenius/dify-api:0.15.3
+    restart: unless-stopped
+
+
+
+
+    volumes:
+      - /opt/cloud-forge/data/dify:/app/api/storage
+
+    networks:
+      - cloud-forge
+
+networks:
+  cloud-forge:
+    name: cloud-forge

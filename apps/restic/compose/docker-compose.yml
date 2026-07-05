@@ -1,0 +1,17 @@
+services:
+  restic:
+    image: restic/rest-server:0.13.0
+    restart: unless-stopped
+
+
+
+
+    volumes:
+      - /opt/cloud-forge/data/restic:/data
+
+    networks:
+      - cloud-forge
+
+networks:
+  cloud-forge:
+    name: cloud-forge

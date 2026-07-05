@@ -1,0 +1,17 @@
+services:
+  miniflux:
+    image: miniflux/miniflux:2.2.3
+    restart: unless-stopped
+
+
+
+
+    volumes:
+      - /opt/cloud-forge/data/miniflux:/var/lib/miniflux
+
+    networks:
+      - cloud-forge
+
+networks:
+  cloud-forge:
+    name: cloud-forge

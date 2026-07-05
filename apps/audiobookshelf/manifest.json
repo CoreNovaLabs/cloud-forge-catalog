@@ -10,6 +10,8 @@
   "clouds": ["aws", "aliyun"],
   "version": "1.0.0",
   "min_cli_version": "0.3.0",
+  "ami_role": "web",
+  "service_port": 80,
   "price": "free",
   "cost_notice": [
     "Aliyun deploy defaults to cn-hongkong; pass --region for other regions.",

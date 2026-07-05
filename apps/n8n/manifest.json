@@ -1,29 +1,17 @@
 {
   "id": "n8n",
   "name": "n8n",
-  "desc": "Open-source workflow automation and Zapier alternative",
-  "icon": "⚡",
+  "desc": "Workflow automation platform",
+  "icon": "🔁",
   "category": "automation",
-  "tags": [
-    "automation",
-    "workflow",
-    "zapier"
-  ],
-  "stars": 38000,
-  "clouds": [
-    "aws",
-    "aliyun"
-  ],
+  "tags": ["workflow", "automation", "integrations"],
+  "stars": 0,
+  "tier": "community",
+  "clouds": ["aws", "aliyun"],
   "version": "1.0.0",
   "min_cli_version": "0.3.0",
-  "tier": "certified",
-  "smoke": {
-    "health_paths": [
-      "/health",
-      "/"
-    ],
-    "wait_seconds": 120
-  },
+  "ami_role": "web",
+  "service_port": 5678,
   "price": "free",
   "cost_notice": [
     "Aliyun deploy defaults to cn-hongkong; pass --region for other regions.",
@@ -32,148 +20,69 @@
     "First bootstrap may take 8-15 minutes on Aliyun public OS images.",
     "You pay only for cloud resources such as ECS, EIP, disk, and data transfer."
   ],
+  "smoke": {
+    "health_paths": ["/healthz"],
+    "wait_seconds": 180
+  },
   "images": {
     "aws": "ami-04cf9ac8716f030d6",
     "aliyun": "aliyun_3_x64_20G_alibase_20260122.vhd"
   },
   "templates": {
-    "aws": {
-      "path": "apps/n8n/templates/aws.yaml"
-    },
-    "aliyun": {
-      "path": "apps/n8n/templates/aliyun.json"
-    }
+    "aws": { "path": "apps/n8n/templates/aws.yaml" },
+    "aliyun": { "path": "apps/n8n/templates/aliyun.json" }
   },
   "params": {
     "InstanceType": {
       "type": "string",
       "aws": {
-        "default": "t3.large",
-        "options": [
-          "t3.medium",
-          "t3.large",
-          "t3.xlarge"
-        ]
+        "default": "t3.medium",
+        "options": ["t3.medium", "t3.medium"]
       },
       "aliyun": {
         "default": "ecs.t6-c1m2.large",
-        "options": [
-          "ecs.t6-c1m1.large",
-          "ecs.t6-c1m2.large",
-          "ecs.t6-c1m4.large"
-        ]
+        "options": ["ecs.t6-c1m2.large"]
       }
     },
     "LatestAmiId": {
       "type": "string",
-      "aws": {
-        "default": "ami-04cf9ac8716f030d6"
-      }
+      "aws": { "default": "ami-04cf9ac8716f030d6" }
     },
     "ImageId": {
       "type": "string",
-      "aliyun": {
-        "default": "aliyun_3_x64_20G_alibase_20260122.vhd"
-      }
+      "aliyun": { "default": "aliyun_3_x64_20G_alibase_20260122.vhd" }
     },
     "CaddyTlsMode": {
       "type": "string",
       "aws": {
         "default": "ip-letsencrypt",
-        "options": [
-          "auto",
-          "ip-letsencrypt",
-          "http",
-          "internal"
-        ]
+        "options": ["auto", "ip-letsencrypt", "http", "internal"]
       },
       "aliyun": {
         "default": "ip-letsencrypt",
-        "options": [
-          "auto",
-          "ip-letsencrypt",
-          "http",
-          "internal"
-        ]
+        "options": ["auto", "ip-letsencrypt", "http", "internal"]
       }
     },
-    "DomainName": {
-      "type": "string",
-      "default": ""
-    },
-    "HostedZoneId": {
-      "type": "string",
-      "default": "",
-      "aws": {
-        "default": ""
-      }
-    },
-    "DnsDomainName": {
-      "type": "string",
-      "default": "",
-      "aliyun": {
-        "default": ""
-      }
-    },
-    "DnsRR": {
-      "type": "string",
-      "default": "",
-      "aliyun": {
-        "default": ""
-      }
-    },
-    "CaddyEmail": {
-      "type": "string",
-      "default": ""
-    },
-    "KeyName": {
-      "type": "string",
-      "default": "",
-      "aws": {
-        "default": ""
-      }
-    },
-    "KeyPairName": {
-      "type": "string",
-      "aliyun": {
-        "required": true
-      }
-    },
+    "DomainName": { "type": "string", "default": "" },
+    "HostedZoneId": { "type": "string", "default": "", "aws": { "default": "" } },
+    "DnsDomainName": { "type": "string", "default": "", "aliyun": { "default": "" } },
+    "DnsRR": { "type": "string", "default": "", "aliyun": { "default": "" } },
+    "CaddyEmail": { "type": "string", "default": "" },
+    "KeyName": { "type": "string", "default": "", "aws": { "default": "" } },
+    "KeyPairName": { "type": "string", "aliyun": { "required": true } },
     "DiskSize": {
       "type": "number",
-      "aws": {
-        "default": "40"
-      },
-      "aliyun": {
-        "default": "40"
-      }
+      "aws": { "default": "20" },
+      "aliyun": { "default": "20" }
     },
     "VpcId": {
       "type": "string",
       "default": "",
-      "aws": {
-        "default": ""
-      },
-      "aliyun": {
-        "required": true
-      }
+      "aws": { "default": "" },
+      "aliyun": { "required": true }
     },
-    "SubnetId": {
-      "type": "string",
-      "default": "",
-      "aws": {
-        "default": ""
-      }
-    },
-    "VSwitchId": {
-      "type": "string",
-      "aliyun": {
-        "required": true
-      }
-    },
-    "AllowedIP": {
-      "type": "string",
-      "default": "0.0.0.0/0"
-    }
+    "SubnetId": { "type": "string", "default": "", "aws": { "default": "" } },
+    "VSwitchId": { "type": "string", "aliyun": { "required": true } },
+    "AllowedIP": { "type": "string", "default": "0.0.0.0/0" }
   }
 }

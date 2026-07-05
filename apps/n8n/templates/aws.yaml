@@ -4,8 +4,8 @@ Description: 'n8n on Cloud Forge CLI - one-command deployment'
 Parameters:
   InstanceType:
     Type: String
-    Default: t3.large
-    AllowedValues: [t3.medium, t3.large, t3.xlarge]
+    Default: t3.medium
+    AllowedValues: [t3.medium, t3.medium]
   LatestAmiId:
     Type: AWS::EC2::Image::Id
     Default: ami-04cf9ac8716f030d6
@@ -30,7 +30,7 @@ Parameters:
     Description: Optional ACME contact email for Caddy public certificates.
   DiskSize:
     Type: Number
-    Default: 40
+    Default: 20
     MinValue: 20
     MaxValue: 500
   VpcId:
@@ -58,7 +58,7 @@ Resources:
   N8nSecurityGroup:
     Type: AWS::EC2::SecurityGroup
     Properties:
-      GroupDescription: Allow HTTP, HTTPS, and restricted SSH for n8n
+      GroupDescription: Allow app traffic and restricted SSH for n8n
       VpcId: !If [HasVpc, !Ref VpcId, !Ref AWS::NoValue]
       SecurityGroupIngress:
         - IpProtocol: tcp
@@ -69,6 +69,7 @@ Resources:
           FromPort: 443
           ToPort: 443
           CidrIp: 0.0.0.0/0
+
         - IpProtocol: tcp
           FromPort: 22
           ToPort: 22

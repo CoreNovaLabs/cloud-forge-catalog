@@ -6,6 +6,7 @@ services:
 
     env_file:
       - /opt/cloud-forge/compose.app.env
+
     volumes:
       - /opt/cloud-forge/data/code-server:/home/coder
 

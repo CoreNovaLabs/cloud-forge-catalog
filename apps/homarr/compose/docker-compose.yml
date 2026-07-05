@@ -1,0 +1,17 @@
+services:
+  homarr:
+    image: ghcr.io/ajnart/homarr:0.15.7
+    restart: unless-stopped
+
+
+
+
+    volumes:
+      - /opt/cloud-forge/data/homarr:/app/data/configs
+
+    networks:
+      - cloud-forge
+
+networks:
+  cloud-forge:
+    name: cloud-forge

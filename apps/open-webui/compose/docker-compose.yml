@@ -1,0 +1,17 @@
+services:
+  open_webui:
+    image: ghcr.io/open-webui/open-webui:0.5.20
+    restart: unless-stopped
+
+
+
+
+    volumes:
+      - /opt/cloud-forge/data/open-webui:/app/backend/data
+
+    networks:
+      - cloud-forge
+
+networks:
+  cloud-forge:
+    name: cloud-forge

@@ -1,0 +1,17 @@
+services:
+  photoprism:
+    image: photoprism/photoprism:250101
+    restart: unless-stopped
+
+
+
+
+    volumes:
+      - /opt/cloud-forge/data/photoprism:/photoprism/storage
+
+    networks:
+      - cloud-forge
+
+networks:
+  cloud-forge:
+    name: cloud-forge

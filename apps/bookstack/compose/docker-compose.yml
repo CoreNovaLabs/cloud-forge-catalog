@@ -1,0 +1,17 @@
+services:
+  bookstack:
+    image: lscr.io/linuxserver/bookstack:24.12.1
+    restart: unless-stopped
+
+
+
+
+    volumes:
+      - /opt/cloud-forge/data/bookstack:/config
+
+    networks:
+      - cloud-forge
+
+networks:
+  cloud-forge:
+    name: cloud-forge
