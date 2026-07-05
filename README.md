@@ -57,6 +57,13 @@ export CLOUD_FORGE_STORE_URL="file:///path/to/cloud-forge-catalog/index/apps.jso
 
 Deploy and delete support **AWS** and **Aliyun** (default region `cn-hongkong`; other regions via `--region`—mainland China may fail bootstrap due to network restrictions). Both clouds load a shared app package from `apps/<id>/compose/` (Docker Compose + upstream). Cloud-specific bootstrap dispatchers (`scripts/aws/bootstrap-app.sh`, `scripts/aliyun/bootstrap-app.sh`) apply optional `aws/setup.sh` or `aliyun/setup.sh` hooks.
 
+### Custom domains
+
+- **AWS:** `--domain` + `--hosted-zone-id` creates a Route53 A record; bootstrap passes `CLOUD_FORGE_DOMAIN_NAME` to Caddy for domain HTTPS.
+- **Aliyun:** `--domain` + `--dns-domain` creates an `ALIYUN::DNS::DomainRecord` A record (domain must be hosted in Alibaba Cloud DNS; RAM user needs DNS write access).
+- **Manual DNS:** pass `--domain` only; create an A record to the stack EIP yourself.
+- Without `--domain`, Caddy uses Let's Encrypt IP certificates (`ip-letsencrypt`) and `ServiceURL` is the elastic IP.
+
 ## Adding an App
 
 ### Manual

@@ -21,6 +21,7 @@
   "cost_notice": [
     "Aliyun deploy defaults to cn-hongkong; pass --region for other regions.",
     "Mainland China regions may fail bootstrap (Docker Hub / catalog CDN reachability).",
+    "Custom domains: AWS uses --domain + --hosted-zone-id (Route53); Aliyun uses --domain + --dns-domain (Alidns). DNS propagation and ACME may take several minutes.",
     "First bootstrap may take 8-15 minutes on Aliyun public OS images.",
     "You pay only for cloud resources such as ECS, EIP, disk, and data transfer."
   ],
@@ -76,6 +77,7 @@
       "aws": {
         "default": "ip-letsencrypt",
         "options": [
+          "auto",
           "ip-letsencrypt",
           "http",
           "internal"
@@ -84,6 +86,7 @@
       "aliyun": {
         "default": "ip-letsencrypt",
         "options": [
+          "auto",
           "ip-letsencrypt",
           "http",
           "internal"
@@ -100,6 +103,24 @@
       "aws": {
         "default": ""
       }
+    },
+    "DnsDomainName": {
+      "type": "string",
+      "default": "",
+      "aliyun": {
+        "default": ""
+      }
+    },
+    "DnsRR": {
+      "type": "string",
+      "default": "",
+      "aliyun": {
+        "default": ""
+      }
+    },
+    "CaddyEmail": {
+      "type": "string",
+      "default": ""
     },
     "KeyName": {
       "type": "string",

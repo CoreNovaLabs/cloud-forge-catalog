@@ -12,7 +12,7 @@ Parameters:
   CaddyTlsMode:
     Type: String
     Default: ip-letsencrypt
-    AllowedValues: [ip-letsencrypt, http, internal]
+    AllowedValues: [auto, ip-letsencrypt, http, internal]
     Description: Caddy TLS mode for the public endpoint.
   KeyName:
     Type: String
@@ -24,6 +24,10 @@ Parameters:
   HostedZoneId:
     Type: String
     Default: ''
+  CaddyEmail:
+    Type: String
+    Default: ''
+    Description: Optional ACME contact email for Caddy public certificates.
   DiskSize:
     Type: Number
     Default: 20
@@ -93,6 +97,8 @@ Resources:
           set -euxo pipefail
           export CLOUD_FORGE_CADDY_PUBLIC_IP=${HelloNginxEIP}
           export CLOUD_FORGE_CADDY_TLS_MODE=${CaddyTlsMode}
+          export CLOUD_FORGE_DOMAIN_NAME=${DomainName}
+          export CLOUD_FORGE_CADDY_EMAIL=${CaddyEmail}
 
           curl -fsSL https://cdn.jsdelivr.net/gh/CoreNovaLabs/cloud-forge-catalog@main/scripts/aws/bootstrap-app.sh -o /tmp/cf-bootstrap.sh
           if grep -q 'run_as_root CLOUD_FORGE_CATALOG_URL=' /tmp/cf-bootstrap.sh; then
@@ -134,9 +140,18 @@ Outputs:
   ServiceURL:
     Description: Primary endpoint for hello-nginx.
     Value: !If
-      - UseHttp
-      - !Sub 'http://${HelloNginxEIP}'
-      - !Sub 'https://${HelloNginxEIP}'
+      - HasDomain
+      - !If
+        - UseHttp
+        - !Sub 'http://${DomainName}'
+        - !Sub 'https://${DomainName}'
+      - !If
+        - UseHttp
+        - !Sub 'http://${HelloNginxEIP}'
+        - !Sub 'https://${HelloNginxEIP}'
+  DomainName:
+    Description: Custom domain when configured.
+    Value: !Ref DomainName
   PublicIP:
     Description: Elastic IP address assigned to the service.
     Value: !Ref HelloNginxEIP

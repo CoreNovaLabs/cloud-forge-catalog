@@ -67,6 +67,17 @@ if [[ -z "$UPSTREAM" ]]; then
 fi
 
 CADDY_TLS_MODE="${CLOUD_FORGE_CADDY_TLS_MODE:-ip-letsencrypt}"
+DOMAIN_NAME="${CLOUD_FORGE_DOMAIN_NAME:-}"
+CADDY_EMAIL="${CLOUD_FORGE_CADDY_EMAIL:-}"
+
+if [[ -n "$DOMAIN_NAME" && "$CADDY_TLS_MODE" == "ip-letsencrypt" ]]; then
+  CADDY_TLS_MODE="auto"
+fi
+
+AUTO_IP_CERT=true
+if [[ -n "$DOMAIN_NAME" ]]; then
+  AUTO_IP_CERT=false
+fi
 
 if ! curl -fsSL "${COMPOSE_BASE}/docker-compose.yml" | run_as_root tee /opt/cloud-forge/docker-compose.app.yml >/dev/null; then
   echo "missing ${COMPOSE_BASE}/docker-compose.yml" >&2
@@ -74,11 +85,18 @@ if ! curl -fsSL "${COMPOSE_BASE}/docker-compose.yml" | run_as_root tee /opt/clou
 fi
 
 run_as_root tee /etc/cloud-forge/app.env >/dev/null <<EOF
+CLOUD_FORGE_DOMAIN_NAME=${DOMAIN_NAME}
 CLOUD_FORGE_CADDY_PUBLIC_IP=${CLOUD_FORGE_CADDY_PUBLIC_IP}
 CLOUD_FORGE_CADDY_UPSTREAM=${UPSTREAM}
 CLOUD_FORGE_CADDY_TLS_MODE=${CADDY_TLS_MODE}
-CLOUD_FORGE_CADDY_AUTO_IP_CERT=true
+CLOUD_FORGE_CADDY_AUTO_IP_CERT=${AUTO_IP_CERT}
 EOF
+
+if [[ -n "$CADDY_EMAIL" ]]; then
+  run_as_root tee -a /etc/cloud-forge/app.env >/dev/null <<EOF
+CLOUD_FORGE_CADDY_EMAIL=${CADDY_EMAIL}
+EOF
+fi
 
 if [[ -n "${CLOUD_FORGE_SECRET_ENV:-}" ]]; then
   admin_password="${CLOUD_FORGE_APP_ADMIN_PASSWORD:-}"

@@ -1,6 +1,6 @@
 {
-  "catalog_version": "0.3.0",
-  "generated_at": "2026-07-05T03:52:25Z",
+  "catalog_version": "0.3.1",
+  "generated_at": "2026-07-05T04:35:54Z",
   "base_url": "https://raw.githubusercontent.com/CoreNovaLabs/cloud-forge-catalog/main",
   "store": {
     "name": "Cloud Forge App Store",
@@ -30,6 +30,7 @@
       "cost_notice": [
         "Aliyun deploy defaults to cn-hongkong; pass --region for other regions.",
         "Mainland China regions may fail bootstrap (Docker Hub / catalog CDN reachability).",
+        "Custom domains: AWS uses --domain + --hosted-zone-id (Route53); Aliyun uses --domain + --dns-domain (Alidns). DNS propagation and ACME may take several minutes.",
         "First bootstrap may take 8-15 minutes on Aliyun public OS images.",
         "You pay only for cloud resources such as ECS, EIP, disk, and data transfer."
       ],
@@ -48,12 +49,12 @@
         "aws": {
           "path": "apps/code-server/templates/aws.yaml",
           "url": "https://raw.githubusercontent.com/CoreNovaLabs/cloud-forge-catalog/main/apps/code-server/templates/aws.yaml",
-          "checksum": "sha256:3ab0b936933e0748ac24beb38226332135e4f8ee63e8649a2f7a01c4b313beed"
+          "checksum": "sha256:02ec28e025b6ef614e1aa8dae32a258852a837b35dc3c938a856811ca59d22c1"
         },
         "aliyun": {
           "path": "apps/code-server/templates/aliyun.json",
           "url": "https://raw.githubusercontent.com/CoreNovaLabs/cloud-forge-catalog/main/apps/code-server/templates/aliyun.json",
-          "checksum": "sha256:a6344ec8466cf5fdb3c7b8604144898707855b291a5d25384309caed20893d81"
+          "checksum": "sha256:537c5ccff5c8ddea8850b15f26e6d3c0e68a9231c7fbdda4a50320d15b937caf"
         }
       },
       "params": {
@@ -91,6 +92,7 @@
           "aws": {
             "default": "ip-letsencrypt",
             "options": [
+              "auto",
               "ip-letsencrypt",
               "http",
               "internal"
@@ -99,6 +101,7 @@
           "aliyun": {
             "default": "ip-letsencrypt",
             "options": [
+              "auto",
               "ip-letsencrypt",
               "http",
               "internal"
@@ -115,6 +118,24 @@
           "aws": {
             "default": ""
           }
+        },
+        "DnsDomainName": {
+          "type": "string",
+          "default": "",
+          "aliyun": {
+            "default": ""
+          }
+        },
+        "DnsRR": {
+          "type": "string",
+          "default": "",
+          "aliyun": {
+            "default": ""
+          }
+        },
+        "CaddyEmail": {
+          "type": "string",
+          "default": ""
         },
         "KeyName": {
           "type": "string",
@@ -194,6 +215,7 @@
       "cost_notice": [
         "Aliyun deploy defaults to cn-hongkong; pass --region for other regions.",
         "Mainland China regions may fail bootstrap (Docker Hub / catalog CDN reachability).",
+        "Custom domains: AWS uses --domain + --hosted-zone-id (Route53); Aliyun uses --domain + --dns-domain (Alidns). DNS propagation and ACME may take several minutes.",
         "First bootstrap may take 8-15 minutes on Aliyun public OS images.",
         "You pay only for cloud resources such as ECS, EIP, disk, and data transfer."
       ],
@@ -211,12 +233,12 @@
         "aws": {
           "path": "apps/excalidraw/templates/aws.yaml",
           "url": "https://raw.githubusercontent.com/CoreNovaLabs/cloud-forge-catalog/main/apps/excalidraw/templates/aws.yaml",
-          "checksum": "sha256:931d115aba0cb1ede6e01d5bf3909b631d57bca3a013aa344bec43e071615ee9"
+          "checksum": "sha256:6c4db92c11372a6b1d72e2b627518521d2cb94e7a1ed78b63f22a7cf36119db7"
         },
         "aliyun": {
           "path": "apps/excalidraw/templates/aliyun.json",
           "url": "https://raw.githubusercontent.com/CoreNovaLabs/cloud-forge-catalog/main/apps/excalidraw/templates/aliyun.json",
-          "checksum": "sha256:2f28d79534389fef2838f33853039921e99f48a53a99dc121943555c96467e93"
+          "checksum": "sha256:3da2f5c8587331f5d246d97da0c257450a9f4373b21f41d08d740076b1f94cf2"
         }
       },
       "params": {
@@ -254,6 +276,7 @@
           "aws": {
             "default": "ip-letsencrypt",
             "options": [
+              "auto",
               "ip-letsencrypt",
               "http",
               "internal"
@@ -262,6 +285,7 @@
           "aliyun": {
             "default": "ip-letsencrypt",
             "options": [
+              "auto",
               "ip-letsencrypt",
               "http",
               "internal"
@@ -278,6 +302,24 @@
           "aws": {
             "default": ""
           }
+        },
+        "DnsDomainName": {
+          "type": "string",
+          "default": "",
+          "aliyun": {
+            "default": ""
+          }
+        },
+        "DnsRR": {
+          "type": "string",
+          "default": "",
+          "aliyun": {
+            "default": ""
+          }
+        },
+        "CaddyEmail": {
+          "type": "string",
+          "default": ""
         },
         "KeyName": {
           "type": "string",
@@ -353,6 +395,7 @@
       "cost_notice": [
         "Aliyun deploy defaults to cn-hongkong; pass --region for other regions.",
         "Mainland China regions may fail bootstrap (Docker Hub / catalog CDN reachability).",
+        "Custom domains: AWS uses --domain + --hosted-zone-id (Route53); Aliyun uses --domain + --dns-domain (Alidns). DNS propagation and ACME may take several minutes.",
         "First bootstrap may take 8-15 minutes on Aliyun public OS images.",
         "You pay only for cloud resources such as ECS, EIP, disk, and data transfer."
       ],
@@ -371,12 +414,12 @@
         "aws": {
           "path": "apps/freshrss/templates/aws.yaml",
           "url": "https://raw.githubusercontent.com/CoreNovaLabs/cloud-forge-catalog/main/apps/freshrss/templates/aws.yaml",
-          "checksum": "sha256:5d88b2109d3aba4d18283324a9da7703b8f3c388404550cadcb38b1bc50d20da"
+          "checksum": "sha256:5c8a8418fbbaeb092a8f80ae23fe3c1dccb70700609228d5363de560f036daeb"
         },
         "aliyun": {
           "path": "apps/freshrss/templates/aliyun.json",
           "url": "https://raw.githubusercontent.com/CoreNovaLabs/cloud-forge-catalog/main/apps/freshrss/templates/aliyun.json",
-          "checksum": "sha256:093aff8d1cf6aa8817f03d1b9c09c594d900934fb389f2a789e3a0e170e6ca30"
+          "checksum": "sha256:c546e057888b11745a8e13f4d44521e1cd81034870df1bf61dfaf1c227acd9a7"
         }
       },
       "params": {
@@ -414,6 +457,7 @@
           "aws": {
             "default": "ip-letsencrypt",
             "options": [
+              "auto",
               "ip-letsencrypt",
               "http",
               "internal"
@@ -422,6 +466,7 @@
           "aliyun": {
             "default": "ip-letsencrypt",
             "options": [
+              "auto",
               "ip-letsencrypt",
               "http",
               "internal"
@@ -438,6 +483,24 @@
           "aws": {
             "default": ""
           }
+        },
+        "DnsDomainName": {
+          "type": "string",
+          "default": "",
+          "aliyun": {
+            "default": ""
+          }
+        },
+        "DnsRR": {
+          "type": "string",
+          "default": "",
+          "aliyun": {
+            "default": ""
+          }
+        },
+        "CaddyEmail": {
+          "type": "string",
+          "default": ""
         },
         "KeyName": {
           "type": "string",
@@ -519,6 +582,7 @@
       "cost_notice": [
         "Aliyun deploy defaults to cn-hongkong; pass --region for other regions.",
         "Mainland China regions may fail bootstrap (Docker Hub / catalog CDN reachability).",
+        "Custom domains: AWS uses --domain + --hosted-zone-id (Route53); Aliyun uses --domain + --dns-domain (Alidns). DNS propagation and ACME may take several minutes.",
         "First bootstrap may take 8-15 minutes on Aliyun public OS images.",
         "You pay only for cloud resources such as ECS, EIP, disk, and data transfer."
       ],
@@ -530,12 +594,12 @@
         "aws": {
           "path": "apps/gitea/templates/aws.yaml",
           "url": "https://raw.githubusercontent.com/CoreNovaLabs/cloud-forge-catalog/main/apps/gitea/templates/aws.yaml",
-          "checksum": "sha256:2b96e3114c6d33e5eefc3335041711f0a522b95af3b65f6f1530f008ea38483d"
+          "checksum": "sha256:0688ccd585dc71b0ace1d3e3c712d29571028122b6f7759c7224a4734eec86e9"
         },
         "aliyun": {
           "path": "apps/gitea/templates/aliyun.json",
           "url": "https://raw.githubusercontent.com/CoreNovaLabs/cloud-forge-catalog/main/apps/gitea/templates/aliyun.json",
-          "checksum": "sha256:d63496271419a8e35cac1746328a765f045e6f7255d3422f4291a6731e87410d"
+          "checksum": "sha256:670aa29959a642a9502e96f130d68e6a583261e5648ac89ca92c8384f118f905"
         }
       },
       "params": {
@@ -576,6 +640,7 @@
           "aws": {
             "default": "ip-letsencrypt",
             "options": [
+              "auto",
               "ip-letsencrypt",
               "http",
               "internal"
@@ -584,6 +649,7 @@
           "aliyun": {
             "default": "ip-letsencrypt",
             "options": [
+              "auto",
               "ip-letsencrypt",
               "http",
               "internal"
@@ -600,6 +666,24 @@
           "aws": {
             "default": ""
           }
+        },
+        "DnsDomainName": {
+          "type": "string",
+          "default": "",
+          "aliyun": {
+            "default": ""
+          }
+        },
+        "DnsRR": {
+          "type": "string",
+          "default": "",
+          "aliyun": {
+            "default": ""
+          }
+        },
+        "CaddyEmail": {
+          "type": "string",
+          "default": ""
         },
         "KeyName": {
           "type": "string",
@@ -682,6 +766,7 @@
       "cost_notice": [
         "Aliyun deploy defaults to cn-hongkong; pass --region for other regions.",
         "Mainland China regions may fail bootstrap (Docker Hub / catalog CDN reachability).",
+        "Custom domains: AWS uses --domain + --hosted-zone-id (Route53); Aliyun uses --domain + --dns-domain (Alidns). DNS propagation and ACME may take several minutes.",
         "First bootstrap may take 8-15 minutes on Aliyun public OS images.",
         "You pay only for cloud resources such as ECS, EIP, disk, and data transfer."
       ],
@@ -693,12 +778,12 @@
         "aws": {
           "path": "apps/hello-nginx/templates/aws.yaml",
           "url": "https://raw.githubusercontent.com/CoreNovaLabs/cloud-forge-catalog/main/apps/hello-nginx/templates/aws.yaml",
-          "checksum": "sha256:e720b8b05463dfdc9372750d99d6211af62a23586531c614f251b7c905bed071"
+          "checksum": "sha256:67df1cd390e424ade99e55d1dacf0c58c051b39c4f9f059b765a2a3810a336a3"
         },
         "aliyun": {
           "path": "apps/hello-nginx/templates/aliyun.json",
           "url": "https://raw.githubusercontent.com/CoreNovaLabs/cloud-forge-catalog/main/apps/hello-nginx/templates/aliyun.json",
-          "checksum": "sha256:ef4c5e00325ca372c0699f899abbdadbf514f26f7c784ec35b19c05c351e7c99"
+          "checksum": "sha256:90c02160146e4cd59f7d1f65623cb11da5e7bb9727f006a356ca7221fbac4b84"
         }
       },
       "params": {
@@ -738,6 +823,7 @@
           "aws": {
             "default": "ip-letsencrypt",
             "options": [
+              "auto",
               "ip-letsencrypt",
               "http",
               "internal"
@@ -746,11 +832,41 @@
           "aliyun": {
             "default": "ip-letsencrypt",
             "options": [
+              "auto",
               "ip-letsencrypt",
               "http",
               "internal"
             ]
           }
+        },
+        "DomainName": {
+          "type": "string",
+          "default": ""
+        },
+        "HostedZoneId": {
+          "type": "string",
+          "default": "",
+          "aws": {
+            "default": ""
+          }
+        },
+        "DnsDomainName": {
+          "type": "string",
+          "default": "",
+          "aliyun": {
+            "default": ""
+          }
+        },
+        "DnsRR": {
+          "type": "string",
+          "default": "",
+          "aliyun": {
+            "default": ""
+          }
+        },
+        "CaddyEmail": {
+          "type": "string",
+          "default": ""
         },
         "KeyName": {
           "type": "string",
@@ -817,6 +933,7 @@
       "cost_notice": [
         "Aliyun deploy defaults to cn-hongkong; pass --region for other regions.",
         "Mainland China regions may fail bootstrap (Docker Hub / catalog CDN reachability).",
+        "Custom domains: AWS uses --domain + --hosted-zone-id (Route53); Aliyun uses --domain + --dns-domain (Alidns). DNS propagation and ACME may take several minutes.",
         "First bootstrap may take 8-15 minutes on Aliyun public OS images.",
         "You pay only for cloud resources such as ECS, EIP, disk, and data transfer."
       ],
@@ -834,12 +951,12 @@
         "aws": {
           "path": "apps/it-tools/templates/aws.yaml",
           "url": "https://raw.githubusercontent.com/CoreNovaLabs/cloud-forge-catalog/main/apps/it-tools/templates/aws.yaml",
-          "checksum": "sha256:f6e0d22dd861f72789082c0be36151449af76ff5780bf18e2914e30582c3d665"
+          "checksum": "sha256:561f31f0389fde58c4fad07cbfc10f710614a6e503de9580d746bc9c2cd006ee"
         },
         "aliyun": {
           "path": "apps/it-tools/templates/aliyun.json",
           "url": "https://raw.githubusercontent.com/CoreNovaLabs/cloud-forge-catalog/main/apps/it-tools/templates/aliyun.json",
-          "checksum": "sha256:711729592ba47df28ab8c60086e74f2d2b6613985052635cc0476c1ca4ab307b"
+          "checksum": "sha256:c6a0fbab6c2103c809da853b21324a22643da74d79495d7658a12bdef0fba294"
         }
       },
       "params": {
@@ -876,6 +993,7 @@
           "aws": {
             "default": "ip-letsencrypt",
             "options": [
+              "auto",
               "ip-letsencrypt",
               "http",
               "internal"
@@ -884,6 +1002,7 @@
           "aliyun": {
             "default": "ip-letsencrypt",
             "options": [
+              "auto",
               "ip-letsencrypt",
               "http",
               "internal"
@@ -900,6 +1019,24 @@
           "aws": {
             "default": ""
           }
+        },
+        "DnsDomainName": {
+          "type": "string",
+          "default": "",
+          "aliyun": {
+            "default": ""
+          }
+        },
+        "DnsRR": {
+          "type": "string",
+          "default": "",
+          "aliyun": {
+            "default": ""
+          }
+        },
+        "CaddyEmail": {
+          "type": "string",
+          "default": ""
         },
         "KeyName": {
           "type": "string",
@@ -975,6 +1112,7 @@
       "cost_notice": [
         "Aliyun deploy defaults to cn-hongkong; pass --region for other regions.",
         "Mainland China regions may fail bootstrap (Docker Hub / catalog CDN reachability).",
+        "Custom domains: AWS uses --domain + --hosted-zone-id (Route53); Aliyun uses --domain + --dns-domain (Alidns). DNS propagation and ACME may take several minutes.",
         "First bootstrap may take 8-15 minutes on Aliyun public OS images.",
         "You pay only for cloud resources such as ECS, EIP, disk, and data transfer."
       ],
@@ -993,12 +1131,12 @@
         "aws": {
           "path": "apps/linkding/templates/aws.yaml",
           "url": "https://raw.githubusercontent.com/CoreNovaLabs/cloud-forge-catalog/main/apps/linkding/templates/aws.yaml",
-          "checksum": "sha256:48645d08817f73821ad405c1b6431e2dc631479764654b4676d1a52a9101ce61"
+          "checksum": "sha256:b0f7346f72dd3599bc5c7226c7bcf0058cac81f9ae27a0695284eea50019ad0e"
         },
         "aliyun": {
           "path": "apps/linkding/templates/aliyun.json",
           "url": "https://raw.githubusercontent.com/CoreNovaLabs/cloud-forge-catalog/main/apps/linkding/templates/aliyun.json",
-          "checksum": "sha256:5f5b0b988d412c9383af11ee3f6193e5cc7a7b3d9efb7ef248d78c325f1855a8"
+          "checksum": "sha256:f402940bac737bdca00475430546f002aee2b39436b98f10b6b4c2ed8113b017"
         }
       },
       "params": {
@@ -1036,6 +1174,7 @@
           "aws": {
             "default": "ip-letsencrypt",
             "options": [
+              "auto",
               "ip-letsencrypt",
               "http",
               "internal"
@@ -1044,6 +1183,7 @@
           "aliyun": {
             "default": "ip-letsencrypt",
             "options": [
+              "auto",
               "ip-letsencrypt",
               "http",
               "internal"
@@ -1060,6 +1200,24 @@
           "aws": {
             "default": ""
           }
+        },
+        "DnsDomainName": {
+          "type": "string",
+          "default": "",
+          "aliyun": {
+            "default": ""
+          }
+        },
+        "DnsRR": {
+          "type": "string",
+          "default": "",
+          "aliyun": {
+            "default": ""
+          }
+        },
+        "CaddyEmail": {
+          "type": "string",
+          "default": ""
         },
         "KeyName": {
           "type": "string",
@@ -1135,6 +1293,7 @@
       "cost_notice": [
         "Aliyun deploy defaults to cn-hongkong; pass --region for other regions.",
         "Mainland China regions may fail bootstrap (Docker Hub / catalog CDN reachability).",
+        "Custom domains: AWS uses --domain + --hosted-zone-id (Route53); Aliyun uses --domain + --dns-domain (Alidns). DNS propagation and ACME may take several minutes.",
         "First bootstrap may take 8-15 minutes on Aliyun public OS images.",
         "You pay only for cloud resources such as ECS, EIP, disk, and data transfer."
       ],
@@ -1152,12 +1311,12 @@
         "aws": {
           "path": "apps/minio/templates/aws.yaml",
           "url": "https://raw.githubusercontent.com/CoreNovaLabs/cloud-forge-catalog/main/apps/minio/templates/aws.yaml",
-          "checksum": "sha256:d2fc05e56f800235b865a8a3e1e7331fcbc0d99e0ce28528d92178e612109a8b"
+          "checksum": "sha256:e07084b9843d6415ead5c0119ce94e6104257df4eaba8f50ea311ad09ad5de0d"
         },
         "aliyun": {
           "path": "apps/minio/templates/aliyun.json",
           "url": "https://raw.githubusercontent.com/CoreNovaLabs/cloud-forge-catalog/main/apps/minio/templates/aliyun.json",
-          "checksum": "sha256:e3009d42479fcad4357cee11f33f7594830920180237e1f5841e02fb298c0aa0"
+          "checksum": "sha256:7babd31a9e86c06536ac157a8bffe26a5cb68d01ee321748645abb074dc6c88c"
         }
       },
       "params": {
@@ -1195,6 +1354,7 @@
           "aws": {
             "default": "ip-letsencrypt",
             "options": [
+              "auto",
               "ip-letsencrypt",
               "http",
               "internal"
@@ -1203,6 +1363,7 @@
           "aliyun": {
             "default": "ip-letsencrypt",
             "options": [
+              "auto",
               "ip-letsencrypt",
               "http",
               "internal"
@@ -1219,6 +1380,24 @@
           "aws": {
             "default": ""
           }
+        },
+        "DnsDomainName": {
+          "type": "string",
+          "default": "",
+          "aliyun": {
+            "default": ""
+          }
+        },
+        "DnsRR": {
+          "type": "string",
+          "default": "",
+          "aliyun": {
+            "default": ""
+          }
+        },
+        "CaddyEmail": {
+          "type": "string",
+          "default": ""
         },
         "KeyName": {
           "type": "string",
@@ -1305,6 +1484,7 @@
       "cost_notice": [
         "Aliyun deploy defaults to cn-hongkong; pass --region for other regions.",
         "Mainland China regions may fail bootstrap (Docker Hub / catalog CDN reachability).",
+        "Custom domains: AWS uses --domain + --hosted-zone-id (Route53); Aliyun uses --domain + --dns-domain (Alidns). DNS propagation and ACME may take several minutes.",
         "First bootstrap may take 8-15 minutes on Aliyun public OS images.",
         "You pay only for cloud resources such as ECS, EIP, disk, and data transfer."
       ],
@@ -1316,12 +1496,12 @@
         "aws": {
           "path": "apps/n8n/templates/aws.yaml",
           "url": "https://raw.githubusercontent.com/CoreNovaLabs/cloud-forge-catalog/main/apps/n8n/templates/aws.yaml",
-          "checksum": "sha256:69c28a868ed9776d99a2c8816cf55694d9ffbbd1b9ca13b7e924d7c30f627296"
+          "checksum": "sha256:8802548bc23e53354dfbae8992697f08ec7244f44e0b09dc6d915a73ec711c97"
         },
         "aliyun": {
           "path": "apps/n8n/templates/aliyun.json",
           "url": "https://raw.githubusercontent.com/CoreNovaLabs/cloud-forge-catalog/main/apps/n8n/templates/aliyun.json",
-          "checksum": "sha256:52c68d709a3e28c086cd4ddf7367f61d6ae3979c3f595343184a4a3cce824282"
+          "checksum": "sha256:654cadf9c3584899f755db0f6f0c146516452eff00b3a305fe92789ca2a09545"
         }
       },
       "params": {
@@ -1361,6 +1541,7 @@
           "aws": {
             "default": "ip-letsencrypt",
             "options": [
+              "auto",
               "ip-letsencrypt",
               "http",
               "internal"
@@ -1369,6 +1550,7 @@
           "aliyun": {
             "default": "ip-letsencrypt",
             "options": [
+              "auto",
               "ip-letsencrypt",
               "http",
               "internal"
@@ -1385,6 +1567,24 @@
           "aws": {
             "default": ""
           }
+        },
+        "DnsDomainName": {
+          "type": "string",
+          "default": "",
+          "aliyun": {
+            "default": ""
+          }
+        },
+        "DnsRR": {
+          "type": "string",
+          "default": "",
+          "aliyun": {
+            "default": ""
+          }
+        },
+        "CaddyEmail": {
+          "type": "string",
+          "default": ""
         },
         "KeyName": {
           "type": "string",
@@ -1466,6 +1666,7 @@
       "cost_notice": [
         "Aliyun deploy defaults to cn-hongkong; pass --region for other regions.",
         "Mainland China regions may fail bootstrap (Docker Hub / catalog CDN reachability).",
+        "Custom domains: AWS uses --domain + --hosted-zone-id (Route53); Aliyun uses --domain + --dns-domain (Alidns). DNS propagation and ACME may take several minutes.",
         "First bootstrap may take 8-15 minutes on Aliyun public OS images.",
         "You pay only for cloud resources such as ECS, EIP, disk, and data transfer."
       ],
@@ -1477,12 +1678,12 @@
         "aws": {
           "path": "apps/uptime-kuma/templates/aws.yaml",
           "url": "https://raw.githubusercontent.com/CoreNovaLabs/cloud-forge-catalog/main/apps/uptime-kuma/templates/aws.yaml",
-          "checksum": "sha256:e56414c1bf2f49cf249ff1d8022e75ff497352587b0b5ce51e67644f83ce01a3"
+          "checksum": "sha256:367d79f19e7f5b4c199ee440e5b7da1f91a975177dc76413592b2227f584ca53"
         },
         "aliyun": {
           "path": "apps/uptime-kuma/templates/aliyun.json",
           "url": "https://raw.githubusercontent.com/CoreNovaLabs/cloud-forge-catalog/main/apps/uptime-kuma/templates/aliyun.json",
-          "checksum": "sha256:1da676877e02bf99f68507959b5a896aa36d56bad8c1c8e6c57caead5ab43cc0"
+          "checksum": "sha256:a7f7ad652c7f9da19c659198226bb61882bcf81c8c0cae3600b491aed0cc6209"
         }
       },
       "params": {
@@ -1520,6 +1721,7 @@
           "aws": {
             "default": "ip-letsencrypt",
             "options": [
+              "auto",
               "ip-letsencrypt",
               "http",
               "internal"
@@ -1528,6 +1730,7 @@
           "aliyun": {
             "default": "ip-letsencrypt",
             "options": [
+              "auto",
               "ip-letsencrypt",
               "http",
               "internal"
@@ -1544,6 +1747,24 @@
           "aws": {
             "default": ""
           }
+        },
+        "DnsDomainName": {
+          "type": "string",
+          "default": "",
+          "aliyun": {
+            "default": ""
+          }
+        },
+        "DnsRR": {
+          "type": "string",
+          "default": "",
+          "aliyun": {
+            "default": ""
+          }
+        },
+        "CaddyEmail": {
+          "type": "string",
+          "default": ""
         },
         "KeyName": {
           "type": "string",
@@ -1619,6 +1840,7 @@
       "cost_notice": [
         "Aliyun deploy defaults to cn-hongkong; pass --region for other regions.",
         "Mainland China regions may fail bootstrap (Docker Hub / catalog CDN reachability).",
+        "Custom domains: AWS uses --domain + --hosted-zone-id (Route53); Aliyun uses --domain + --dns-domain (Alidns). DNS propagation and ACME may take several minutes.",
         "First bootstrap may take 8-15 minutes on Aliyun public OS images.",
         "You pay only for cloud resources such as ECS, EIP, disk, and data transfer."
       ],
@@ -1637,12 +1859,12 @@
         "aws": {
           "path": "apps/vaultwarden/templates/aws.yaml",
           "url": "https://raw.githubusercontent.com/CoreNovaLabs/cloud-forge-catalog/main/apps/vaultwarden/templates/aws.yaml",
-          "checksum": "sha256:528565c8eb0302335329105d6a3ca40b79fa04fb7a0e8b6199699eebe0e7e9f1"
+          "checksum": "sha256:5f0549d8c96bdbdda60da096dbb6d9080474e9ac348a25c3e4f0132023883d4e"
         },
         "aliyun": {
           "path": "apps/vaultwarden/templates/aliyun.json",
           "url": "https://raw.githubusercontent.com/CoreNovaLabs/cloud-forge-catalog/main/apps/vaultwarden/templates/aliyun.json",
-          "checksum": "sha256:c9972aa652c8e1f92fb45a3d879e2062d961c5241cf91bf71b5a92c2eb904c36"
+          "checksum": "sha256:a865fdc7686a144162f6462917366e4630503646d614c8653bd76e0eb3a5c341"
         }
       },
       "params": {
@@ -1680,6 +1902,7 @@
           "aws": {
             "default": "ip-letsencrypt",
             "options": [
+              "auto",
               "ip-letsencrypt",
               "http",
               "internal"
@@ -1688,6 +1911,7 @@
           "aliyun": {
             "default": "ip-letsencrypt",
             "options": [
+              "auto",
               "ip-letsencrypt",
               "http",
               "internal"
@@ -1704,6 +1928,24 @@
           "aws": {
             "default": ""
           }
+        },
+        "DnsDomainName": {
+          "type": "string",
+          "default": "",
+          "aliyun": {
+            "default": ""
+          }
+        },
+        "DnsRR": {
+          "type": "string",
+          "default": "",
+          "aliyun": {
+            "default": ""
+          }
+        },
+        "CaddyEmail": {
+          "type": "string",
+          "default": ""
         },
         "KeyName": {
           "type": "string",
