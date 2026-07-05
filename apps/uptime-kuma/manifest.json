@@ -4,19 +4,29 @@
   "desc": "A clean self-hosted uptime monitoring tool",
   "icon": "🟢",
   "category": "monitoring",
-  "tags": ["monitoring", "uptime", "alerting"],
+  "tags": [
+    "monitoring",
+    "uptime",
+    "alerting"
+  ],
   "stars": 28000,
-  "clouds": ["aws", "aliyun"],
+  "clouds": [
+    "aws",
+    "aliyun"
+  ],
   "version": "1.0.0",
   "min_cli_version": "0.3.0",
   "tier": "certified",
   "smoke": {
-    "health_paths": ["/"],
+    "health_paths": [
+      "/"
+    ],
     "wait_seconds": 90
   },
   "price": "free",
   "cost_notice": [
-    "Aliyun v1 only supports cn-hongkong.",
+    "Aliyun deploy defaults to cn-hongkong; pass --region for other regions.",
+    "Mainland China regions may fail bootstrap (Docker Hub / catalog CDN reachability).",
     "First bootstrap may take 8-15 minutes on Aliyun public OS images.",
     "You pay only for cloud resources such as ECS, EIP, disk, and data transfer."
   ],
@@ -25,19 +35,29 @@
     "aliyun": "aliyun_3_x64_20G_alibase_20260122.vhd"
   },
   "templates": {
-    "aws": { "path": "apps/uptime-kuma/templates/aws.yaml" },
-    "aliyun": { "path": "apps/uptime-kuma/templates/aliyun.json" }
+    "aws": {
+      "path": "apps/uptime-kuma/templates/aws.yaml"
+    },
+    "aliyun": {
+      "path": "apps/uptime-kuma/templates/aliyun.json"
+    }
   },
   "params": {
     "InstanceType": {
       "type": "string",
       "aws": {
         "default": "t3.micro",
-        "options": ["t3.micro", "t3.small"]
+        "options": [
+          "t3.micro",
+          "t3.small"
+        ]
       },
       "aliyun": {
         "default": "ecs.t6-c1m1.large",
-        "options": ["ecs.t6-c1m1.large", "ecs.t6-c1m2.large"]
+        "options": [
+          "ecs.t6-c1m1.large",
+          "ecs.t6-c1m2.large"
+        ]
       }
     },
     "LatestAmiId": {
@@ -56,38 +76,80 @@
       "type": "string",
       "aws": {
         "default": "ip-letsencrypt",
-        "options": ["ip-letsencrypt", "http", "internal"]
+        "options": [
+          "ip-letsencrypt",
+          "http",
+          "internal"
+        ]
       },
       "aliyun": {
         "default": "ip-letsencrypt",
-        "options": ["ip-letsencrypt", "http", "internal"]
+        "options": [
+          "ip-letsencrypt",
+          "http",
+          "internal"
+        ]
       }
     },
-    "DomainName": { "type": "string", "default": "" },
-    "HostedZoneId": { "type": "string", "default": "", "aws": { "default": "" } },
+    "DomainName": {
+      "type": "string",
+      "default": ""
+    },
+    "HostedZoneId": {
+      "type": "string",
+      "default": "",
+      "aws": {
+        "default": ""
+      }
+    },
     "KeyName": {
       "type": "string",
       "default": "",
-      "aws": { "default": "" }
+      "aws": {
+        "default": ""
+      }
     },
-    "KeyPairName": { "type": "string", "aliyun": { "required": true } },
+    "KeyPairName": {
+      "type": "string",
+      "aliyun": {
+        "required": true
+      }
+    },
     "DiskSize": {
       "type": "number",
-      "aws": { "default": "20" },
-      "aliyun": { "default": "20" }
+      "aws": {
+        "default": "20"
+      },
+      "aliyun": {
+        "default": "20"
+      }
     },
     "VpcId": {
       "type": "string",
       "default": "",
-      "aws": { "default": "" },
-      "aliyun": { "required": true }
+      "aws": {
+        "default": ""
+      },
+      "aliyun": {
+        "required": true
+      }
     },
     "SubnetId": {
       "type": "string",
       "default": "",
-      "aws": { "default": "" }
+      "aws": {
+        "default": ""
+      }
     },
-    "VSwitchId": { "type": "string", "aliyun": { "required": true } },
-    "AllowedIP": { "type": "string", "default": "0.0.0.0/0" }
+    "VSwitchId": {
+      "type": "string",
+      "aliyun": {
+        "required": true
+      }
+    },
+    "AllowedIP": {
+      "type": "string",
+      "default": "0.0.0.0/0"
+    }
   }
 }

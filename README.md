@@ -55,7 +55,7 @@ export CLOUD_FORGE_STORE_URL="https://raw.githubusercontent.com/CoreNovaLabs/clo
 export CLOUD_FORGE_STORE_URL="file:///path/to/cloud-forge-catalog/index/apps.json"
 ```
 
-Deploy and delete support **AWS** and **Aliyun (`cn-hongkong`)**. Both clouds load a shared app package from `apps/<id>/compose/` (Docker Compose + upstream). Cloud-specific bootstrap dispatchers (`scripts/aws/bootstrap-app.sh`, `scripts/aliyun/bootstrap-app.sh`) apply optional `aws/setup.sh` or `aliyun/setup.sh` hooks.
+Deploy and delete support **AWS** and **Aliyun** (default region `cn-hongkong`; other regions via `--region`—mainland China may fail bootstrap due to network restrictions). Both clouds load a shared app package from `apps/<id>/compose/` (Docker Compose + upstream). Cloud-specific bootstrap dispatchers (`scripts/aws/bootstrap-app.sh`, `scripts/aliyun/bootstrap-app.sh`) apply optional `aws/setup.sh` or `aliyun/setup.sh` hooks.
 
 ## Adding an App
 

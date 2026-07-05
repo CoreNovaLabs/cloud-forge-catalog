@@ -1,6 +1,6 @@
 {
   "catalog_version": "0.3.0",
-  "generated_at": "2026-07-05T01:43:47Z",
+  "generated_at": "2026-07-05T03:52:25Z",
   "base_url": "https://raw.githubusercontent.com/CoreNovaLabs/cloud-forge-catalog/main",
   "store": {
     "name": "Cloud Forge App Store",
@@ -28,7 +28,8 @@
       "min_cli_version": "0.3.0",
       "price": "free",
       "cost_notice": [
-        "Aliyun v1 only supports cn-hongkong.",
+        "Aliyun deploy defaults to cn-hongkong; pass --region for other regions.",
+        "Mainland China regions may fail bootstrap (Docker Hub / catalog CDN reachability).",
         "First bootstrap may take 8-15 minutes on Aliyun public OS images.",
         "You pay only for cloud resources such as ECS, EIP, disk, and data transfer."
       ],
@@ -191,7 +192,8 @@
       "min_cli_version": "0.3.0",
       "price": "free",
       "cost_notice": [
-        "Aliyun v1 only supports cn-hongkong.",
+        "Aliyun deploy defaults to cn-hongkong; pass --region for other regions.",
+        "Mainland China regions may fail bootstrap (Docker Hub / catalog CDN reachability).",
         "First bootstrap may take 8-15 minutes on Aliyun public OS images.",
         "You pay only for cloud resources such as ECS, EIP, disk, and data transfer."
       ],
@@ -349,7 +351,8 @@
       "min_cli_version": "0.3.0",
       "price": "free",
       "cost_notice": [
-        "Aliyun v1 only supports cn-hongkong.",
+        "Aliyun deploy defaults to cn-hongkong; pass --region for other regions.",
+        "Mainland China regions may fail bootstrap (Docker Hub / catalog CDN reachability).",
         "First bootstrap may take 8-15 minutes on Aliyun public OS images.",
         "You pay only for cloud resources such as ECS, EIP, disk, and data transfer."
       ],
@@ -514,7 +517,8 @@
       },
       "price": "free",
       "cost_notice": [
-        "Aliyun v1 only supports cn-hongkong.",
+        "Aliyun deploy defaults to cn-hongkong; pass --region for other regions.",
+        "Mainland China regions may fail bootstrap (Docker Hub / catalog CDN reachability).",
         "First bootstrap may take 8-15 minutes on Aliyun public OS images.",
         "You pay only for cloud resources such as ECS, EIP, disk, and data transfer."
       ],
@@ -676,7 +680,8 @@
       },
       "price": "free",
       "cost_notice": [
-        "Aliyun v1 only supports cn-hongkong.",
+        "Aliyun deploy defaults to cn-hongkong; pass --region for other regions.",
+        "Mainland China regions may fail bootstrap (Docker Hub / catalog CDN reachability).",
         "First bootstrap may take 8-15 minutes on Aliyun public OS images.",
         "You pay only for cloud resources such as ECS, EIP, disk, and data transfer."
       ],
@@ -810,7 +815,8 @@
       "min_cli_version": "0.3.0",
       "price": "free",
       "cost_notice": [
-        "Aliyun v1 only supports cn-hongkong.",
+        "Aliyun deploy defaults to cn-hongkong; pass --region for other regions.",
+        "Mainland China regions may fail bootstrap (Docker Hub / catalog CDN reachability).",
         "First bootstrap may take 8-15 minutes on Aliyun public OS images.",
         "You pay only for cloud resources such as ECS, EIP, disk, and data transfer."
       ],
@@ -967,7 +973,8 @@
       "min_cli_version": "0.3.0",
       "price": "free",
       "cost_notice": [
-        "Aliyun v1 only supports cn-hongkong.",
+        "Aliyun deploy defaults to cn-hongkong; pass --region for other regions.",
+        "Mainland China regions may fail bootstrap (Docker Hub / catalog CDN reachability).",
         "First bootstrap may take 8-15 minutes on Aliyun public OS images.",
         "You pay only for cloud resources such as ECS, EIP, disk, and data transfer."
       ],
@@ -1126,7 +1133,8 @@
       "min_cli_version": "0.3.0",
       "price": "free",
       "cost_notice": [
-        "Aliyun v1 only supports cn-hongkong.",
+        "Aliyun deploy defaults to cn-hongkong; pass --region for other regions.",
+        "Mainland China regions may fail bootstrap (Docker Hub / catalog CDN reachability).",
         "First bootstrap may take 8-15 minutes on Aliyun public OS images.",
         "You pay only for cloud resources such as ECS, EIP, disk, and data transfer."
       ],
@@ -1295,7 +1303,8 @@
       },
       "price": "free",
       "cost_notice": [
-        "Aliyun v1 only supports cn-hongkong.",
+        "Aliyun deploy defaults to cn-hongkong; pass --region for other regions.",
+        "Mainland China regions may fail bootstrap (Docker Hub / catalog CDN reachability).",
         "First bootstrap may take 8-15 minutes on Aliyun public OS images.",
         "You pay only for cloud resources such as ECS, EIP, disk, and data transfer."
       ],
@@ -1455,7 +1464,8 @@
       },
       "price": "free",
       "cost_notice": [
-        "Aliyun v1 only supports cn-hongkong.",
+        "Aliyun deploy defaults to cn-hongkong; pass --region for other regions.",
+        "Mainland China regions may fail bootstrap (Docker Hub / catalog CDN reachability).",
         "First bootstrap may take 8-15 minutes on Aliyun public OS images.",
         "You pay only for cloud resources such as ECS, EIP, disk, and data transfer."
       ],
@@ -1607,7 +1617,8 @@
       "min_cli_version": "0.3.0",
       "price": "free",
       "cost_notice": [
-        "Aliyun v1 only supports cn-hongkong.",
+        "Aliyun deploy defaults to cn-hongkong; pass --region for other regions.",
+        "Mainland China regions may fail bootstrap (Docker Hub / catalog CDN reachability).",
         "First bootstrap may take 8-15 minutes on Aliyun public OS images.",
         "You pay only for cloud resources such as ECS, EIP, disk, and data transfer."
       ],
