@@ -1,0 +1,14 @@
+services:
+  stirling_pdf:
+    image: frooodle/s-pdf@sha256:a6c5e627ceef6ed323a63da13e0d44ef68503320d1917cbc7ca2fd8e4a827aae
+    restart: unless-stopped
+
+
+
+
+    networks:
+      - cloud-forge
+
+networks:
+  cloud-forge:
+    name: cloud-forge

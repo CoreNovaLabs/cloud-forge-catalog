@@ -154,3 +154,105 @@ apps:
     aliyun_disk_gb: 20
     smoke_health_paths: ["/"]
     smoke_wait_seconds: 90
+
+  - id: uptime-kuma
+    name: Uptime Kuma
+    desc: A clean self-hosted uptime monitoring tool
+    icon: "🟢"
+    category: monitoring
+    tier: community
+    tags: [monitoring, uptime, alerting]
+    image: louislam/uptime-kuma:1.21.3
+    service_name: uptime_kuma
+    port: 3001
+    data_path: /opt/cloud-forge/data/uptime-kuma
+    volume_mount: "/opt/cloud-forge/data/uptime-kuma:/app/data"
+    aws_instance_default: t3.micro
+    aws_instance_options: [t3.micro, t3.small]
+    aliyun_instance_default: ecs.t6-c1m1.large
+    aws_disk_gb: 20
+    aliyun_disk_gb: 20
+    smoke_health_paths: ["/"]
+    smoke_wait_seconds: 120
+
+  - id: homer
+    name: Homer
+    desc: A dead simple homepage / dashboard for your services
+    icon: "🏠"
+    category: other
+    tier: community
+    tags: [dashboard, homepage, self-hosted]
+    image: b4bz/homer:v22.11.1
+    service_name: homer
+    port: 8080
+    data_path: /opt/cloud-forge/data/homer
+    volume_mount: "/opt/cloud-forge/data/homer:/www/assets"
+    aws_instance_default: t3.micro
+    aws_instance_options: [t3.micro, t3.small]
+    aliyun_instance_default: ecs.t6-c1m1.large
+    aws_disk_gb: 20
+    aliyun_disk_gb: 20
+    smoke_health_paths: ["/"]
+    smoke_wait_seconds: 60
+
+  - id: stirling-pdf
+    name: Stirling-PDF
+    desc: Locally hosted web app for manipulating PDF files
+    icon: "📄"
+    category: devtools
+    tier: community
+    stateless: true
+    tags: [pdf, tools, self-hosted]
+    image: frooodle/s-pdf@sha256:a6c5e627ceef6ed323a63da13e0d44ef68503320d1917cbc7ca2fd8e4a827aae
+    service_name: stirling_pdf
+    port: 8080
+    aws_instance_default: t3.small
+    aws_instance_options: [t3.small, t3.medium]
+    aliyun_instance_default: ecs.t6-c1m2.large
+    aws_disk_gb: 20
+    aliyun_disk_gb: 20
+    smoke_health_paths: ["/api/v1/info/status"]
+    smoke_wait_seconds: 120
+
+  - id: mealie
+    name: Mealie
+    desc: Recipe management and meal planning for self-hosters
+    icon: "🍽️"
+    category: other
+    tier: community
+    tags: [recipes, meal-planning, self-hosted]
+    image: ghcr.io/mealie-recipes/mealie:v3.20.1
+    service_name: mealie
+    port: 9000
+    secrets:
+      - param: AdminPassword
+        env: MEALIE_ADMIN_PASSWORD
+    data_path: /opt/cloud-forge/data/mealie
+    volume_mount: "/opt/cloud-forge/data/mealie:/app/data"
+    aws_instance_default: t3.small
+    aws_instance_options: [t3.small, t3.medium]
+    aliyun_instance_default: ecs.t6-c1m2.large
+    aws_disk_gb: 20
+    aliyun_disk_gb: 20
+    smoke_health_paths: ["/api/app/about"]
+    smoke_wait_seconds: 120
+
+  - id: audiobookshelf
+    name: Audiobookshelf
+    desc: Self-hosted audiobook and podcast server
+    icon: "🎧"
+    category: other
+    tier: community
+    tags: [audiobooks, podcasts, self-hosted]
+    image: ghcr.io/advplyr/audiobookshelf:2.15.0
+    service_name: audiobookshelf
+    port: 80
+    data_path: /opt/cloud-forge/data/audiobookshelf
+    volume_mount: "/opt/cloud-forge/data/audiobookshelf/config:/config"
+    aws_instance_default: t3.small
+    aws_instance_options: [t3.small, t3.medium]
+    aliyun_instance_default: ecs.t6-c1m2.large
+    aws_disk_gb: 30
+    aliyun_disk_gb: 40
+    smoke_health_paths: ["/"]
+    smoke_wait_seconds: 90

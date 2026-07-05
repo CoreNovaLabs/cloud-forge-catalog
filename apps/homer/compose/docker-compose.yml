@@ -1,0 +1,16 @@
+services:
+  homer:
+    image: b4bz/homer:v22.11.1
+    restart: unless-stopped
+
+
+
+    volumes:
+      - /opt/cloud-forge/data/homer:/www/assets
+
+    networks:
+      - cloud-forge
+
+networks:
+  cloud-forge:
+    name: cloud-forge

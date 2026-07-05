@@ -1,12 +1,191 @@
 {
   "catalog_version": "0.3.2",
-  "generated_at": "2026-07-05T05:47:21Z",
+  "generated_at": "2026-07-05T09:33:48Z",
   "base_url": "https://raw.githubusercontent.com/CoreNovaLabs/cloud-forge-catalog/main",
   "store": {
     "name": "Cloud Forge App Store",
     "description": "One-command open-source app deployment powered by immutable images"
   },
   "apps": [
+    {
+      "id": "audiobookshelf",
+      "name": "Audiobookshelf",
+      "desc": "Self-hosted audiobook and podcast server",
+      "icon": "🎧",
+      "category": "other",
+      "tags": [
+        "audiobooks",
+        "podcasts",
+        "self-hosted"
+      ],
+      "stars": 0,
+      "tier": "community",
+      "clouds": [
+        "aws",
+        "aliyun"
+      ],
+      "version": "1.0.0",
+      "min_cli_version": "0.3.0",
+      "price": "free",
+      "cost_notice": [
+        "Aliyun deploy defaults to cn-hongkong; pass --region for other regions.",
+        "Mainland China regions may fail bootstrap (Docker Hub / catalog CDN reachability).",
+        "Custom domains: AWS uses --domain + --hosted-zone-id (Route53); Aliyun uses --domain + --dns-domain (Alidns). DNS propagation and ACME may take several minutes.",
+        "First bootstrap may take 8-15 minutes on Aliyun public OS images.",
+        "You pay only for cloud resources such as ECS, EIP, disk, and data transfer."
+      ],
+      "smoke": {
+        "health_paths": [
+          "/"
+        ],
+        "wait_seconds": 90
+      },
+      "images": {
+        "aws": "ami-04cf9ac8716f030d6",
+        "aliyun": "aliyun_3_x64_20G_alibase_20260122.vhd"
+      },
+      "templates": {
+        "aws": {
+          "path": "apps/audiobookshelf/templates/aws.yaml",
+          "url": "https://raw.githubusercontent.com/CoreNovaLabs/cloud-forge-catalog/main/apps/audiobookshelf/templates/aws.yaml",
+          "checksum": "sha256:c45aef734549ede3820a317a03a47f5d922aacd9d8a0f38b7e5e7aa65be10114"
+        },
+        "aliyun": {
+          "path": "apps/audiobookshelf/templates/aliyun.json",
+          "url": "https://raw.githubusercontent.com/CoreNovaLabs/cloud-forge-catalog/main/apps/audiobookshelf/templates/aliyun.json",
+          "checksum": "sha256:1e0a2db191f6032ffd3d6410396fed192fed41d4ea72a0404da1e8a30d3fec25"
+        }
+      },
+      "params": {
+        "InstanceType": {
+          "type": "string",
+          "aws": {
+            "default": "t3.small",
+            "options": [
+              "t3.small",
+              "t3.medium"
+            ]
+          },
+          "aliyun": {
+            "default": "ecs.t6-c1m2.large",
+            "options": [
+              "ecs.t6-c1m2.large"
+            ]
+          }
+        },
+        "LatestAmiId": {
+          "type": "string",
+          "aws": {
+            "default": "ami-04cf9ac8716f030d6"
+          }
+        },
+        "ImageId": {
+          "type": "string",
+          "aliyun": {
+            "default": "aliyun_3_x64_20G_alibase_20260122.vhd"
+          }
+        },
+        "CaddyTlsMode": {
+          "type": "string",
+          "aws": {
+            "default": "ip-letsencrypt",
+            "options": [
+              "auto",
+              "ip-letsencrypt",
+              "http",
+              "internal"
+            ]
+          },
+          "aliyun": {
+            "default": "ip-letsencrypt",
+            "options": [
+              "auto",
+              "ip-letsencrypt",
+              "http",
+              "internal"
+            ]
+          }
+        },
+        "DomainName": {
+          "type": "string",
+          "default": ""
+        },
+        "HostedZoneId": {
+          "type": "string",
+          "default": "",
+          "aws": {
+            "default": ""
+          }
+        },
+        "DnsDomainName": {
+          "type": "string",
+          "default": "",
+          "aliyun": {
+            "default": ""
+          }
+        },
+        "DnsRR": {
+          "type": "string",
+          "default": "",
+          "aliyun": {
+            "default": ""
+          }
+        },
+        "CaddyEmail": {
+          "type": "string",
+          "default": ""
+        },
+        "KeyName": {
+          "type": "string",
+          "default": "",
+          "aws": {
+            "default": ""
+          }
+        },
+        "KeyPairName": {
+          "type": "string",
+          "aliyun": {
+            "required": true
+          }
+        },
+        "DiskSize": {
+          "type": "number",
+          "aws": {
+            "default": "30"
+          },
+          "aliyun": {
+            "default": "40"
+          }
+        },
+        "VpcId": {
+          "type": "string",
+          "default": "",
+          "aws": {
+            "default": ""
+          },
+          "aliyun": {
+            "required": true
+          }
+        },
+        "SubnetId": {
+          "type": "string",
+          "default": "",
+          "aws": {
+            "default": ""
+          }
+        },
+        "VSwitchId": {
+          "type": "string",
+          "aliyun": {
+            "required": true
+          }
+        },
+        "AllowedIP": {
+          "type": "string",
+          "default": "0.0.0.0/0"
+        }
+      }
+    },
     {
       "id": "code-server",
       "name": "code-server",
@@ -911,6 +1090,185 @@
       }
     },
     {
+      "id": "homer",
+      "name": "Homer",
+      "desc": "A dead simple homepage / dashboard for your services",
+      "icon": "🏠",
+      "category": "other",
+      "tags": [
+        "dashboard",
+        "homepage",
+        "self-hosted"
+      ],
+      "stars": 0,
+      "tier": "community",
+      "clouds": [
+        "aws",
+        "aliyun"
+      ],
+      "version": "1.0.0",
+      "min_cli_version": "0.3.0",
+      "price": "free",
+      "cost_notice": [
+        "Aliyun deploy defaults to cn-hongkong; pass --region for other regions.",
+        "Mainland China regions may fail bootstrap (Docker Hub / catalog CDN reachability).",
+        "Custom domains: AWS uses --domain + --hosted-zone-id (Route53); Aliyun uses --domain + --dns-domain (Alidns). DNS propagation and ACME may take several minutes.",
+        "First bootstrap may take 8-15 minutes on Aliyun public OS images.",
+        "You pay only for cloud resources such as ECS, EIP, disk, and data transfer."
+      ],
+      "smoke": {
+        "health_paths": [
+          "/"
+        ],
+        "wait_seconds": 60
+      },
+      "images": {
+        "aws": "ami-04cf9ac8716f030d6",
+        "aliyun": "aliyun_3_x64_20G_alibase_20260122.vhd"
+      },
+      "templates": {
+        "aws": {
+          "path": "apps/homer/templates/aws.yaml",
+          "url": "https://raw.githubusercontent.com/CoreNovaLabs/cloud-forge-catalog/main/apps/homer/templates/aws.yaml",
+          "checksum": "sha256:259c40789e851621c1cf2160236be917b533fa2f91b0d6bd6a6389e67e3d92a1"
+        },
+        "aliyun": {
+          "path": "apps/homer/templates/aliyun.json",
+          "url": "https://raw.githubusercontent.com/CoreNovaLabs/cloud-forge-catalog/main/apps/homer/templates/aliyun.json",
+          "checksum": "sha256:404a0e339c6a92c156a49220e0212d85bffd7a3176912ec0c2d68362185ccd59"
+        }
+      },
+      "params": {
+        "InstanceType": {
+          "type": "string",
+          "aws": {
+            "default": "t3.micro",
+            "options": [
+              "t3.micro",
+              "t3.small"
+            ]
+          },
+          "aliyun": {
+            "default": "ecs.t6-c1m1.large",
+            "options": [
+              "ecs.t6-c1m1.large"
+            ]
+          }
+        },
+        "LatestAmiId": {
+          "type": "string",
+          "aws": {
+            "default": "ami-04cf9ac8716f030d6"
+          }
+        },
+        "ImageId": {
+          "type": "string",
+          "aliyun": {
+            "default": "aliyun_3_x64_20G_alibase_20260122.vhd"
+          }
+        },
+        "CaddyTlsMode": {
+          "type": "string",
+          "aws": {
+            "default": "ip-letsencrypt",
+            "options": [
+              "auto",
+              "ip-letsencrypt",
+              "http",
+              "internal"
+            ]
+          },
+          "aliyun": {
+            "default": "ip-letsencrypt",
+            "options": [
+              "auto",
+              "ip-letsencrypt",
+              "http",
+              "internal"
+            ]
+          }
+        },
+        "DomainName": {
+          "type": "string",
+          "default": ""
+        },
+        "HostedZoneId": {
+          "type": "string",
+          "default": "",
+          "aws": {
+            "default": ""
+          }
+        },
+        "DnsDomainName": {
+          "type": "string",
+          "default": "",
+          "aliyun": {
+            "default": ""
+          }
+        },
+        "DnsRR": {
+          "type": "string",
+          "default": "",
+          "aliyun": {
+            "default": ""
+          }
+        },
+        "CaddyEmail": {
+          "type": "string",
+          "default": ""
+        },
+        "KeyName": {
+          "type": "string",
+          "default": "",
+          "aws": {
+            "default": ""
+          }
+        },
+        "KeyPairName": {
+          "type": "string",
+          "aliyun": {
+            "required": true
+          }
+        },
+        "DiskSize": {
+          "type": "number",
+          "aws": {
+            "default": "20"
+          },
+          "aliyun": {
+            "default": "20"
+          }
+        },
+        "VpcId": {
+          "type": "string",
+          "default": "",
+          "aws": {
+            "default": ""
+          },
+          "aliyun": {
+            "required": true
+          }
+        },
+        "SubnetId": {
+          "type": "string",
+          "default": "",
+          "aws": {
+            "default": ""
+          }
+        },
+        "VSwitchId": {
+          "type": "string",
+          "aliyun": {
+            "required": true
+          }
+        },
+        "AllowedIP": {
+          "type": "string",
+          "default": "0.0.0.0/0"
+        }
+      }
+    },
+    {
       "id": "it-tools",
       "name": "IT-Tools",
       "desc": "Collection of handy developer tools in a single web app",
@@ -1271,6 +1629,189 @@
       }
     },
     {
+      "id": "mealie",
+      "name": "Mealie",
+      "desc": "Recipe management and meal planning for self-hosters",
+      "icon": "🍽️",
+      "category": "other",
+      "tags": [
+        "recipes",
+        "meal-planning",
+        "self-hosted"
+      ],
+      "stars": 0,
+      "tier": "community",
+      "clouds": [
+        "aws",
+        "aliyun"
+      ],
+      "version": "1.0.0",
+      "min_cli_version": "0.3.0",
+      "price": "free",
+      "cost_notice": [
+        "Aliyun deploy defaults to cn-hongkong; pass --region for other regions.",
+        "Mainland China regions may fail bootstrap (Docker Hub / catalog CDN reachability).",
+        "Custom domains: AWS uses --domain + --hosted-zone-id (Route53); Aliyun uses --domain + --dns-domain (Alidns). DNS propagation and ACME may take several minutes.",
+        "First bootstrap may take 8-15 minutes on Aliyun public OS images.",
+        "You pay only for cloud resources such as ECS, EIP, disk, and data transfer."
+      ],
+      "smoke": {
+        "health_paths": [
+          "/api/app/about"
+        ],
+        "wait_seconds": 120
+      },
+      "images": {
+        "aws": "ami-04cf9ac8716f030d6",
+        "aliyun": "aliyun_3_x64_20G_alibase_20260122.vhd"
+      },
+      "templates": {
+        "aws": {
+          "path": "apps/mealie/templates/aws.yaml",
+          "url": "https://raw.githubusercontent.com/CoreNovaLabs/cloud-forge-catalog/main/apps/mealie/templates/aws.yaml",
+          "checksum": "sha256:68c40d7b7d40aa0da7d9912bf929fd21cb363545dba02aa022e4f04d26b3a993"
+        },
+        "aliyun": {
+          "path": "apps/mealie/templates/aliyun.json",
+          "url": "https://raw.githubusercontent.com/CoreNovaLabs/cloud-forge-catalog/main/apps/mealie/templates/aliyun.json",
+          "checksum": "sha256:ccb10125babbc7a8bc3e9ec733f76bfb56f1b16f7630bf0176b45492aac64e32"
+        }
+      },
+      "params": {
+        "InstanceType": {
+          "type": "string",
+          "aws": {
+            "default": "t3.small",
+            "options": [
+              "t3.small",
+              "t3.medium"
+            ]
+          },
+          "aliyun": {
+            "default": "ecs.t6-c1m2.large",
+            "options": [
+              "ecs.t6-c1m2.large"
+            ]
+          }
+        },
+        "LatestAmiId": {
+          "type": "string",
+          "aws": {
+            "default": "ami-04cf9ac8716f030d6"
+          }
+        },
+        "ImageId": {
+          "type": "string",
+          "aliyun": {
+            "default": "aliyun_3_x64_20G_alibase_20260122.vhd"
+          }
+        },
+        "CaddyTlsMode": {
+          "type": "string",
+          "aws": {
+            "default": "ip-letsencrypt",
+            "options": [
+              "auto",
+              "ip-letsencrypt",
+              "http",
+              "internal"
+            ]
+          },
+          "aliyun": {
+            "default": "ip-letsencrypt",
+            "options": [
+              "auto",
+              "ip-letsencrypt",
+              "http",
+              "internal"
+            ]
+          }
+        },
+        "DomainName": {
+          "type": "string",
+          "default": ""
+        },
+        "HostedZoneId": {
+          "type": "string",
+          "default": "",
+          "aws": {
+            "default": ""
+          }
+        },
+        "DnsDomainName": {
+          "type": "string",
+          "default": "",
+          "aliyun": {
+            "default": ""
+          }
+        },
+        "DnsRR": {
+          "type": "string",
+          "default": "",
+          "aliyun": {
+            "default": ""
+          }
+        },
+        "CaddyEmail": {
+          "type": "string",
+          "default": ""
+        },
+        "KeyName": {
+          "type": "string",
+          "default": "",
+          "aws": {
+            "default": ""
+          }
+        },
+        "KeyPairName": {
+          "type": "string",
+          "aliyun": {
+            "required": true
+          }
+        },
+        "DiskSize": {
+          "type": "number",
+          "aws": {
+            "default": "20"
+          },
+          "aliyun": {
+            "default": "20"
+          }
+        },
+        "VpcId": {
+          "type": "string",
+          "default": "",
+          "aws": {
+            "default": ""
+          },
+          "aliyun": {
+            "required": true
+          }
+        },
+        "SubnetId": {
+          "type": "string",
+          "default": "",
+          "aws": {
+            "default": ""
+          }
+        },
+        "VSwitchId": {
+          "type": "string",
+          "aliyun": {
+            "required": true
+          }
+        },
+        "AllowedIP": {
+          "type": "string",
+          "default": "0.0.0.0/0"
+        },
+        "AdminPassword": {
+          "type": "string",
+          "secret": true
+        }
+      }
+    },
+    {
       "id": "minio",
       "name": "MinIO",
       "desc": "S3-compatible object storage for self-hosted workloads",
@@ -1606,6 +2147,185 @@
           },
           "aliyun": {
             "default": "40"
+          }
+        },
+        "VpcId": {
+          "type": "string",
+          "default": "",
+          "aws": {
+            "default": ""
+          },
+          "aliyun": {
+            "required": true
+          }
+        },
+        "SubnetId": {
+          "type": "string",
+          "default": "",
+          "aws": {
+            "default": ""
+          }
+        },
+        "VSwitchId": {
+          "type": "string",
+          "aliyun": {
+            "required": true
+          }
+        },
+        "AllowedIP": {
+          "type": "string",
+          "default": "0.0.0.0/0"
+        }
+      }
+    },
+    {
+      "id": "stirling-pdf",
+      "name": "Stirling-PDF",
+      "desc": "Locally hosted web app for manipulating PDF files",
+      "icon": "📄",
+      "category": "devtools",
+      "tags": [
+        "pdf",
+        "tools",
+        "self-hosted"
+      ],
+      "stars": 0,
+      "tier": "community",
+      "clouds": [
+        "aws",
+        "aliyun"
+      ],
+      "version": "1.0.0",
+      "min_cli_version": "0.3.0",
+      "price": "free",
+      "cost_notice": [
+        "Aliyun deploy defaults to cn-hongkong; pass --region for other regions.",
+        "Mainland China regions may fail bootstrap (Docker Hub / catalog CDN reachability).",
+        "Custom domains: AWS uses --domain + --hosted-zone-id (Route53); Aliyun uses --domain + --dns-domain (Alidns). DNS propagation and ACME may take several minutes.",
+        "First bootstrap may take 8-15 minutes on Aliyun public OS images.",
+        "You pay only for cloud resources such as ECS, EIP, disk, and data transfer."
+      ],
+      "smoke": {
+        "health_paths": [
+          "/api/v1/info/status"
+        ],
+        "wait_seconds": 120
+      },
+      "images": {
+        "aws": "ami-04cf9ac8716f030d6",
+        "aliyun": "aliyun_3_x64_20G_alibase_20260122.vhd"
+      },
+      "templates": {
+        "aws": {
+          "path": "apps/stirling-pdf/templates/aws.yaml",
+          "url": "https://raw.githubusercontent.com/CoreNovaLabs/cloud-forge-catalog/main/apps/stirling-pdf/templates/aws.yaml",
+          "checksum": "sha256:a1e7817da9a3e600ececdd3ec752e54735a700ae5eeff52315388ea9724c8c56"
+        },
+        "aliyun": {
+          "path": "apps/stirling-pdf/templates/aliyun.json",
+          "url": "https://raw.githubusercontent.com/CoreNovaLabs/cloud-forge-catalog/main/apps/stirling-pdf/templates/aliyun.json",
+          "checksum": "sha256:51874601331f5dab5ce70e30ac38c447327f427fe69c9959e9f6dff91a5a2eb8"
+        }
+      },
+      "params": {
+        "InstanceType": {
+          "type": "string",
+          "aws": {
+            "default": "t3.small",
+            "options": [
+              "t3.small",
+              "t3.medium"
+            ]
+          },
+          "aliyun": {
+            "default": "ecs.t6-c1m2.large",
+            "options": [
+              "ecs.t6-c1m2.large"
+            ]
+          }
+        },
+        "LatestAmiId": {
+          "type": "string",
+          "aws": {
+            "default": "ami-04cf9ac8716f030d6"
+          }
+        },
+        "ImageId": {
+          "type": "string",
+          "aliyun": {
+            "default": "aliyun_3_x64_20G_alibase_20260122.vhd"
+          }
+        },
+        "CaddyTlsMode": {
+          "type": "string",
+          "aws": {
+            "default": "ip-letsencrypt",
+            "options": [
+              "auto",
+              "ip-letsencrypt",
+              "http",
+              "internal"
+            ]
+          },
+          "aliyun": {
+            "default": "ip-letsencrypt",
+            "options": [
+              "auto",
+              "ip-letsencrypt",
+              "http",
+              "internal"
+            ]
+          }
+        },
+        "DomainName": {
+          "type": "string",
+          "default": ""
+        },
+        "HostedZoneId": {
+          "type": "string",
+          "default": "",
+          "aws": {
+            "default": ""
+          }
+        },
+        "DnsDomainName": {
+          "type": "string",
+          "default": "",
+          "aliyun": {
+            "default": ""
+          }
+        },
+        "DnsRR": {
+          "type": "string",
+          "default": "",
+          "aliyun": {
+            "default": ""
+          }
+        },
+        "CaddyEmail": {
+          "type": "string",
+          "default": ""
+        },
+        "KeyName": {
+          "type": "string",
+          "default": "",
+          "aws": {
+            "default": ""
+          }
+        },
+        "KeyPairName": {
+          "type": "string",
+          "aliyun": {
+            "required": true
+          }
+        },
+        "DiskSize": {
+          "type": "number",
+          "aws": {
+            "default": "20"
+          },
+          "aliyun": {
+            "default": "20"
           }
         },
         "VpcId": {

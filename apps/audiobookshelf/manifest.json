@@ -1,0 +1,86 @@
+{
+  "id": "audiobookshelf",
+  "name": "Audiobookshelf",
+  "desc": "Self-hosted audiobook and podcast server",
+  "icon": "🎧",
+  "category": "other",
+  "tags": ["audiobooks", "podcasts", "self-hosted"],
+  "stars": 0,
+  "tier": "community",
+  "clouds": ["aws", "aliyun"],
+  "version": "1.0.0",
+  "min_cli_version": "0.3.0",
+  "price": "free",
+  "cost_notice": [
+    "Aliyun deploy defaults to cn-hongkong; pass --region for other regions.",
+    "Mainland China regions may fail bootstrap (Docker Hub / catalog CDN reachability).",
+    "Custom domains: AWS uses --domain + --hosted-zone-id (Route53); Aliyun uses --domain + --dns-domain (Alidns). DNS propagation and ACME may take several minutes.",
+    "First bootstrap may take 8-15 minutes on Aliyun public OS images.",
+    "You pay only for cloud resources such as ECS, EIP, disk, and data transfer."
+  ],
+  "smoke": {
+    "health_paths": ["/"],
+    "wait_seconds": 90
+  },
+  "images": {
+    "aws": "ami-04cf9ac8716f030d6",
+    "aliyun": "aliyun_3_x64_20G_alibase_20260122.vhd"
+  },
+  "templates": {
+    "aws": { "path": "apps/audiobookshelf/templates/aws.yaml" },
+    "aliyun": { "path": "apps/audiobookshelf/templates/aliyun.json" }
+  },
+  "params": {
+    "InstanceType": {
+      "type": "string",
+      "aws": {
+        "default": "t3.small",
+        "options": ["t3.small", "t3.medium"]
+      },
+      "aliyun": {
+        "default": "ecs.t6-c1m2.large",
+        "options": ["ecs.t6-c1m2.large"]
+      }
+    },
+    "LatestAmiId": {
+      "type": "string",
+      "aws": { "default": "ami-04cf9ac8716f030d6" }
+    },
+    "ImageId": {
+      "type": "string",
+      "aliyun": { "default": "aliyun_3_x64_20G_alibase_20260122.vhd" }
+    },
+    "CaddyTlsMode": {
+      "type": "string",
+      "aws": {
+        "default": "ip-letsencrypt",
+        "options": ["auto", "ip-letsencrypt", "http", "internal"]
+      },
+      "aliyun": {
+        "default": "ip-letsencrypt",
+        "options": ["auto", "ip-letsencrypt", "http", "internal"]
+      }
+    },
+    "DomainName": { "type": "string", "default": "" },
+    "HostedZoneId": { "type": "string", "default": "", "aws": { "default": "" } },
+    "DnsDomainName": { "type": "string", "default": "", "aliyun": { "default": "" } },
+    "DnsRR": { "type": "string", "default": "", "aliyun": { "default": "" } },
+    "CaddyEmail": { "type": "string", "default": "" },
+    "KeyName": { "type": "string", "default": "", "aws": { "default": "" } },
+    "KeyPairName": { "type": "string", "aliyun": { "required": true } },
+    "DiskSize": {
+      "type": "number",
+      "aws": { "default": "30" },
+      "aliyun": { "default": "40" }
+    },
+    "VpcId": {
+      "type": "string",
+      "default": "",
+      "aws": { "default": "" },
+      "aliyun": { "required": true }
+    },
+    "SubnetId": { "type": "string", "default": "", "aws": { "default": "" } },
+    "VSwitchId": { "type": "string", "aliyun": { "required": true } },
+    "AllowedIP": { "type": "string", "default": "0.0.0.0/0" }
+  }
+}

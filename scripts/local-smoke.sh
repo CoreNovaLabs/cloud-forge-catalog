@@ -219,6 +219,17 @@ prepare_smoke_compose() {
   # Mac Docker Desktop cannot bind-mount /opt/cloud-forge; rewrite paths for local smoke only.
   sed "s|/opt/cloud-forge/data|${smoke_dir}/data|g" "$src" > "$smoke_compose"
 
+  # ensure_network() pre-creates this network; compose must not recreate it (label mismatch).
+  if grep -q 'name: cloud-forge' "$smoke_compose"; then
+    if [[ "$(uname -s)" == "Darwin" ]]; then
+      sed -i '' '/name: cloud-forge/a\
+    external: true
+' "$smoke_compose"
+    else
+      sed -i '/name: cloud-forge/a\    external: true' "$smoke_compose"
+    fi
+  fi
+
   if grep -q '/opt/cloud-forge/compose.app.env' "$smoke_compose"; then
     local secret_env password
     secret_env="$(grep '^CLOUD_FORGE_SECRET_ENV=' "$ROOT/apps/$app/compose/app.env" | cut -d= -f2- || true)"
@@ -229,7 +240,7 @@ import secrets
 print(secrets.token_urlsafe(18))
 PY
 )"
-      echo "  generated smoke AdminPassword (set CLOUD_FORGE_SMOKE_ADMIN_PASSWORD to pin)"
+      echo "  generated smoke AdminPassword (set CLOUD_FORGE_SMOKE_ADMIN_PASSWORD to pin)" >&2
     fi
     if [[ -z "$secret_env" ]]; then
       echo "FAIL $app: compose requires secrets but app.env missing CLOUD_FORGE_SECRET_ENV" >&2

@@ -1,0 +1,18 @@
+services:
+  audiobookshelf:
+    image: ghcr.io/advplyr/audiobookshelf:2.15.0
+    restart: unless-stopped
+
+
+
+    volumes:
+      - /opt/cloud-forge/data/audiobookshelf/config:/config
+      - /opt/cloud-forge/data/audiobookshelf/metadata:/metadata
+      - /opt/cloud-forge/data/audiobookshelf/audiobooks:/audiobooks
+
+    networks:
+      - cloud-forge
+
+networks:
+  cloud-forge:
+    name: cloud-forge
