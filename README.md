@@ -26,6 +26,7 @@ cloud-forge-catalog/
     ├── generate-templates.sh # Render aws.yaml / aliyun.json from _template
     ├── generate-app.sh      # Create a new app from apps.seed.yaml
     ├── local-smoke.sh       # Local Docker smoke tests for compose packages
+    ├── cdn-preflight.sh     # Verify compose/index on jsDelivr before cloud deploy
     ├── list-verify-apps.sh  # Select apps for cloud verify by tier
     ├── validate.sh
     ├── validate_catalog.py
@@ -121,9 +122,12 @@ make generate-templates     # Regenerate aws.yaml / aliyun.json for all apps
 make generate-all           # generate-templates + index + validate
 make local-smoke APP=gitea  # Local Docker smoke test for one app
 make local-smoke-certified  # Local smoke for all certified apps
+make cdn-preflight APP=gitea  # After push: verify CDN has compose package
 make onboard-smoke ARGS="vaultwarden"  # Generate + local smoke one seed app
 make onboard-smoke ARGS="--force"      # Regenerate all seed apps + smoke
 ```
+
+After pushing new apps to `main`, run `./scripts/cdn-preflight.sh <app-id>` before any paid `cloud-forge deploy`. Bootstrap on ECS pulls compose from jsDelivr, not from your local tree.
 
 `make validate-aws` only runs local template linting. It does not create a CloudFormation stack, start EC2 instances, or allocate EIPs. It is useful for catching CloudFormation/SAM syntax and static rule issues before a commit. Runtime checks such as AMI availability, instance type availability in a target Region, and IAM permissions still require a Change Set or a sandbox AWS account.
 

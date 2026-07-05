@@ -1,4 +1,4 @@
-.PHONY: index validate validate-aws generate-templates generate-all local-smoke local-smoke-all
+.PHONY: index validate validate-aws generate-templates generate-all local-smoke local-smoke-all cdn-preflight
 
 index:
 	@./scripts/build-index.sh
@@ -29,3 +29,7 @@ onboard-seed:
 
 onboard-smoke:
 	@./scripts/onboard-seed.sh --smoke $(ARGS)
+
+cdn-preflight:
+	@test -n "$(APP)" || (echo "usage: make cdn-preflight APP=<app-id>" && exit 2)
+	@./scripts/cdn-preflight.sh "$(APP)"

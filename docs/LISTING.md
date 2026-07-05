@@ -15,7 +15,9 @@ Zero-cloud-cost onboarding for new apps. Local smoke uses [毫秒镜像](https:/
 1. Pick 5 apps, add to `apps.seed.yaml`
 2. `./scripts/onboard-seed.sh --smoke` (or per-app)
 3. Open PR with smoke `PASS` lines in description
-4. Merge → CDN updates `index/apps.json`
+4. Merge → push → CDN updates `index/apps.json` and `apps/<id>/compose/*`
+
+Before any paid cloud deploy, run `./scripts/cdn-preflight.sh <app-id>` (see below).
 
 ## Per-app workflow
 
@@ -50,10 +52,23 @@ python3 -m venv .venv && .venv/bin/pip install pyyaml   # once
 ```bash
 # Edit manifest tier → certified, then:
 make index validate
+./scripts/cdn-preflight.sh <app-id>   # after push to main
 cd ../cloud-forge-cli
 ./scripts/verify-aws-apps.sh
 ./scripts/verify-aliyun-apps.sh
 ```
+
+### CDN preflight (before cloud deploy)
+
+Local smoke and CLI `file://` dry-run use the **local** catalog. ECS bootstrap pulls `apps/<id>/compose/*` from **jsDelivr**. Run this after push/merge:
+
+```bash
+./scripts/cdn-preflight.sh stirling-pdf
+./scripts/cdn-preflight.sh --all --tier community
+make cdn-preflight APP=homer
+```
+
+If jsDelivr is still syncing, retry or pin a commit: `./scripts/cdn-preflight.sh --ref 897a1d3 homer`
 
 ## Selection criteria (score ≥ 12 / 15)
 
