@@ -44,24 +44,6 @@ fi
 
 CADDY_TLS_MODE="${CLOUD_FORGE_CADDY_TLS_MODE:-ip-letsencrypt}"
 
-ensure_cloud_forge_network() {
-  sudo systemctl start docker || true
-  if sudo docker network inspect cloud-forge >/dev/null 2>&1; then
-    return 0
-  fi
-  echo "==> cloud-forge network missing; starting platform stack"
-  if [[ -f /opt/cloud-forge/docker-compose.platform.yml ]]; then
-    if [[ -x /opt/cloud-forge/bin/cloud-forge-caddy-config ]]; then
-      sudo /opt/cloud-forge/bin/cloud-forge-caddy-config || true
-    fi
-    sudo docker compose --project-name cloud-forge-platform \
-      -f /opt/cloud-forge/docker-compose.platform.yml up -d --remove-orphans || true
-  fi
-  if ! sudo docker network inspect cloud-forge >/dev/null 2>&1; then
-    sudo docker network create cloud-forge
-  fi
-}
-
 run_optional_script() {
   local url="$1"
   local tmp
@@ -114,6 +96,5 @@ EOF
   sudo chmod 600 /opt/cloud-forge/compose.app.env
 fi
 
-ensure_cloud_forge_network
 sudo /opt/cloud-forge/bin/cloud-forge-apply-app
 echo "==> Cloud Forge app bootstrap complete: ${APP_ID}"

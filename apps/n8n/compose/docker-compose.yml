@@ -9,3 +9,7 @@ services:
       - /opt/cloud-forge/data/n8n:/home/node/.n8n
     networks:
       - cloud-forge
+
+networks:
+  cloud-forge:
+    name: cloud-forge

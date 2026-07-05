@@ -65,6 +65,9 @@ def validate_compose_package(root: Path, app_id: str, manifest: Path) -> None:
     if "cloud-forge" not in compose_text:
         fail(f"{compose_path}: docker-compose must attach services to the cloud-forge network")
 
+    if "external: true" in compose_text:
+        fail(f"{compose_path}: app compose must not declare cloud-forge as external (platform creates the network on merge)")
+
     if not app_env_path.is_file():
         fail(f"{manifest}: missing shared compose env {app_env_path.relative_to(root)}")
 

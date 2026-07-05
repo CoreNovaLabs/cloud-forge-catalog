@@ -6,3 +6,7 @@ services:
       - /opt/cloud-forge/data/hello-nginx/html:/usr/share/nginx/html:ro
     networks:
       - cloud-forge
+
+networks:
+  cloud-forge:
+    name: cloud-forge

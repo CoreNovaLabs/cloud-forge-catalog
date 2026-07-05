@@ -68,24 +68,6 @@ fi
 
 CADDY_TLS_MODE="${CLOUD_FORGE_CADDY_TLS_MODE:-ip-letsencrypt}"
 
-ensure_cloud_forge_network() {
-  run_as_root systemctl start docker || true
-  if run_as_root docker network inspect cloud-forge >/dev/null 2>&1; then
-    return 0
-  fi
-  echo "==> cloud-forge network missing; starting platform stack"
-  if [[ -f /opt/cloud-forge/docker-compose.platform.yml ]]; then
-    if [[ -x /opt/cloud-forge/bin/cloud-forge-caddy-config ]]; then
-      run_as_root /opt/cloud-forge/bin/cloud-forge-caddy-config || true
-    fi
-    run_as_root docker compose --project-name cloud-forge-platform \
-      -f /opt/cloud-forge/docker-compose.platform.yml up -d --remove-orphans || true
-  fi
-  if ! run_as_root docker network inspect cloud-forge >/dev/null 2>&1; then
-    run_as_root docker network create cloud-forge
-  fi
-}
-
 if ! curl -fsSL "${COMPOSE_BASE}/docker-compose.yml" | run_as_root tee /opt/cloud-forge/docker-compose.app.yml >/dev/null; then
   echo "missing ${COMPOSE_BASE}/docker-compose.yml" >&2
   exit 1
@@ -110,6 +92,6 @@ EOF
   run_as_root chmod 600 /opt/cloud-forge/compose.app.env
 fi
 
-ensure_cloud_forge_network
+run_as_root systemctl start docker || true
 run_as_root /opt/cloud-forge/bin/cloud-forge-apply-app
 echo "==> Cloud Forge AWS app bootstrap complete: ${APP_ID}"

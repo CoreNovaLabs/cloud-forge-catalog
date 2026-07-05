@@ -6,3 +6,7 @@ services:
       - /opt/cloud-forge/data/uptime-kuma:/app/data
     networks:
       - cloud-forge
+
+networks:
+  cloud-forge:
+    name: cloud-forge
