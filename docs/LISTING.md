@@ -38,6 +38,7 @@ python3 -m venv .venv && .venv/bin/pip install pyyaml   # once
 - Volumes rewritten to `.local-smoke/<app>/data` (Mac Docker cannot mount `/opt/cloud-forge`)
 - Digest-pinned images use temporary `:cloud-forge-smoke` tag in smoke compose only
 - Production `apps/<id>/compose/docker-compose.yml` is unchanged
+- After each smoke run, `local-smoke.sh` removes pulled app images by default (`CLOUD_FORGE_SMOKE_CLEAN_IMAGES=1`) to save disk during batch onboard
 
 ```bash
 ./scripts/local-smoke.sh vaultwarden
@@ -90,4 +91,5 @@ portainer (needs docker.sock — special template), hoppscotch, plausible (needs
 | `CLOUD_FORGE_SMOKE_PROBE_IMAGE` | `curlimages/curl:8.5.0` | HTTP probe sidecar |
 | `CLOUD_FORGE_SMOKE_WAIT` | `90` | Default wait seconds |
 | `CLOUD_FORGE_SMOKE_ADMIN_PASSWORD` | _(auto)_ | Password for apps with `AdminPassword` during local smoke |
+| `CLOUD_FORGE_SMOKE_CLEAN_IMAGES` | `1` | Remove app images after each smoke run (`0` to keep for debug) |
 | `CLOUD_FORGE_VERIFY_TIERS` | `certified` | Cloud verify app filter |

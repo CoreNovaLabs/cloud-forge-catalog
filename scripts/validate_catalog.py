@@ -68,12 +68,53 @@ def validate_compose_package(root: Path, app_id: str, manifest: Path) -> None:
     if "external: true" in compose_text:
         fail(f"{compose_path}: app compose must not declare cloud-forge as external (platform creates the network on merge)")
 
+    if re.search(r"^\s*ports\s*:", compose_text, re.MULTILINE):
+        fail(f"{compose_path}: must not publish host ports (Caddy is the edge proxy)")
+
+    if "privileged:" in compose_text or "network_mode:" in compose_text:
+        fail(f"{compose_path}: must not use privileged mode or custom network_mode")
+
+    if "docker.sock" in compose_text:
+        fail(f"{compose_path}: must not mount docker.sock")
+
+    if re.search(r"^\s*image:\s*docker\.1ms\.run/", compose_text, re.MULTILINE):
+        fail(f"{compose_path}: image must use official Docker Hub names, not registry mirrors")
+
+    if re.search(r":latest\s*$", compose_text, re.MULTILINE):
+        fail(f"{compose_path}: image must pin a tag or digest, not :latest")
+
     if not app_env_path.is_file():
         fail(f"{manifest}: missing shared compose env {app_env_path.relative_to(root)}")
 
     app_env_text = app_env_path.read_text(encoding="utf-8")
     if "CLOUD_FORGE_CADDY_UPSTREAM=" not in app_env_text:
         fail(f"{app_env_path}: must define CLOUD_FORGE_CADDY_UPSTREAM")
+
+    upstream_match = re.search(r"CLOUD_FORGE_CADDY_UPSTREAM=http://([^:/]+):(\d+)", app_env_text)
+    if not upstream_match:
+        fail(f"{app_env_path}: CLOUD_FORGE_CADDY_UPSTREAM must be http://<service>:<port>")
+    upstream_host = upstream_match.group(1)
+    if not re.search(rf"^\s*{re.escape(upstream_host)}\s*:", compose_text, re.MULTILINE):
+        fail(
+            f"{app_env_path}: upstream host {upstream_host!r} must match a service name in {compose_path.name}"
+        )
+
+    uses_secret_file = "/opt/cloud-forge/compose.app.env" in compose_text
+    has_secret_env = "CLOUD_FORGE_SECRET_ENV=" in app_env_text
+    if uses_secret_file and not has_secret_env:
+        fail(f"{compose_path}: env_file requires CLOUD_FORGE_SECRET_ENV in {app_env_path.name}")
+    if has_secret_env and not uses_secret_file:
+        fail(f"{app_env_path}: CLOUD_FORGE_SECRET_ENV requires env_file /opt/cloud-forge/compose.app.env in compose")
+
+    for host_path in re.findall(r"-\s+(/opt/cloud-forge/[^\s:]+):", compose_text):
+        if not host_path.startswith("/opt/cloud-forge/data/"):
+            fail(f"{compose_path}: volume host path must be under /opt/cloud-forge/data/: {host_path}")
+
+    aws_setup = root / "apps" / app_id / "aws" / "setup.sh"
+    aliyun_setup = root / "apps" / app_id / "aliyun" / "setup.sh"
+    for setup_path in (aws_setup, aliyun_setup):
+        if setup_path.is_file() and not setup_path.stat().st_mode & 0o111:
+            fail(f"{setup_path}: setup.sh must be executable (chmod 755)")
 
 
 def validate_cloud_setup(root: Path, app_id: str, cloud: str, manifest: Path) -> None:
@@ -115,6 +156,8 @@ def validate_manifest(root: Path, manifest: Path) -> None:
             for path in paths:
                 if not isinstance(path, str) or not path:
                     fail(f"{manifest}: smoke.health_paths entries must be non-empty strings")
+                if not path.startswith("/"):
+                    fail(f"{manifest}: smoke.health_paths entries must start with /: {path!r}")
         wait_seconds = smoke.get("wait_seconds")
         if wait_seconds is not None and (not isinstance(wait_seconds, int) or wait_seconds < 1):
             fail(f"{manifest}: smoke.wait_seconds must be a positive integer")

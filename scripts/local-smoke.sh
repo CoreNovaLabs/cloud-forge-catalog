@@ -9,6 +9,8 @@ POLL_INTERVAL="${CLOUD_FORGE_SMOKE_POLL_INTERVAL:-3}"
 # Local smoke only: pull via registry mirror (default 毫秒镜像). Production compose keeps official image names.
 SMOKE_REGISTRY_MIRROR="${CLOUD_FORGE_SMOKE_REGISTRY_MIRROR:-docker.1ms.run}"
 SMOKE_PROBE_IMAGE="${CLOUD_FORGE_SMOKE_PROBE_IMAGE:-curlimages/curl:8.5.0}"
+# Remove app images after each smoke run (default on) to avoid filling disk during batch onboard.
+SMOKE_CLEAN_IMAGES="${CLOUD_FORGE_SMOKE_CLEAN_IMAGES:-1}"
 PROBE_IMAGE_READY=0
 TIER_FILTER=""
 MODE=""
@@ -119,6 +121,26 @@ pull_compose_images_via_mirror() {
     fi
     echo "  mirror pull failed for ${image}, trying docker hub..." >&2
     docker pull "$image"
+  done < <(docker compose -f "$compose_file" config --images 2>/dev/null || true)
+}
+
+cleanup_smoke_images() {
+  local compose_file="$1"
+  if [[ "$SMOKE_CLEAN_IMAGES" != "1" ]]; then
+    return 0
+  fi
+
+  local mirror host image
+  mirror="$(mirror_host "$SMOKE_REGISTRY_MIRROR")"
+  host="$mirror"
+
+  echo "  removing smoke images (set CLOUD_FORGE_SMOKE_CLEAN_IMAGES=0 to keep)"
+  while IFS= read -r image; do
+    [[ -z "$image" ]] && continue
+    docker rmi -f "$image" >/dev/null 2>&1 || true
+    if [[ -n "$host" && "$image" != *@* ]]; then
+      docker rmi -f "${host}/${image}" >/dev/null 2>&1 || true
+    fi
   done < <(docker compose -f "$compose_file" config --images 2>/dev/null || true)
 }
 
@@ -268,6 +290,7 @@ smoke_one() {
     echo "FAIL $app: docker compose up failed" >&2
     docker compose -f "$smoke_compose" -p "$project" logs >&2 || true
     docker compose -f "$smoke_compose" -p "$project" down -v --remove-orphans >/dev/null 2>&1 || true
+    cleanup_smoke_images "$smoke_compose"
     return 1
   fi
 
@@ -280,6 +303,7 @@ smoke_one() {
   done < <(probe_paths "$app")
 
   docker compose -f "$smoke_compose" -p "$project" down -v --remove-orphans >/dev/null 2>&1 || true
+  cleanup_smoke_images "$smoke_compose"
 
   if [[ "$ok" -eq 1 ]]; then
     echo "PASS $app"
