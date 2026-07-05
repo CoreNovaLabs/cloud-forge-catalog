@@ -29,13 +29,18 @@
   },
   "Conditions": {
     "UseHttp": { "Fn::Equals": [{ "Ref": "CaddyTlsMode" }, "http"] },
-    "HasDomain": { "Fn::Not": [{ "Fn::Equals": [{ "Ref": "DomainName" }, ""] }] },
-    "HasDnsDomain": { "Fn::Not": [{ "Fn::Equals": [{ "Ref": "DnsDomainName" }, ""] }] },
+    "HasDomain": {
+      "Fn::Not": {
+        "Fn::Equals": ["", { "Ref": "DomainName" }]
+      }
+    },
+    "HasDnsDomain": {
+      "Fn::Not": {
+        "Fn::Equals": ["", { "Ref": "DnsDomainName" }]
+      }
+    },
     "HasDNS": {
-      "Fn::And": [
-        { "Condition": "HasDomain" },
-        { "Condition": "HasDnsDomain" }
-      ]
+      "Fn::And": ["HasDomain", "HasDnsDomain"]
     }
   },
   "Resources": {
@@ -88,6 +93,7 @@
     "MinioDNS": {
       "Type": "ALIYUN::DNS::DomainRecord",
       "Condition": "HasDNS",
+      "DependsOn": ["MinioEIPAssociation"],
       "Properties": {
         "DomainName": { "Ref": "DnsDomainName" },
         "RR": { "Ref": "DnsRR" },

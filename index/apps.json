@@ -1,6 +1,6 @@
 {
-  "catalog_version": "0.3.1",
-  "generated_at": "2026-07-05T04:35:54Z",
+  "catalog_version": "0.3.2",
+  "generated_at": "2026-07-05T05:08:56Z",
   "base_url": "https://raw.githubusercontent.com/CoreNovaLabs/cloud-forge-catalog/main",
   "store": {
     "name": "Cloud Forge App Store",
@@ -54,7 +54,7 @@
         "aliyun": {
           "path": "apps/code-server/templates/aliyun.json",
           "url": "https://raw.githubusercontent.com/CoreNovaLabs/cloud-forge-catalog/main/apps/code-server/templates/aliyun.json",
-          "checksum": "sha256:537c5ccff5c8ddea8850b15f26e6d3c0e68a9231c7fbdda4a50320d15b937caf"
+          "checksum": "sha256:3eca9ddf8554c995c464636b11c2f72c477a2523b73e8635258fc6e20f9b9e3c"
         }
       },
       "params": {
@@ -238,7 +238,7 @@
         "aliyun": {
           "path": "apps/excalidraw/templates/aliyun.json",
           "url": "https://raw.githubusercontent.com/CoreNovaLabs/cloud-forge-catalog/main/apps/excalidraw/templates/aliyun.json",
-          "checksum": "sha256:3da2f5c8587331f5d246d97da0c257450a9f4373b21f41d08d740076b1f94cf2"
+          "checksum": "sha256:f635b55ca9611e6f08d867c339446ec7468a1f85d840f02c813d2874af8a9b4e"
         }
       },
       "params": {
@@ -419,7 +419,7 @@
         "aliyun": {
           "path": "apps/freshrss/templates/aliyun.json",
           "url": "https://raw.githubusercontent.com/CoreNovaLabs/cloud-forge-catalog/main/apps/freshrss/templates/aliyun.json",
-          "checksum": "sha256:c546e057888b11745a8e13f4d44521e1cd81034870df1bf61dfaf1c227acd9a7"
+          "checksum": "sha256:e86bda6a5a479ed0cb546e73efb3493388221c2f582b1eb90b5160eab9a6e9c6"
         }
       },
       "params": {
@@ -599,7 +599,7 @@
         "aliyun": {
           "path": "apps/gitea/templates/aliyun.json",
           "url": "https://raw.githubusercontent.com/CoreNovaLabs/cloud-forge-catalog/main/apps/gitea/templates/aliyun.json",
-          "checksum": "sha256:670aa29959a642a9502e96f130d68e6a583261e5648ac89ca92c8384f118f905"
+          "checksum": "sha256:4dabc842f688bb6291ef739a216603e6ac56a23c7e66b3fea3dd8d8f482ae100"
         }
       },
       "params": {
@@ -783,7 +783,7 @@
         "aliyun": {
           "path": "apps/hello-nginx/templates/aliyun.json",
           "url": "https://raw.githubusercontent.com/CoreNovaLabs/cloud-forge-catalog/main/apps/hello-nginx/templates/aliyun.json",
-          "checksum": "sha256:90c02160146e4cd59f7d1f65623cb11da5e7bb9727f006a356ca7221fbac4b84"
+          "checksum": "sha256:344df5aab8748a7f6c2070bf84a24b7c91254a7099cdc21e33255f06180a4a01"
         }
       },
       "params": {
@@ -956,7 +956,7 @@
         "aliyun": {
           "path": "apps/it-tools/templates/aliyun.json",
           "url": "https://raw.githubusercontent.com/CoreNovaLabs/cloud-forge-catalog/main/apps/it-tools/templates/aliyun.json",
-          "checksum": "sha256:c6a0fbab6c2103c809da853b21324a22643da74d79495d7658a12bdef0fba294"
+          "checksum": "sha256:f67f30062c3c059933cf5c116bb6cee20354c2b5994c3434058fbf5cf1ae8f68"
         }
       },
       "params": {
@@ -1136,7 +1136,7 @@
         "aliyun": {
           "path": "apps/linkding/templates/aliyun.json",
           "url": "https://raw.githubusercontent.com/CoreNovaLabs/cloud-forge-catalog/main/apps/linkding/templates/aliyun.json",
-          "checksum": "sha256:f402940bac737bdca00475430546f002aee2b39436b98f10b6b4c2ed8113b017"
+          "checksum": "sha256:06a86417bf55622df83ec3fe814f174b233fd548f09dc20783c38899fb5b6dfd"
         }
       },
       "params": {
@@ -1316,7 +1316,7 @@
         "aliyun": {
           "path": "apps/minio/templates/aliyun.json",
           "url": "https://raw.githubusercontent.com/CoreNovaLabs/cloud-forge-catalog/main/apps/minio/templates/aliyun.json",
-          "checksum": "sha256:7babd31a9e86c06536ac157a8bffe26a5cb68d01ee321748645abb074dc6c88c"
+          "checksum": "sha256:a53043e07ee704dc1d41d1dc64c8df28f6ac16a312be07d70f094f21981a1edb"
         }
       },
       "params": {
@@ -1501,7 +1501,7 @@
         "aliyun": {
           "path": "apps/n8n/templates/aliyun.json",
           "url": "https://raw.githubusercontent.com/CoreNovaLabs/cloud-forge-catalog/main/apps/n8n/templates/aliyun.json",
-          "checksum": "sha256:654cadf9c3584899f755db0f6f0c146516452eff00b3a305fe92789ca2a09545"
+          "checksum": "sha256:87f412d1f7995093885380abd35039607cf3182d25471020b9b4ed3b2a000534"
         }
       },
       "params": {
@@ -1683,7 +1683,7 @@
         "aliyun": {
           "path": "apps/uptime-kuma/templates/aliyun.json",
           "url": "https://raw.githubusercontent.com/CoreNovaLabs/cloud-forge-catalog/main/apps/uptime-kuma/templates/aliyun.json",
-          "checksum": "sha256:a7f7ad652c7f9da19c659198226bb61882bcf81c8c0cae3600b491aed0cc6209"
+          "checksum": "sha256:053f62989805456617f469ca9d661d499d766cf499f61e1fd8a9cac7decefd74"
         }
       },
       "params": {
@@ -1864,7 +1864,7 @@
         "aliyun": {
           "path": "apps/vaultwarden/templates/aliyun.json",
           "url": "https://raw.githubusercontent.com/CoreNovaLabs/cloud-forge-catalog/main/apps/vaultwarden/templates/aliyun.json",
-          "checksum": "sha256:a865fdc7686a144162f6462917366e4630503646d614c8653bd76e0eb3a5c341"
+          "checksum": "sha256:c16cde59ccd60cd78fece26d082da6c7f551315487dcf15a971f25381ef3f3e9"
         }
       },
       "params": {

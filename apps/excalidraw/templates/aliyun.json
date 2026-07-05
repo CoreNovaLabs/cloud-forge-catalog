@@ -28,13 +28,18 @@
   },
   "Conditions": {
     "UseHttp": { "Fn::Equals": [{ "Ref": "CaddyTlsMode" }, "http"] },
-    "HasDomain": { "Fn::Not": [{ "Fn::Equals": [{ "Ref": "DomainName" }, ""] }] },
-    "HasDnsDomain": { "Fn::Not": [{ "Fn::Equals": [{ "Ref": "DnsDomainName" }, ""] }] },
+    "HasDomain": {
+      "Fn::Not": {
+        "Fn::Equals": ["", { "Ref": "DomainName" }]
+      }
+    },
+    "HasDnsDomain": {
+      "Fn::Not": {
+        "Fn::Equals": ["", { "Ref": "DnsDomainName" }]
+      }
+    },
     "HasDNS": {
-      "Fn::And": [
-        { "Condition": "HasDomain" },
-        { "Condition": "HasDnsDomain" }
-      ]
+      "Fn::And": ["HasDomain", "HasDnsDomain"]
     }
   },
   "Resources": {
@@ -87,6 +92,7 @@
     "ExcalidrawDNS": {
       "Type": "ALIYUN::DNS::DomainRecord",
       "Condition": "HasDNS",
+      "DependsOn": ["ExcalidrawEIPAssociation"],
       "Properties": {
         "DomainName": { "Ref": "DnsDomainName" },
         "RR": { "Ref": "DnsRR" },
