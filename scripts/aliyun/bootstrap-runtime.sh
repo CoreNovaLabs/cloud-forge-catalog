@@ -130,7 +130,7 @@ SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 if [[ -f "${SCRIPT_DIR}/install-caddy-aliyun.sh" ]]; then
   sudo bash "${SCRIPT_DIR}/install-caddy-aliyun.sh"
 else
-  curl -fsSL "https://cdn.jsdelivr.net/gh/CoreNovaLabs/cloud-forge-catalog@main/scripts/aliyun/install-caddy-aliyun.sh" | sudo bash
+  curl -fsSL "https://cdn.jsdelivr.net/gh/CoreNovaLabs/cloud-forge-catalog@66fb52b/scripts/aliyun/install-caddy-aliyun.sh" | sudo bash
 fi
 
 sudo touch /etc/cloud-forge/.runtime-ready

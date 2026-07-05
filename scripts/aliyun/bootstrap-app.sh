@@ -3,7 +3,7 @@
 set -euo pipefail
 
 APP_ID="${1:-}"
-CATALOG_ROOT="${CLOUD_FORGE_CATALOG_URL:-https://cdn.jsdelivr.net/gh/CoreNovaLabs/cloud-forge-catalog@main}"
+CATALOG_ROOT="${CLOUD_FORGE_CATALOG_URL:-https://cdn.jsdelivr.net/gh/CoreNovaLabs/cloud-forge-catalog@66fb52b}"
 CATALOG_SCRIPTS="${CATALOG_ROOT}/scripts/aliyun"
 COMPOSE_BASE="${CATALOG_ROOT}/apps/${APP_ID}/compose"
 CLOUD_SETUP="${CATALOG_ROOT}/apps/${APP_ID}/aliyun/setup.sh"

@@ -12,6 +12,8 @@ from pathlib import Path
 
 DEFAULT_AWS_AMI = "ami-04cf9ac8716f030d6"
 DEFAULT_ALIYUN_IMAGE = "aliyun_3_x64_20G_alibase_20260122.vhd"
+# Pin jsdelivr when @main is stale; bump with catalog releases that change bootstrap scripts.
+CATALOG_CDN_REF = "66fb52b"
 VALID_TIERS = {"certified", "community", "experimental"}
 
 
@@ -124,6 +126,7 @@ def generate_iac(root: Path, app_id: str, manifest: dict) -> None:
         "APP_SECRET_PARAMS_BLOCK": build_aws_secret_params_block(manifest),
         "APP_SECRET_USERDATA_BLOCK": build_aws_secret_userdata_block(manifest),
         "APP_SECRET_USERDATA_ALIYUN": build_aliyun_secret_userdata_block(manifest),
+        "CATALOG_CDN_REF": CATALOG_CDN_REF,
     }
 
     aliyun_values = {
