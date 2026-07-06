@@ -55,7 +55,7 @@ Conditions:
   HasDNS: !And [!Condition HasDomain, !Condition HasHostedZone]
   HasVpc: !Not [!Equals [!Ref VpcId, '']]
   HasSubnet: !Not [!Equals [!Ref SubnetId, '']]
-  UseHttp: !Equals [!Ref CaddyTlsMode, http]
+
 
 Resources:
   MongodbSecurityGroup:

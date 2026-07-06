@@ -15,7 +15,10 @@ sha256_file() {
   fi
 }
 
-apps_json="["
+apps_file="$(mktemp)"
+trap 'rm -f "$apps_file"' EXIT
+
+printf '[' > "$apps_file"
 first=true
 
 for manifest in "$ROOT"/apps/*/manifest.json; do
@@ -60,12 +63,12 @@ for manifest in "$ROOT"/apps/*/manifest.json; do
   if [ "$first" = true ]; then
     first=false
   else
-    apps_json+=","
+    printf ',' >> "$apps_file"
   fi
-  apps_json+="$entry"
+  printf '%s' "$entry" >> "$apps_file"
 done
 
-apps_json+="]"
+printf ']' >> "$apps_file"
 
 mkdir -p "$(dirname "$INDEX")"
 
@@ -73,7 +76,7 @@ generated="$(date -u +"%Y-%m-%dT%H:%M:%SZ")"
 new_fingerprint="$(jq -nc \
   --arg version "0.3.2" \
   --arg base "$BASE_URL" \
-  --argjson apps "$apps_json" \
+  --slurpfile apps "$apps_file" \
   '{
     catalog_version: $version,
     base_url: $base,
@@ -81,7 +84,7 @@ new_fingerprint="$(jq -nc \
       name: "Cloud Forge App Store",
       description: "One-command open-source app deployment powered by immutable images"
     },
-    apps: $apps
+    apps: $apps[0]
   }')"
 
 if [ -f "$INDEX" ]; then
@@ -98,7 +101,7 @@ jq -n \
   --arg version "0.3.2" \
   --arg base "$BASE_URL" \
   --arg generated "$generated" \
-  --argjson apps "$apps_json" \
+  --slurpfile apps "$apps_file" \
   '{
     catalog_version: $version,
     generated_at: $generated,
@@ -107,7 +110,7 @@ jq -n \
       name: "Cloud Forge App Store",
       description: "One-command open-source app deployment powered by immutable images"
     },
-    apps: $apps
+    apps: $apps[0]
   }' > "$INDEX"
 
 echo "Generated $INDEX ($(jq '.apps | length' "$INDEX") apps)"

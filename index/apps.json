@@ -1,6 +1,6 @@
 {
   "catalog_version": "0.3.2",
-  "generated_at": "2026-07-05T16:08:20Z",
+  "generated_at": "2026-07-05T20:26:14Z",
   "base_url": "https://raw.githubusercontent.com/CoreNovaLabs/cloud-forge-catalog/main",
   "store": {
     "name": "Cloud Forge App Store",
@@ -9647,7 +9647,7 @@
         "aws": {
           "path": "apps/mariadb/templates/aws.yaml",
           "url": "https://raw.githubusercontent.com/CoreNovaLabs/cloud-forge-catalog/main/apps/mariadb/templates/aws.yaml",
-          "checksum": "sha256:b9975bc627135990ea4804511fd9f4d6d249b6fb2f42e70b27c4935b24a0b0f9"
+          "checksum": "sha256:bfd11a58f891f557742d856e2a24b94283d7b47809acfb10034d1feb2f5d020c"
         },
         "aliyun": {
           "path": "apps/mariadb/templates/aliyun.json",
@@ -11108,7 +11108,7 @@
         "aws": {
           "path": "apps/mongodb/templates/aws.yaml",
           "url": "https://raw.githubusercontent.com/CoreNovaLabs/cloud-forge-catalog/main/apps/mongodb/templates/aws.yaml",
-          "checksum": "sha256:444b2eb7e5a4419723b8d00fa96bcfd382b118d32a1089ee85188821f96cca35"
+          "checksum": "sha256:2ded3500955a4ecd44f8af2e402dd5ac253a1dd72799885739b1cff84f51702d"
         },
         "aliyun": {
           "path": "apps/mongodb/templates/aliyun.json",
@@ -11294,7 +11294,7 @@
         "aws": {
           "path": "apps/mosquitto/templates/aws.yaml",
           "url": "https://raw.githubusercontent.com/CoreNovaLabs/cloud-forge-catalog/main/apps/mosquitto/templates/aws.yaml",
-          "checksum": "sha256:7931c0e2406aab4bb01a15600ff0cfccfdb276b70e9d6096bd17663737d79495"
+          "checksum": "sha256:a3ad04d17bde3af85b124889c2381d85c3aad2832112193428391d72da13bf0d"
         },
         "aliyun": {
           "path": "apps/mosquitto/templates/aliyun.json",
@@ -14553,7 +14553,7 @@
         "aws": {
           "path": "apps/postgresql/templates/aws.yaml",
           "url": "https://raw.githubusercontent.com/CoreNovaLabs/cloud-forge-catalog/main/apps/postgresql/templates/aws.yaml",
-          "checksum": "sha256:e335cd7b1e80d06a49a3b323e5da30f5d056532a0cd72951405cc87de86bef99"
+          "checksum": "sha256:a93a967fe196a2eb21d0152ded6a47196c3671d547146ab1bd8018f5644d0264"
         },
         "aliyun": {
           "path": "apps/postgresql/templates/aliyun.json",
@@ -16186,7 +16186,7 @@
         "aws": {
           "path": "apps/redis/templates/aws.yaml",
           "url": "https://raw.githubusercontent.com/CoreNovaLabs/cloud-forge-catalog/main/apps/redis/templates/aws.yaml",
-          "checksum": "sha256:313f58b83d6dcca93d887dd3dc6ae6f16536d440988f75bce82a7b579e74c914"
+          "checksum": "sha256:ee6707f5cc2e842c8ddabf0bac1d588362b14b70ba24710dee24315677e31e8a"
         },
         "aliyun": {
           "path": "apps/redis/templates/aliyun.json",

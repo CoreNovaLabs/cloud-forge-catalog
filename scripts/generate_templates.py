@@ -128,6 +128,12 @@ def build_aws_security_group_ingress_block(manifest: dict) -> str:
     )
 
 
+def build_aws_use_http_condition_block(manifest: dict) -> str:
+    if is_direct_tcp(manifest):
+        return ""
+    return "  UseHttp: !Equals [!Ref CaddyTlsMode, http]"
+
+
 def build_aliyun_security_group_ingress_block(manifest: dict) -> str:
     port = service_port(manifest)
     if is_direct_tcp(manifest) and port > 0:
@@ -262,6 +268,7 @@ def generate_iac(root: Path, app_id: str, manifest: dict) -> None:
         "APP_SECRET_USERDATA_BLOCK": build_aws_secret_userdata_block(manifest),
         "APP_SECRET_USERDATA_ALIYUN": build_aliyun_secret_userdata_block(manifest),
         "APP_SECURITY_GROUP_INGRESS_BLOCK": build_aws_security_group_ingress_block(manifest),
+        "APP_USE_HTTP_CONDITION_BLOCK": build_aws_use_http_condition_block(manifest),
         "APP_SERVICE_URL_VALUE": build_aws_service_url_value(manifest, app_id),
         "CATALOG_CDN_REF": CATALOG_CDN_REF,
     }
