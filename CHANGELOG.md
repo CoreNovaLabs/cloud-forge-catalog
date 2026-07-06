@@ -4,6 +4,13 @@ All notable changes to Cloud Forge Catalog are documented in this file.
 
 ## [Unreleased]
 
+## [0.3.3] - 2026-07-06
+
+### Fixed
+
+- Direct TCP AWS templates no longer emit the unused `UseHttp` condition.
+- `scripts/build-index.sh` now centralizes the catalog version and generates `catalog_version: 0.3.3`.
+
 ### Added
 
 - Batch 1 community apps: `vaultwarden`, `minio`, `code-server`, `freshrss`, `it-tools`, `linkding`, `excalidraw`

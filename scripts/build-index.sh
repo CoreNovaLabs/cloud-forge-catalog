@@ -5,6 +5,7 @@ set -euo pipefail
 ROOT="$(cd "$(dirname "$0")/.." && pwd)"
 INDEX="$ROOT/index/apps.json"
 BASE_URL="${CATALOG_BASE_URL:-https://raw.githubusercontent.com/CoreNovaLabs/cloud-forge-catalog/main}"
+VERSION="${CATALOG_VERSION:-0.3.3}"
 
 sha256_file() {
   local f="$1"
@@ -74,7 +75,7 @@ mkdir -p "$(dirname "$INDEX")"
 
 generated="$(date -u +"%Y-%m-%dT%H:%M:%SZ")"
 new_fingerprint="$(jq -nc \
-  --arg version "0.3.2" \
+  --arg version "$VERSION" \
   --arg base "$BASE_URL" \
   --slurpfile apps "$apps_file" \
   '{
@@ -98,7 +99,7 @@ if [ -f "$INDEX" ]; then
 fi
 
 jq -n \
-  --arg version "0.3.2" \
+  --arg version "$VERSION" \
   --arg base "$BASE_URL" \
   --arg generated "$generated" \
   --slurpfile apps "$apps_file" \
