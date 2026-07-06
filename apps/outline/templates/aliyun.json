@@ -105,7 +105,7 @@
   "Outputs": {
     "ServiceURL": {
       "Description": "Primary endpoint for outline.",
-      "Value": {"Fn::If": ["HasDomain", {"Fn::If": ["UseHttp", {"Fn::Sub": "http://${DomainName}"}, {"Fn::Sub": "https://${DomainName}"}]}, {"Fn::If": ["UseHttp", {"Fn::Sub": "http://${OutlineEIP}"}, {"Fn::Sub": "https://${OutlineEIP}"}]}]}
+      "Value": {"Fn::If": ["HasDomain", {"Fn::If": ["UseHttp", {"Fn::Sub": "http://${DomainName}"}, {"Fn::Sub": "https://${DomainName}"}]}, {"Fn::If": ["UseHttp", {"Fn::Join": ["", ["http://", {"Fn::GetAtt": ["OutlineEIP", "EipAddress"]}]]}, {"Fn::Join": ["", ["https://", {"Fn::GetAtt": ["OutlineEIP", "EipAddress"]}]]}]}]}
     },
     "DomainName": {
       "Description": "Custom domain when configured.",

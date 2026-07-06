@@ -105,7 +105,7 @@
   "Outputs": {
     "ServiceURL": {
       "Description": "Primary endpoint for excalidraw-plus.",
-      "Value": {"Fn::If": ["HasDomain", {"Fn::If": ["UseHttp", {"Fn::Sub": "http://${DomainName}"}, {"Fn::Sub": "https://${DomainName}"}]}, {"Fn::If": ["UseHttp", {"Fn::Sub": "http://${ExcalidrawPlusEIP}"}, {"Fn::Sub": "https://${ExcalidrawPlusEIP}"}]}]}
+      "Value": {"Fn::If": ["HasDomain", {"Fn::If": ["UseHttp", {"Fn::Sub": "http://${DomainName}"}, {"Fn::Sub": "https://${DomainName}"}]}, {"Fn::If": ["UseHttp", {"Fn::Join": ["", ["http://", {"Fn::GetAtt": ["ExcalidrawPlusEIP", "EipAddress"]}]]}, {"Fn::Join": ["", ["https://", {"Fn::GetAtt": ["ExcalidrawPlusEIP", "EipAddress"]}]]}]}]}
     },
     "DomainName": {
       "Description": "Custom domain when configured.",

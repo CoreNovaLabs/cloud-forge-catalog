@@ -105,7 +105,7 @@
   "Outputs": {
     "ServiceURL": {
       "Description": "Primary endpoint for paperless-ngx.",
-      "Value": {"Fn::If": ["HasDomain", {"Fn::If": ["UseHttp", {"Fn::Sub": "http://${DomainName}"}, {"Fn::Sub": "https://${DomainName}"}]}, {"Fn::If": ["UseHttp", {"Fn::Sub": "http://${PaperlessNgxEIP}"}, {"Fn::Sub": "https://${PaperlessNgxEIP}"}]}]}
+      "Value": {"Fn::If": ["HasDomain", {"Fn::If": ["UseHttp", {"Fn::Sub": "http://${DomainName}"}, {"Fn::Sub": "https://${DomainName}"}]}, {"Fn::If": ["UseHttp", {"Fn::Join": ["", ["http://", {"Fn::GetAtt": ["PaperlessNgxEIP", "EipAddress"]}]]}, {"Fn::Join": ["", ["https://", {"Fn::GetAtt": ["PaperlessNgxEIP", "EipAddress"]}]]}]}]}
     },
     "DomainName": {
       "Description": "Custom domain when configured.",

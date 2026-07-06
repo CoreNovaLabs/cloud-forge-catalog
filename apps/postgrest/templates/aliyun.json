@@ -105,7 +105,7 @@
   "Outputs": {
     "ServiceURL": {
       "Description": "Primary endpoint for postgrest.",
-      "Value": {"Fn::If": ["HasDomain", {"Fn::If": ["UseHttp", {"Fn::Sub": "http://${DomainName}"}, {"Fn::Sub": "https://${DomainName}"}]}, {"Fn::If": ["UseHttp", {"Fn::Sub": "http://${PostgrestEIP}"}, {"Fn::Sub": "https://${PostgrestEIP}"}]}]}
+      "Value": {"Fn::If": ["HasDomain", {"Fn::If": ["UseHttp", {"Fn::Sub": "http://${DomainName}"}, {"Fn::Sub": "https://${DomainName}"}]}, {"Fn::If": ["UseHttp", {"Fn::Join": ["", ["http://", {"Fn::GetAtt": ["PostgrestEIP", "EipAddress"]}]]}, {"Fn::Join": ["", ["https://", {"Fn::GetAtt": ["PostgrestEIP", "EipAddress"]}]]}]}]}
     },
     "DomainName": {
       "Description": "Custom domain when configured.",

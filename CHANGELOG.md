@@ -4,6 +4,13 @@ All notable changes to Cloud Forge Catalog are documented in this file.
 
 ## [Unreleased]
 
+## [0.3.4] - 2026-07-06
+
+### Fixed
+
+- Aliyun templates now output `ServiceURL` with the actual EIP address when no custom domain is configured, instead of using the EIP allocation id/name from `Ref`.
+- Regenerated catalog template checksums and `catalog_version: 0.3.4`.
+
 ## [0.3.3] - 2026-07-06
 
 ### Fixed

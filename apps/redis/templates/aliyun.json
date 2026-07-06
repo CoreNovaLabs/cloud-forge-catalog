@@ -105,7 +105,7 @@
   "Outputs": {
     "ServiceURL": {
       "Description": "Primary endpoint for redis.",
-      "Value": {"Fn::If": ["HasDomain", {"Fn::Sub": "redis://${DomainName}:6379"}, {"Fn::Sub": "redis://${RedisEIP}:6379"}]}
+      "Value": {"Fn::If": ["HasDomain", {"Fn::Sub": "redis://${DomainName}:6379"}, {"Fn::Join": ["", ["redis://", {"Fn::GetAtt": ["RedisEIP", "EipAddress"]}, ":6379"]]}]}
     },
     "DomainName": {
       "Description": "Custom domain when configured.",

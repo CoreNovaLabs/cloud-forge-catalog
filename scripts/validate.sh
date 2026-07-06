@@ -31,6 +31,10 @@ for manifest in "$ROOT"/apps/*/manifest.json; do
         echo "FAIL: missing template $path for $app_id ($cloud)" >&2
         exit 1
       fi
+      if [ "$cloud" = "aliyun" ] && grep -Eq '"Fn::Sub": "[a-z]+://\$\{[A-Za-z0-9]+EIP\}' "$ROOT/$path"; then
+        echo "FAIL: $path ServiceURL must use Fn::GetAtt EipAddress, not Ref EIP" >&2
+        exit 1
+      fi
     fi
   done
   echo "  OK $app_id"

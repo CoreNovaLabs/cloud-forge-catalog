@@ -105,7 +105,7 @@
   "Outputs": {
     "ServiceURL": {
       "Description": "Primary endpoint for mongodb.",
-      "Value": {"Fn::If": ["HasDomain", {"Fn::Sub": "mongodb://${DomainName}:27017"}, {"Fn::Sub": "mongodb://${MongodbEIP}:27017"}]}
+      "Value": {"Fn::If": ["HasDomain", {"Fn::Sub": "mongodb://${DomainName}:27017"}, {"Fn::Join": ["", ["mongodb://", {"Fn::GetAtt": ["MongodbEIP", "EipAddress"]}, ":27017"]]}]}
     },
     "DomainName": {
       "Description": "Custom domain when configured.",

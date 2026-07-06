@@ -104,7 +104,7 @@
   "Outputs": {
     "ServiceURL": {
       "Description": "Primary endpoint for mosquitto.",
-      "Value": {"Fn::If": ["HasDomain", {"Fn::Sub": "mqtt://${DomainName}:1883"}, {"Fn::Sub": "mqtt://${MosquittoEIP}:1883"}]}
+      "Value": {"Fn::If": ["HasDomain", {"Fn::Sub": "mqtt://${DomainName}:1883"}, {"Fn::Join": ["", ["mqtt://", {"Fn::GetAtt": ["MosquittoEIP", "EipAddress"]}, ":1883"]]}]}
     },
     "DomainName": {
       "Description": "Custom domain when configured.",

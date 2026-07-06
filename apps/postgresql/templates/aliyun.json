@@ -105,7 +105,7 @@
   "Outputs": {
     "ServiceURL": {
       "Description": "Primary endpoint for postgresql.",
-      "Value": {"Fn::If": ["HasDomain", {"Fn::Sub": "postgresql://${DomainName}:5432"}, {"Fn::Sub": "postgresql://${PostgresqlEIP}:5432"}]}
+      "Value": {"Fn::If": ["HasDomain", {"Fn::Sub": "postgresql://${DomainName}:5432"}, {"Fn::Join": ["", ["postgresql://", {"Fn::GetAtt": ["PostgresqlEIP", "EipAddress"]}, ":5432"]]}]}
     },
     "DomainName": {
       "Description": "Custom domain when configured.",

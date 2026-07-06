@@ -5,7 +5,7 @@ set -euo pipefail
 ROOT="$(cd "$(dirname "$0")/.." && pwd)"
 INDEX="$ROOT/index/apps.json"
 BASE_URL="${CATALOG_BASE_URL:-https://raw.githubusercontent.com/CoreNovaLabs/cloud-forge-catalog/main}"
-VERSION="${CATALOG_VERSION:-0.3.3}"
+VERSION="${CATALOG_VERSION:-0.3.4}"
 
 sha256_file() {
   local f="$1"

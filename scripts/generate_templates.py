@@ -182,6 +182,7 @@ def build_aws_service_url_value(manifest: dict, app_id: str) -> str:
 def build_aliyun_service_url_value(manifest: dict, app_id: str) -> str:
     prefix = app_prefix(app_id)
     port = service_port(manifest)
+    eip_address = {"Fn::GetAtt": [f"{prefix}EIP", "EipAddress"]}
     if is_direct_tcp(manifest):
         scheme = service_scheme(manifest, app_id)
         return json.dumps(
@@ -189,7 +190,7 @@ def build_aliyun_service_url_value(manifest: dict, app_id: str) -> str:
                 "Fn::If": [
                     "HasDomain",
                     {"Fn::Sub": f"{scheme}://${{DomainName}}:{port}"},
-                    {"Fn::Sub": f"{scheme}://${{{prefix}EIP}}:{port}"},
+                    {"Fn::Join": ["", [f"{scheme}://", eip_address, f":{port}"]]},
                 ]
             },
             ensure_ascii=False,
@@ -208,8 +209,8 @@ def build_aliyun_service_url_value(manifest: dict, app_id: str) -> str:
                 {
                     "Fn::If": [
                         "UseHttp",
-                        {"Fn::Sub": f"http://${{{prefix}EIP}}"},
-                        {"Fn::Sub": f"https://${{{prefix}EIP}}"},
+                        {"Fn::Join": ["", ["http://", eip_address]]},
+                        {"Fn::Join": ["", ["https://", eip_address]]},
                     ]
                 },
             ]

@@ -105,7 +105,7 @@
   "Outputs": {
     "ServiceURL": {
       "Description": "Primary endpoint for mariadb.",
-      "Value": {"Fn::If": ["HasDomain", {"Fn::Sub": "mysql://${DomainName}:3306"}, {"Fn::Sub": "mysql://${MariadbEIP}:3306"}]}
+      "Value": {"Fn::If": ["HasDomain", {"Fn::Sub": "mysql://${DomainName}:3306"}, {"Fn::Join": ["", ["mysql://", {"Fn::GetAtt": ["MariadbEIP", "EipAddress"]}, ":3306"]]}]}
     },
     "DomainName": {
       "Description": "Custom domain when configured.",
