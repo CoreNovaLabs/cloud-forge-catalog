@@ -18,18 +18,18 @@
       "web": {
         "product_id": "prod-c2q4h76hz3u4k",
         "offer_id": "offer-ov5klsvohnoxu",
-        "visibility": "limited",
-        "url": "https://aws.amazon.com/marketplace/pp/prod-c2q4h76hz3u4k"
+        "visibility": "public",
+        "url": "https://aws.amazon.com/marketplace/pp/prodview-6hwhb4xi6kk4y"
       },
       "db": {
         "product_id": "prod-r2ldqznatcigs",
-        "visibility": "limited",
-        "url": "https://aws.amazon.com/marketplace/pp/prod-r2ldqznatcigs"
+        "visibility": "public",
+        "url": "https://aws.amazon.com/marketplace/pp/prodview-dpb2ssuh6ftjs"
       },
       "tcp": {
         "product_id": "prod-r2ldqznatcigs",
-        "visibility": "limited",
-        "url": "https://aws.amazon.com/marketplace/pp/prod-r2ldqznatcigs"
+        "visibility": "public",
+        "url": "https://aws.amazon.com/marketplace/pp/prodview-dpb2ssuh6ftjs"
       }
     }
   },

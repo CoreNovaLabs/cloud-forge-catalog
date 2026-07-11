@@ -3,7 +3,7 @@
 set -euo pipefail
 
 APP_ID="${1:-}"
-CATALOG_ROOT="${CLOUD_FORGE_CATALOG_URL:-https://cdn.jsdelivr.net/gh/CoreNovaLabs/cloud-forge-catalog@v0.5.0}"
+CATALOG_ROOT="${CLOUD_FORGE_CATALOG_URL:-https://cdn.jsdelivr.net/gh/CoreNovaLabs/cloud-forge-catalog@v0.5.1}"
 COMPOSE_BASE="${CATALOG_ROOT}/apps/${APP_ID}/compose"
 CLOUD_SETUP="${CATALOG_ROOT}/apps/${APP_ID}/aws/setup.sh"
 
