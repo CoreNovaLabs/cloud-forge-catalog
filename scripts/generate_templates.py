@@ -16,7 +16,7 @@ DEFAULT_AWS_DB_AMI = "ami-0f6b6dc8c575106cb"
 DEFAULT_ALIYUN_IMAGE = "aliyun_3_x64_20G_alibase_20260122.vhd"
 # Immutable Catalog release used by generated bootstrap URLs. Publish this tag
 # before any cloud E2E or customer launch for the corresponding catalog version.
-CATALOG_CDN_REF = "v0.5.0"
+CATALOG_CDN_REF = "v0.5.1"
 VALID_TIERS = {"certified", "community", "experimental"}
 DIRECT_TCP_ROLES = {"db", "tcp"}
 
