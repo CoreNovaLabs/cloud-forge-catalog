@@ -271,6 +271,13 @@ if [[ ! -f "$PLATFORM" ]]; then
   exit 1
 fi
 
+if [[ -f /etc/cloud-forge/app.env ]]; then
+  set -a
+  # shellcheck disable=SC1091
+  source /etc/cloud-forge/app.env
+  set +a
+fi
+
 if [[ -f "$APP" ]]; then
   COMPOSE+=(-f "$APP")
 fi

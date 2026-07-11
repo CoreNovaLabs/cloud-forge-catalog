@@ -3,7 +3,7 @@
 set -euo pipefail
 
 APP_ID="${1:-}"
-CATALOG_ROOT="${CLOUD_FORGE_CATALOG_URL:-https://cdn.jsdelivr.net/gh/CoreNovaLabs/cloud-forge-catalog@main}"
+CATALOG_ROOT="${CLOUD_FORGE_CATALOG_URL:-https://cdn.jsdelivr.net/gh/CoreNovaLabs/cloud-forge-catalog@v0.5.0}"
 COMPOSE_BASE="${CATALOG_ROOT}/apps/${APP_ID}/compose"
 CLOUD_SETUP="${CATALOG_ROOT}/apps/${APP_ID}/aws/setup.sh"
 
@@ -60,6 +60,52 @@ fi
 source "$catalog_app_env"
 rm -f "$catalog_app_env"
 
+resolve_immutable_app_image() {
+  local version="${CLOUD_FORGE_APP_VERSION:-}"
+  local expected_sha="${CLOUD_FORGE_APP_MANIFEST_SHA256:-}"
+  local manifest_file actual_sha image
+
+  if [[ -z "$version" || -z "$expected_sha" ]]; then
+    return 0
+  fi
+  if [[ ! "$version" =~ ^[A-Za-z0-9][A-Za-z0-9._-]{0,127}$ ]]; then
+    echo "invalid application version: ${version}" >&2
+    exit 1
+  fi
+  if [[ ! "$expected_sha" =~ ^[a-f0-9]{64}$ ]]; then
+    echo "invalid application manifest checksum" >&2
+    exit 1
+  fi
+
+  manifest_file="$(mktemp)"
+  if ! curl -fsSL "${CATALOG_ROOT}/apps/${APP_ID}/manifest.json" -o "$manifest_file"; then
+    rm -f "$manifest_file"
+    echo "could not load immutable version manifest for ${APP_ID}" >&2
+    exit 1
+  fi
+  actual_sha="$(sha256sum "$manifest_file" | awk '{print $1}')"
+  if [[ "$actual_sha" != "$expected_sha" ]]; then
+    rm -f "$manifest_file"
+    echo "version manifest checksum mismatch for ${APP_ID}" >&2
+    exit 1
+  fi
+  image="$(jq -er --arg version "$version" '
+    .versions.items[]
+    | select(.version == $version)
+    | select((if has("deployable") then .deployable else true end) == true)
+    | .image
+    | select(type == "string" and length > 0)
+  ' "$manifest_file" 2>/dev/null || true)"
+  rm -f "$manifest_file"
+  if [[ ! "$image" =~ ^[a-z0-9][a-z0-9.-]*(:[0-9]+)?/[A-Za-z0-9_./-]+@sha256:[a-f0-9]{64}$ ]]; then
+    echo "version ${version} is not deployable with an immutable image" >&2
+    exit 1
+  fi
+  export CLOUD_FORGE_APP_IMAGE="$image"
+}
+
+resolve_immutable_app_image
+
 APP_ROLE="${CLOUD_FORGE_AMI_ROLE:-web}"
 
 if [[ "$APP_ROLE" == "db" || "$APP_ROLE" == "tcp" ]]; then
@@ -81,7 +127,7 @@ EOF
   fi
 
   run_as_root systemctl start docker || true
-  run_as_root env CLOUD_FORGE_APP_VERSION="${CLOUD_FORGE_APP_VERSION:-}" docker compose -f /opt/cloud-forge/docker-compose.app.yml up -d --remove-orphans
+  run_as_root env CLOUD_FORGE_APP_VERSION="${CLOUD_FORGE_APP_VERSION:-}" CLOUD_FORGE_APP_IMAGE="${CLOUD_FORGE_APP_IMAGE:-}" docker compose -f /opt/cloud-forge/docker-compose.app.yml up -d --remove-orphans
   echo "==> Cloud Forge AWS app bootstrap complete: ${APP_ID}"
   exit 0
 fi
@@ -121,6 +167,8 @@ CLOUD_FORGE_CADDY_PUBLIC_IP=${CLOUD_FORGE_CADDY_PUBLIC_IP}
 CLOUD_FORGE_CADDY_UPSTREAM=${UPSTREAM}
 CLOUD_FORGE_CADDY_TLS_MODE=${CADDY_TLS_MODE}
 CLOUD_FORGE_CADDY_AUTO_IP_CERT=${AUTO_IP_CERT}
+CLOUD_FORGE_APP_VERSION=${CLOUD_FORGE_APP_VERSION:-}
+CLOUD_FORGE_APP_IMAGE=${CLOUD_FORGE_APP_IMAGE:-}
 EOF
 
 if [[ -n "$CADDY_EMAIL" ]]; then
@@ -142,5 +190,5 @@ EOF
 fi
 
 run_as_root systemctl start docker || true
-run_as_root env CLOUD_FORGE_APP_VERSION="${CLOUD_FORGE_APP_VERSION:-}" /opt/cloud-forge/bin/cloud-forge-apply-app
+run_as_root env CLOUD_FORGE_APP_VERSION="${CLOUD_FORGE_APP_VERSION:-}" CLOUD_FORGE_APP_IMAGE="${CLOUD_FORGE_APP_IMAGE:-}" /opt/cloud-forge/bin/cloud-forge-apply-app
 echo "==> Cloud Forge AWS app bootstrap complete: ${APP_ID}"

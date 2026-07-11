@@ -4,16 +4,19 @@
 from __future__ import annotations
 
 import argparse
+import hashlib
 import json
 import re
 import sys
 from pathlib import Path
 
 
-DEFAULT_AWS_AMI = "ami-04cf9ac8716f030d6"
+DEFAULT_AWS_WEB_AMI = "ami-0777e5ab470bf89c1"
+DEFAULT_AWS_DB_AMI = "ami-0f6b6dc8c575106cb"
 DEFAULT_ALIYUN_IMAGE = "aliyun_3_x64_20G_alibase_20260122.vhd"
-# Pin jsdelivr when @main is stale; bump with catalog releases that change bootstrap scripts.
-CATALOG_CDN_REF = "66fb52b"
+# Immutable Catalog release used by generated bootstrap URLs. Publish this tag
+# before any cloud E2E or customer launch for the corresponding catalog version.
+CATALOG_CDN_REF = "v0.5.0"
 VALID_TIERS = {"certified", "community", "experimental"}
 DIRECT_TCP_ROLES = {"db", "tcp"}
 
@@ -71,8 +74,21 @@ def app_versions(manifest: dict) -> tuple[str, list[str]] | None:
     if not versions:
         return None
     default = str(versions["default"])
-    values = [str(item["version"]) for item in versions["items"]]
+    values = [
+        str(item["version"])
+        for item in versions["items"]
+        if item.get("deployable", True)
+    ]
     return default, values
+
+
+def has_immutable_version_images(manifest: dict) -> bool:
+    versions = manifest.get("versions") or {}
+    return any(item.get("image") for item in versions.get("items") or [])
+
+
+def manifest_sha256(manifest_path: Path) -> str:
+    return hashlib.sha256(manifest_path.read_bytes()).hexdigest()
 
 
 def build_aws_version_params_block(manifest: dict) -> str:
@@ -129,6 +145,10 @@ def cloud_param(manifest: dict, name: str, cloud: str, field: str, default=None)
 
 def app_role(manifest: dict) -> str:
     return str(manifest.get("ami_role") or "web")
+
+
+def default_aws_ami(manifest: dict) -> str:
+    return DEFAULT_AWS_DB_AMI if is_direct_tcp(manifest) else DEFAULT_AWS_WEB_AMI
 
 
 def is_direct_tcp(manifest: dict) -> bool:
@@ -290,18 +310,19 @@ def load_template(root: Path, name: str) -> str:
 def generate_iac(root: Path, app_id: str, manifest: dict) -> None:
     app_prefix = to_pascal(app_id)
     app_name = manifest.get("name") or app_id
+    manifest_path = root / "apps" / app_id / "manifest.json"
 
     aws_default = cloud_param(manifest, "InstanceType", "aws", "default", "t3.small")
-    aws_options = cloud_param(manifest, "InstanceType", "aws", "options", [aws_default])
+    aws_options = list(dict.fromkeys(cloud_param(manifest, "InstanceType", "aws", "options", [aws_default])))
     aliyun_default = cloud_param(manifest, "InstanceType", "aliyun", "default", "ecs.t6-c1m1.large")
-    aliyun_options = cloud_param(
+    aliyun_options = list(dict.fromkeys(cloud_param(
         manifest, "InstanceType", "aliyun", "options", [aliyun_default]
-    )
+    )))
 
     aws_disk = str(cloud_param(manifest, "DiskSize", "aws", "default", "20"))
     aliyun_disk = str(cloud_param(manifest, "DiskSize", "aliyun", "default", aws_disk))
 
-    aws_ami = (manifest.get("images") or {}).get("aws") or DEFAULT_AWS_AMI
+    aws_ami = (manifest.get("images") or {}).get("aws") or default_aws_ami(manifest)
     aliyun_image = (manifest.get("images") or {}).get("aliyun") or DEFAULT_ALIYUN_IMAGE
     values = {
         "APP_ID": app_id,
@@ -320,7 +341,17 @@ def generate_iac(root: Path, app_id: str, manifest: dict) -> None:
         "APP_SECRET_USERDATA_ALIYUN": build_aliyun_secret_userdata_block(manifest),
         "APP_VERSION_PARAMS_BLOCK": build_aws_version_params_block(manifest),
         "APP_VERSION_USERDATA_BLOCK": build_aws_version_userdata_block(manifest),
+        "APP_VERSION_MANIFEST_SHA_BLOCK": (
+            f"          export CLOUD_FORGE_APP_MANIFEST_SHA256={manifest_sha256(manifest_path)}"
+            if has_immutable_version_images(manifest)
+            else ""
+        ),
         "APP_VERSION_USERDATA_ALIYUN": build_aliyun_version_userdata_block(manifest),
+        "APP_VERSION_MANIFEST_SHA_ALIYUN": (
+            f"export CLOUD_FORGE_APP_MANIFEST_SHA256={manifest_sha256(manifest_path)}\\n"
+            if has_immutable_version_images(manifest)
+            else ""
+        ),
         "APP_SECURITY_GROUP_INGRESS_BLOCK": build_aws_security_group_ingress_block(manifest),
         "APP_USE_HTTP_CONDITION_BLOCK": build_aws_use_http_condition_block(manifest),
         "APP_SERVICE_URL_VALUE": build_aws_service_url_value(manifest, app_id),

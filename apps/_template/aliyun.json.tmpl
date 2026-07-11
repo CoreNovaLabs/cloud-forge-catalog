@@ -4,8 +4,12 @@
   "Parameters": {
     "InstanceType": {
       "Type": "String",
-      "Default": "{{ALIYUN_INSTANCE_DEFAULT}}",
-      "AllowedValues": [{{ALIYUN_INSTANCE_OPTIONS_JSON}}]
+      "AssociationProperty": "ALIYUN::ECS::Instance::InstanceType",
+      "AssociationPropertyMetadata": {
+        "Constraints": {
+          "Architecture": ["X86"]
+        }
+      }
     }{{APP_VERSION_PARAMS_BLOCK}},
     "ImageId": {
       "Type": "String",
@@ -67,7 +71,7 @@
         "SystemDiskCategory": "cloud_efficiency",
         "InternetMaxBandwidthOut": 0,
         "UserData": {
-          "Fn::Sub": "#!/bin/bash\nset -euxo pipefail\nexport CLOUD_FORGE_CADDY_TLS_MODE=${CaddyTlsMode}\nexport CLOUD_FORGE_DOMAIN_NAME=${DomainName}\nexport CLOUD_FORGE_CADDY_EMAIL=${CaddyEmail}\n{{APP_VERSION_USERDATA_ALIYUN}}{{APP_SECRET_USERDATA_ALIYUN}}curl -fsSL https://cdn.jsdelivr.net/gh/CoreNovaLabs/cloud-forge-catalog@main/scripts/aliyun/bootstrap-app.sh -o /tmp/cf-bootstrap.sh\nif ! grep -q CLOUD_FORGE_DOMAIN_NAME /tmp/cf-bootstrap.sh; then\n  curl -fsSL https://cdn.jsdelivr.net/gh/CoreNovaLabs/cloud-forge-catalog@{{CATALOG_CDN_REF}}/scripts/aliyun/bootstrap-app.sh -o /tmp/cf-bootstrap.sh\nfi\nbash /tmp/cf-bootstrap.sh {{APP_ID}}\n"
+          "Fn::Sub": "#!/bin/bash\nset -euxo pipefail\nexport CLOUD_FORGE_CADDY_TLS_MODE=${CaddyTlsMode}\nexport CLOUD_FORGE_DOMAIN_NAME=${DomainName}\nexport CLOUD_FORGE_CADDY_EMAIL=${CaddyEmail}\n{{APP_VERSION_USERDATA_ALIYUN}}{{APP_VERSION_MANIFEST_SHA_ALIYUN}}{{APP_SECRET_USERDATA_ALIYUN}}curl -fsSL https://cdn.jsdelivr.net/gh/CoreNovaLabs/cloud-forge-catalog@{{CATALOG_CDN_REF}}/scripts/aliyun/bootstrap-app.sh -o /tmp/cf-bootstrap.sh\nbash /tmp/cf-bootstrap.sh {{APP_ID}}\n"
         },
         "Tags": [
           { "Key": "Name", "Value": "cloud-forge-{{APP_ID}}" },

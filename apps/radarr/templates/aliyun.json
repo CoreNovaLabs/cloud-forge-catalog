@@ -4,8 +4,12 @@
   "Parameters": {
     "InstanceType": {
       "Type": "String",
-      "Default": "ecs.t6-c1m1.large",
-      "AllowedValues": ["ecs.t6-c1m1.large"]
+      "AssociationProperty": "ALIYUN::ECS::Instance::InstanceType",
+      "AssociationPropertyMetadata": {
+        "Constraints": {
+          "Architecture": ["X86"]
+        }
+      }
     },
     "ImageId": {
       "Type": "String",
@@ -71,7 +75,7 @@
         "SystemDiskCategory": "cloud_efficiency",
         "InternetMaxBandwidthOut": 0,
         "UserData": {
-          "Fn::Sub": "#!/bin/bash\nset -euxo pipefail\nexport CLOUD_FORGE_CADDY_TLS_MODE=${CaddyTlsMode}\nexport CLOUD_FORGE_DOMAIN_NAME=${DomainName}\nexport CLOUD_FORGE_CADDY_EMAIL=${CaddyEmail}\ncurl -fsSL https://cdn.jsdelivr.net/gh/CoreNovaLabs/cloud-forge-catalog@main/scripts/aliyun/bootstrap-app.sh -o /tmp/cf-bootstrap.sh\nif ! grep -q CLOUD_FORGE_DOMAIN_NAME /tmp/cf-bootstrap.sh; then\n  curl -fsSL https://cdn.jsdelivr.net/gh/CoreNovaLabs/cloud-forge-catalog@66fb52b/scripts/aliyun/bootstrap-app.sh -o /tmp/cf-bootstrap.sh\nfi\nbash /tmp/cf-bootstrap.sh radarr\n"
+          "Fn::Sub": "#!/bin/bash\nset -euxo pipefail\nexport CLOUD_FORGE_CADDY_TLS_MODE=${CaddyTlsMode}\nexport CLOUD_FORGE_DOMAIN_NAME=${DomainName}\nexport CLOUD_FORGE_CADDY_EMAIL=${CaddyEmail}\ncurl -fsSL https://cdn.jsdelivr.net/gh/CoreNovaLabs/cloud-forge-catalog@v0.5.0/scripts/aliyun/bootstrap-app.sh -o /tmp/cf-bootstrap.sh\nbash /tmp/cf-bootstrap.sh radarr\n"
         },
         "Tags": [
           { "Key": "Name", "Value": "cloud-forge-radarr" },

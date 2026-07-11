@@ -35,6 +35,17 @@ for manifest in "$ROOT"/apps/*/manifest.json; do
         echo "FAIL: $path ServiceURL must use Fn::GetAtt EipAddress, not Ref EIP" >&2
         exit 1
       fi
+      if grep -q 'cloud-forge-catalog@main/' "$ROOT/$path"; then
+        echo "FAIL: $path must pin an immutable catalog release, not @main" >&2
+        exit 1
+      fi
+      if [ "$cloud" = "aliyun" ] && ! jq -e '
+        .Parameters.InstanceType.AssociationProperty == "ALIYUN::ECS::Instance::InstanceType"
+        and (.Parameters.InstanceType.AllowedValues == null)
+      ' "$ROOT/$path" >/dev/null; then
+        echo "FAIL: $path must let ROS select a region-available ECS instance type" >&2
+        exit 1
+      fi
     fi
   done
   echo "  OK $app_id"
@@ -46,7 +57,16 @@ if [ ! -f "$ROOT/index/apps.json" ]; then
   exit 1
 fi
 
-jq -e '.catalog_version and .apps and (.apps | length > 0)' "$ROOT/index/apps.json" >/dev/null
+jq -e '
+  .catalog_version
+  and .providers.aws.default_region == "us-east-1"
+  and ([.providers.aws.regions[].id] == ["us-east-1"])
+  and .providers.aliyun.default_region == "cn-hongkong"
+  and ([.providers.aliyun.regions[].id] | index("cn-hongkong") != null)
+  and ([.providers.aliyun.regions[].id | select(startswith("cn-") and . != "cn-hongkong")] | length == 0)
+  and .apps
+  and (.apps | length > 0)
+' "$ROOT/index/apps.json" >/dev/null
 echo "  OK index ($(jq '.apps | length' "$ROOT/index/apps.json") apps)"
 
 echo "All validations passed."

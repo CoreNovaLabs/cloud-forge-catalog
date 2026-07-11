@@ -4,8 +4,9 @@ set -euo pipefail
 
 ROOT="$(cd "$(dirname "$0")/.." && pwd)"
 INDEX="$ROOT/index/apps.json"
-BASE_URL="${CATALOG_BASE_URL:-https://raw.githubusercontent.com/CoreNovaLabs/cloud-forge-catalog/main}"
-VERSION="${CATALOG_VERSION:-0.3.4}"
+BASE_URL="${CATALOG_BASE_URL:-https://raw.githubusercontent.com/CoreNovaLabs/cloud-forge-catalog/v0.5.0}"
+VERSION="${CATALOG_VERSION:-0.5.0}"
+PROVIDERS="$ROOT/data/providers.json"
 
 sha256_file() {
   local f="$1"
@@ -77,10 +78,12 @@ generated="$(date -u +"%Y-%m-%dT%H:%M:%SZ")"
 new_fingerprint="$(jq -nc \
   --arg version "$VERSION" \
   --arg base "$BASE_URL" \
+  --slurpfile providers "$PROVIDERS" \
   --slurpfile apps "$apps_file" \
   '{
     catalog_version: $version,
     base_url: $base,
+    providers: $providers[0],
     store: {
       name: "Cloud Forge App Store",
       description: "One-command open-source app deployment powered by immutable images"
@@ -89,7 +92,7 @@ new_fingerprint="$(jq -nc \
   }')"
 
 if [ -f "$INDEX" ]; then
-  existing_fingerprint="$(jq -c '{catalog_version, base_url, store, apps}' "$INDEX" 2>/dev/null || true)"
+    existing_fingerprint="$(jq -c '{catalog_version, base_url, providers, store, apps}' "$INDEX" 2>/dev/null || true)"
   if [ "$existing_fingerprint" = "$new_fingerprint" ]; then
     existing_generated="$(jq -r '.generated_at // empty' "$INDEX" 2>/dev/null || true)"
     if [ -n "$existing_generated" ]; then
@@ -102,11 +105,13 @@ jq -n \
   --arg version "$VERSION" \
   --arg base "$BASE_URL" \
   --arg generated "$generated" \
+  --slurpfile providers "$PROVIDERS" \
   --slurpfile apps "$apps_file" \
   '{
     catalog_version: $version,
     generated_at: $generated,
     base_url: $base,
+    providers: $providers[0],
     store: {
       name: "Cloud Forge App Store",
       description: "One-command open-source app deployment powered by immutable images"

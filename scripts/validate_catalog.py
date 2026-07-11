@@ -22,6 +22,14 @@ VALID_CLOUDS = {"aws", "aliyun"}
 VALID_TIERS = {"certified", "community", "experimental"}
 VALID_AMI_ROLES = {"web", "db", "tcp"}
 DIRECT_TCP_ROLES = {"db", "tcp"}
+AWS_AMI_BY_ROLE = {
+    "web": "ami-0777e5ab470bf89c1",
+    "db": "ami-0f6b6dc8c575106cb",
+    "tcp": "ami-0f6b6dc8c575106cb",
+}
+IMMUTABLE_IMAGE_RE = re.compile(
+    r"^[a-z0-9][a-z0-9.-]*(?::[0-9]+)?/[A-Za-z0-9_./-]+@sha256:[a-f0-9]{64}$"
+)
 
 
 def fail(message: str) -> None:
@@ -167,6 +175,7 @@ def validate_manifest(root: Path, manifest: Path) -> None:
             fail(f"{manifest}: versions.items must be a non-empty array")
         seen_versions: set[str] = set()
         verified_versions: set[str] = set()
+        image_backed_versions = any(isinstance(item, dict) and item.get("image") for item in items)
         for index, item in enumerate(items):
             if not isinstance(item, dict):
                 fail(f"{manifest}: versions.items[{index}] must be an object")
@@ -180,6 +189,33 @@ def validate_manifest(root: Path, manifest: Path) -> None:
                 fail(f"{manifest}: versions.items[{index}].verified must be boolean")
             if item["verified"]:
                 verified_versions.add(app_version)
+            deployable = item.get("deployable", True)
+            if not isinstance(deployable, bool):
+                fail(f"{manifest}: versions.items[{index}].deployable must be boolean")
+            lifecycle = item.get("lifecycle")
+            if lifecycle is not None and lifecycle not in {"stable", "archived", "unavailable"}:
+                fail(f"{manifest}: invalid lifecycle for version {app_version!r}")
+            image = item.get("image")
+            if image is not None and (not isinstance(image, str) or not IMMUTABLE_IMAGE_RE.fullmatch(image)):
+                fail(f"{manifest}: version {app_version!r} image must be an immutable sha256 reference")
+            if image_backed_versions and deployable and not image:
+                fail(f"{manifest}: deployable version {app_version!r} must have an immutable image")
+            if item["verified"] and not deployable:
+                fail(f"{manifest}: verified version {app_version!r} must be deployable")
+            verification = item.get("verification")
+            if verification is not None:
+                if not isinstance(verification, dict):
+                    fail(f"{manifest}: version {app_version!r} verification must be an object")
+                if verification.get("level") not in {"local-smoke", "cloud-e2e"}:
+                    fail(f"{manifest}: version {app_version!r} has invalid verification level")
+                if not isinstance(verification.get("tested_at"), str) or not verification["tested_at"]:
+                    fail(f"{manifest}: version {app_version!r} verification needs tested_at")
+            if image_backed_versions and item["verified"] and verification is None:
+                fail(f"{manifest}: verified immutable version {app_version!r} needs verification evidence")
+            if lifecycle == "unavailable" and deployable:
+                fail(f"{manifest}: unavailable version {app_version!r} cannot be deployable")
+            if not deployable and not item.get("unavailable_reason"):
+                fail(f"{manifest}: non-deployable version {app_version!r} needs unavailable_reason")
         if default_version not in seen_versions:
             fail(f"{manifest}: versions.default must match an item")
         if default_version not in verified_versions:
@@ -239,6 +275,16 @@ def validate_manifest(root: Path, manifest: Path) -> None:
         rel_path = assert_string(ref.get("path"), f"templates.{cloud}.path", manifest)
         validate_template_path(root, rel_path, manifest)
 
+    expected_aws_ami = AWS_AMI_BY_ROLE[role]
+    if "aws" in clouds and images.get("aws") != expected_aws_ami:
+        fail(
+            f"{manifest}: images.aws must use Marketplace {role} AMI {expected_aws_ami}, "
+            f"got {images.get('aws')!r}"
+        )
+    latest_ami = ((data.get("params") or {}).get("LatestAmiId") or {}).get("aws") or {}
+    if "aws" in clouds and latest_ami.get("default") != expected_aws_ami:
+        fail(f"{manifest}: params.LatestAmiId.aws.default must match images.aws")
+
     validate_compose_package(root, app_id, manifest)
     for cloud in clouds:
         validate_cloud_setup(root, app_id, cloud, manifest)
@@ -259,6 +305,10 @@ def validate_manifest(root: Path, manifest: Path) -> None:
                 fail(f"{manifest}: params.{name}.{cloud_key} must be an object")
             if isinstance(cloud_def, dict) and "required" in cloud_def and not isinstance(cloud_def["required"], bool):
                 fail(f"{manifest}: params.{name}.{cloud_key}.required must be a boolean")
+            if isinstance(cloud_def, dict) and isinstance(cloud_def.get("options"), list):
+                options = cloud_def["options"]
+                if len(options) != len(set(str(option) for option in options)):
+                    fail(f"{manifest}: params.{name}.{cloud_key}.options must not contain duplicates")
 
 
 def main() -> None:
