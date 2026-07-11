@@ -1,6 +1,6 @@
 {
   "ROSTemplateFormatVersion": "2015-09-01",
-  "Description": "Temporal on Cloud Forge CLI - Aliyun cn-hongkong bootstrap",
+  "Description": "Temporal on Cloud Forge - browser-based Aliyun deployment",
   "Parameters": {
     "InstanceType": {
       "Type": "String",
@@ -11,9 +11,13 @@
       "Type": "String",
       "Default": "aliyun_3_x64_20G_alibase_20260122.vhd"
     },
-    "KeyPairName": { "Type": "String" },
-    "VpcId": { "Type": "String" },
-    "VSwitchId": { "Type": "String" },
+    "KeyPairName": { "Type": "String", "AssociationProperty": "ALIYUN::ECS::KeyPair::KeyPairName" },
+    "VpcId": { "Type": "String", "AssociationProperty": "ALIYUN::ECS::VPC::VPCId" },
+    "VSwitchId": {
+      "Type": "String",
+      "AssociationProperty": "ALIYUN::ECS::VSwitch::VSwitchId",
+      "AssociationPropertyMetadata": { "VpcId": "${VpcId}" }
+    },
     "AllowedIP": { "Type": "String", "Default": "0.0.0.0/0" },
     "CaddyTlsMode": {
       "Type": "String",

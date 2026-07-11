@@ -32,6 +32,30 @@
       "type": "string",
       "pattern": "^\\d+\\.\\d+\\.\\d+$"
     },
+    "versions": {
+      "type": "object",
+      "required": ["default", "items"],
+      "properties": {
+        "default": { "type": "string", "minLength": 1 },
+        "items": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "type": "object",
+            "required": ["version", "verified"],
+            "properties": {
+              "version": {
+                "type": "string",
+                "pattern": "^[A-Za-z0-9][A-Za-z0-9._-]{0,127}$"
+              },
+              "verified": { "type": "boolean" }
+            },
+            "additionalProperties": false
+          }
+        }
+      },
+      "additionalProperties": false
+    },
     "min_cli_version": {
       "type": "string",
       "pattern": "^\\d+\\.\\d+\\.\\d+$"

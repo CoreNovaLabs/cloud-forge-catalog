@@ -1,14 +1,14 @@
 {
-  "id": "hello-nginx",
-  "name": "Hello NGINX",
-  "desc": "Minimal NGINX service for validating the Cloud Forge deploy flow",
+  "id": "nginx",
+  "name": "NGINX",
+  "desc": "High-performance web server and reverse proxy",
   "icon": "🌐",
   "category": "other",
   "tags": [
     "nginx",
     "aws",
     "aliyun",
-    "demo"
+    "web-server"
   ],
   "stars": 0,
   "clouds": [
@@ -17,6 +17,13 @@
   ],
   "version": "1.0.0",
   "min_cli_version": "0.3.0",
+  "versions": {
+    "default": "1.27-alpine",
+    "items": [
+      { "version": "1.27-alpine", "verified": true },
+      { "version": "1.26-alpine", "verified": false }
+    ]
+  },
   "tier": "certified",
   "smoke": {
     "health_paths": [
@@ -26,9 +33,9 @@
   },
   "price": "free",
   "cost_notice": [
-    "Aliyun deploy defaults to cn-hongkong; pass --region for other regions.",
+    "Alibaba Cloud defaults to cn-hongkong; choose another supported region in the launcher.",
     "Mainland China regions may fail bootstrap (Docker Hub / catalog CDN reachability).",
-    "Custom domains: AWS uses --domain + --hosted-zone-id (Route53); Aliyun uses --domain + --dns-domain (Alidns). DNS propagation and ACME may take several minutes.",
+    "Custom domains can be configured with Route53 parameters on AWS or Alidns parameters on Alibaba Cloud. DNS propagation and ACME may take several minutes.",
     "First bootstrap may take 8-15 minutes on Aliyun public OS images.",
     "You pay only for cloud resources such as ECS, EIP, disk, and data transfer."
   ],
@@ -38,10 +45,10 @@
   },
   "templates": {
     "aws": {
-      "path": "apps/hello-nginx/templates/aws.yaml"
+      "path": "apps/nginx/templates/aws.yaml"
     },
     "aliyun": {
-      "path": "apps/hello-nginx/templates/aliyun.json"
+      "path": "apps/nginx/templates/aliyun.json"
     }
   },
   "params": {

@@ -1,11 +1,12 @@
 AWSTemplateFormatVersion: '2010-09-09'
-Description: 'Sonarr on Cloud Forge CLI - one-command deployment'
+Description: 'Sonarr on Cloud Forge - browser-based deployment'
 
 Parameters:
   InstanceType:
     Type: String
     Default: t3.small
     AllowedValues: [t3.small, t3.medium]
+
   LatestAmiId:
     Type: AWS::EC2::Image::Id
     Default: ami-04cf9ac8716f030d6
@@ -100,6 +101,7 @@ Resources:
           export CLOUD_FORGE_CADDY_TLS_MODE=${CaddyTlsMode}
           export CLOUD_FORGE_DOMAIN_NAME=${DomainName}
           export CLOUD_FORGE_CADDY_EMAIL=${CaddyEmail}
+
 
           curl -fsSL https://cdn.jsdelivr.net/gh/CoreNovaLabs/cloud-forge-catalog@main/scripts/aws/bootstrap-app.sh -o /tmp/cf-bootstrap.sh
           if grep -q 'run_as_root CLOUD_FORGE_CATALOG_URL=' /tmp/cf-bootstrap.sh; then

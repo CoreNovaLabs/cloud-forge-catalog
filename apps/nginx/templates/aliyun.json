@@ -1,19 +1,24 @@
 {
   "ROSTemplateFormatVersion": "2015-09-01",
-  "Description": "Hello NGINX on Cloud Forge CLI - Aliyun cn-hongkong bootstrap",
+  "Description": "NGINX on Cloud Forge - browser-based Aliyun deployment",
   "Parameters": {
     "InstanceType": {
       "Type": "String",
       "Default": "ecs.t6-c1m1.large",
       "AllowedValues": ["ecs.t6-c1m1.large", "ecs.t6-c1m2.large", "ecs.t6-c1m4.large"]
     },
+    "AppVersion": { "Type": "String", "Default": "1.27-alpine", "AllowedValues": ["1.27-alpine", "1.26-alpine"] },
     "ImageId": {
       "Type": "String",
       "Default": "aliyun_3_x64_20G_alibase_20260122.vhd"
     },
-    "KeyPairName": { "Type": "String" },
-    "VpcId": { "Type": "String" },
-    "VSwitchId": { "Type": "String" },
+    "KeyPairName": { "Type": "String", "AssociationProperty": "ALIYUN::ECS::KeyPair::KeyPairName" },
+    "VpcId": { "Type": "String", "AssociationProperty": "ALIYUN::ECS::VPC::VPCId" },
+    "VSwitchId": {
+      "Type": "String",
+      "AssociationProperty": "ALIYUN::ECS::VSwitch::VSwitchId",
+      "AssociationPropertyMetadata": { "VpcId": "${VpcId}" }
+    },
     "AllowedIP": { "Type": "String", "Default": "0.0.0.0/0" },
     "CaddyTlsMode": {
       "Type": "String",
@@ -43,11 +48,11 @@
     }
   },
   "Resources": {
-    "HelloNginxSG": {
+    "NginxSG": {
       "Type": "ALIYUN::ECS::SecurityGroup",
       "Properties": {
         "VpcId": { "Ref": "VpcId" },
-        "SecurityGroupName": "cloud-forge-hello-nginx",
+        "SecurityGroupName": "cloud-forge-nginx",
         "SecurityGroupIngress": [
           { "IpProtocol": "tcp", "PortRange": "80/80", "SourceCidrIp": "0.0.0.0/0" },
           { "IpProtocol": "tcp", "PortRange": "443/443", "SourceCidrIp": "0.0.0.0/0" },
@@ -55,57 +60,57 @@
         ]
       }
     },
-    "HelloNginxInstance": {
+    "NginxInstance": {
       "Type": "ALIYUN::ECS::Instance",
       "Properties": {
         "ImageId": { "Ref": "ImageId" },
         "InstanceType": { "Ref": "InstanceType" },
         "KeyPairName": { "Ref": "KeyPairName" },
         "VSwitchId": { "Ref": "VSwitchId" },
-        "SecurityGroupId": { "Ref": "HelloNginxSG" },
+        "SecurityGroupId": { "Ref": "NginxSG" },
         "SystemDiskSize": { "Ref": "DiskSize" },
         "SystemDiskCategory": "cloud_efficiency",
         "InternetMaxBandwidthOut": 0,
         "UserData": {
-          "Fn::Sub": "#!/bin/bash\nset -euxo pipefail\nexport CLOUD_FORGE_CADDY_TLS_MODE=${CaddyTlsMode}\nexport CLOUD_FORGE_DOMAIN_NAME=${DomainName}\nexport CLOUD_FORGE_CADDY_EMAIL=${CaddyEmail}\ncurl -fsSL https://cdn.jsdelivr.net/gh/CoreNovaLabs/cloud-forge-catalog@main/scripts/aliyun/bootstrap-app.sh -o /tmp/cf-bootstrap.sh\nif ! grep -q CLOUD_FORGE_DOMAIN_NAME /tmp/cf-bootstrap.sh; then\n  curl -fsSL https://cdn.jsdelivr.net/gh/CoreNovaLabs/cloud-forge-catalog@66fb52b/scripts/aliyun/bootstrap-app.sh -o /tmp/cf-bootstrap.sh\nfi\nbash /tmp/cf-bootstrap.sh hello-nginx\n"
+          "Fn::Sub": "#!/bin/bash\nset -euxo pipefail\nexport CLOUD_FORGE_CADDY_TLS_MODE=${CaddyTlsMode}\nexport CLOUD_FORGE_DOMAIN_NAME=${DomainName}\nexport CLOUD_FORGE_CADDY_EMAIL=${CaddyEmail}\nexport CLOUD_FORGE_APP_VERSION=${AppVersion}\ncurl -fsSL https://cdn.jsdelivr.net/gh/CoreNovaLabs/cloud-forge-catalog@main/scripts/aliyun/bootstrap-app.sh -o /tmp/cf-bootstrap.sh\nif ! grep -q CLOUD_FORGE_DOMAIN_NAME /tmp/cf-bootstrap.sh; then\n  curl -fsSL https://cdn.jsdelivr.net/gh/CoreNovaLabs/cloud-forge-catalog@66fb52b/scripts/aliyun/bootstrap-app.sh -o /tmp/cf-bootstrap.sh\nfi\nbash /tmp/cf-bootstrap.sh nginx\n"
         },
         "Tags": [
-          { "Key": "Name", "Value": "cloud-forge-hello-nginx" },
-          { "Key": "cloud-forge:app", "Value": "hello-nginx" }
+          { "Key": "Name", "Value": "cloud-forge-nginx" },
+          { "Key": "cloud-forge:app", "Value": "nginx" }
         ]
       }
     },
-    "HelloNginxEIP": {
+    "NginxEIP": {
       "Type": "ALIYUN::VPC::EIP",
       "Properties": {
         "Bandwidth": 5,
         "InternetChargeType": "PayByTraffic"
       }
     },
-    "HelloNginxEIPAssociation": {
+    "NginxEIPAssociation": {
       "Type": "ALIYUN::VPC::EIPAssociation",
       "Properties": {
-        "AllocationId": { "Ref": "HelloNginxEIP" },
-        "InstanceId": { "Ref": "HelloNginxInstance" }
+        "AllocationId": { "Ref": "NginxEIP" },
+        "InstanceId": { "Ref": "NginxInstance" }
       }
     },
-    "HelloNginxDNS": {
+    "NginxDNS": {
       "Type": "ALIYUN::DNS::DomainRecord",
       "Condition": "HasDNS",
-      "DependsOn": ["HelloNginxEIPAssociation"],
+      "DependsOn": ["NginxEIPAssociation"],
       "Properties": {
         "DomainName": { "Ref": "DnsDomainName" },
         "RR": { "Ref": "DnsRR" },
         "Type": "A",
-        "Value": { "Fn::GetAtt": ["HelloNginxEIP", "EipAddress"] },
+        "Value": { "Fn::GetAtt": ["NginxEIP", "EipAddress"] },
         "TTL": 600
       }
     }
   },
   "Outputs": {
     "ServiceURL": {
-      "Description": "Primary endpoint for hello-nginx.",
-      "Value": {"Fn::If": ["HasDomain", {"Fn::If": ["UseHttp", {"Fn::Sub": "http://${DomainName}"}, {"Fn::Sub": "https://${DomainName}"}]}, {"Fn::If": ["UseHttp", {"Fn::Join": ["", ["http://", {"Fn::GetAtt": ["HelloNginxEIP", "EipAddress"]}]]}, {"Fn::Join": ["", ["https://", {"Fn::GetAtt": ["HelloNginxEIP", "EipAddress"]}]]}]}]}
+      "Description": "Primary endpoint for nginx.",
+      "Value": {"Fn::If": ["HasDomain", {"Fn::If": ["UseHttp", {"Fn::Sub": "http://${DomainName}"}, {"Fn::Sub": "https://${DomainName}"}]}, {"Fn::If": ["UseHttp", {"Fn::Join": ["", ["http://", {"Fn::GetAtt": ["NginxEIP", "EipAddress"]}]]}, {"Fn::Join": ["", ["https://", {"Fn::GetAtt": ["NginxEIP", "EipAddress"]}]]}]}]}
     },
     "DomainName": {
       "Description": "Custom domain when configured.",
@@ -113,11 +118,11 @@
     },
     "PublicIP": {
       "Description": "Elastic IP address assigned to the service.",
-      "Value": { "Fn::GetAtt": ["HelloNginxEIP", "EipAddress"] }
+      "Value": { "Fn::GetAtt": ["NginxEIP", "EipAddress"] }
     },
     "InstanceId": {
       "Description": "Created ECS instance ID.",
-      "Value": { "Ref": "HelloNginxInstance" }
+      "Value": { "Ref": "NginxInstance" }
     }
   }
 }

@@ -66,6 +66,56 @@ def build_aliyun_secret_userdata_block(manifest: dict) -> str:
     return "export CLOUD_FORGE_APP_ADMIN_PASSWORD=${AdminPassword}\\n"
 
 
+def app_versions(manifest: dict) -> tuple[str, list[str]] | None:
+    versions = manifest.get("versions")
+    if not versions:
+        return None
+    default = str(versions["default"])
+    values = [str(item["version"]) for item in versions["items"]]
+    return default, values
+
+
+def build_aws_version_params_block(manifest: dict) -> str:
+    configured = app_versions(manifest)
+    if not configured:
+        return ""
+    default, values = configured
+    allowed = ", ".join(json.dumps(value) for value in values)
+    return (
+        "  AppVersion:\n"
+        "    Type: String\n"
+        f"    Default: {json.dumps(default)}\n"
+        f"    AllowedValues: [{allowed}]\n"
+        "    Description: Curated application release to deploy."
+    )
+
+
+def build_aws_version_userdata_block(manifest: dict) -> str:
+    if not app_versions(manifest):
+        return ""
+    return "          export CLOUD_FORGE_APP_VERSION=${AppVersion}"
+
+
+def build_aliyun_version_params_block(manifest: dict) -> str:
+    configured = app_versions(manifest)
+    if not configured:
+        return ""
+    default, values = configured
+    return (
+        ',\n    "AppVersion": {'
+        ' "Type": "String",'
+        f' "Default": {json.dumps(default)},'
+        f' "AllowedValues": {json.dumps(values)}'
+        " }"
+    )
+
+
+def build_aliyun_version_userdata_block(manifest: dict) -> str:
+    if not app_versions(manifest):
+        return ""
+    return "export CLOUD_FORGE_APP_VERSION=${AppVersion}\\n"
+
+
 def cloud_param(manifest: dict, name: str, cloud: str, field: str, default=None):
     params = manifest.get("params") or {}
     definition = params.get(name) or {}
@@ -268,6 +318,9 @@ def generate_iac(root: Path, app_id: str, manifest: dict) -> None:
         "APP_SECRET_PARAMS_BLOCK": build_aws_secret_params_block(manifest),
         "APP_SECRET_USERDATA_BLOCK": build_aws_secret_userdata_block(manifest),
         "APP_SECRET_USERDATA_ALIYUN": build_aliyun_secret_userdata_block(manifest),
+        "APP_VERSION_PARAMS_BLOCK": build_aws_version_params_block(manifest),
+        "APP_VERSION_USERDATA_BLOCK": build_aws_version_userdata_block(manifest),
+        "APP_VERSION_USERDATA_ALIYUN": build_aliyun_version_userdata_block(manifest),
         "APP_SECURITY_GROUP_INGRESS_BLOCK": build_aws_security_group_ingress_block(manifest),
         "APP_USE_HTTP_CONDITION_BLOCK": build_aws_use_http_condition_block(manifest),
         "APP_SERVICE_URL_VALUE": build_aws_service_url_value(manifest, app_id),
@@ -277,6 +330,7 @@ def generate_iac(root: Path, app_id: str, manifest: dict) -> None:
     aliyun_values = {
         **values,
         "APP_SECRET_PARAMS_BLOCK": build_aliyun_secret_params_block(manifest),
+        "APP_VERSION_PARAMS_BLOCK": build_aliyun_version_params_block(manifest),
         "APP_SECURITY_GROUP_INGRESS_BLOCK": build_aliyun_security_group_ingress_block(manifest),
         "APP_SERVICE_URL_VALUE": build_aliyun_service_url_value(manifest, app_id),
     }

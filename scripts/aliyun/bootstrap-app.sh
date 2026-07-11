@@ -98,7 +98,7 @@ EOF
   fi
 
   sudo systemctl start docker || true
-  sudo docker compose -f /opt/cloud-forge/docker-compose.app.yml up -d --remove-orphans
+  sudo env CLOUD_FORGE_APP_VERSION="${CLOUD_FORGE_APP_VERSION:-}" docker compose -f /opt/cloud-forge/docker-compose.app.yml up -d --remove-orphans
   echo "==> Cloud Forge app bootstrap complete: ${APP_ID}"
   exit 0
 fi
@@ -140,5 +140,5 @@ EOF
   sudo chmod 600 /opt/cloud-forge/compose.app.env
 fi
 
-sudo /opt/cloud-forge/bin/cloud-forge-apply-app
+sudo env CLOUD_FORGE_APP_VERSION="${CLOUD_FORGE_APP_VERSION:-}" /opt/cloud-forge/bin/cloud-forge-apply-app
 echo "==> Cloud Forge app bootstrap complete: ${APP_ID}"

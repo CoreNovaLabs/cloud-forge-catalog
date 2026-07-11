@@ -12,6 +12,7 @@ from pathlib import Path
 
 APP_ID_RE = re.compile(r"^[a-z0-9]([a-z0-9-]*[a-z0-9])?$")
 SEMVER_RE = re.compile(r"^\d+\.\d+\.\d+$")
+APP_VERSION_RE = re.compile(r"^[A-Za-z0-9][A-Za-z0-9._-]{0,127}$")
 IMAGE_RE = {
     "aws": re.compile(r"^(ami-[a-z0-9]+|ssm:/[A-Za-z0-9/_./-]+)$"),
     "aliyun": re.compile(r"^(m-[a-zA-Z0-9-]+|aliyun_[a-zA-Z0-9_]+\.vhd)$"),
@@ -155,6 +156,34 @@ def validate_manifest(root: Path, manifest: Path) -> None:
         fail(f"{manifest}: version must be semver")
     if "min_cli_version" in data and not SEMVER_RE.match(str(data["min_cli_version"])):
         fail(f"{manifest}: min_cli_version must be semver")
+
+    versions = data.get("versions")
+    if versions is not None:
+        if not isinstance(versions, dict):
+            fail(f"{manifest}: versions must be an object")
+        default_version = assert_string(versions.get("default"), "versions.default", manifest)
+        items = versions.get("items")
+        if not isinstance(items, list) or not items:
+            fail(f"{manifest}: versions.items must be a non-empty array")
+        seen_versions: set[str] = set()
+        verified_versions: set[str] = set()
+        for index, item in enumerate(items):
+            if not isinstance(item, dict):
+                fail(f"{manifest}: versions.items[{index}] must be an object")
+            app_version = assert_string(item.get("version"), f"versions.items[{index}].version", manifest)
+            if not APP_VERSION_RE.fullmatch(app_version):
+                fail(f"{manifest}: invalid application version {app_version!r}")
+            if app_version in seen_versions:
+                fail(f"{manifest}: duplicate application version {app_version!r}")
+            seen_versions.add(app_version)
+            if not isinstance(item.get("verified"), bool):
+                fail(f"{manifest}: versions.items[{index}].verified must be boolean")
+            if item["verified"]:
+                verified_versions.add(app_version)
+        if default_version not in seen_versions:
+            fail(f"{manifest}: versions.default must match an item")
+        if default_version not in verified_versions:
+            fail(f"{manifest}: versions.default must be a verified version")
 
     tier = data.get("tier", "community")
     if tier not in VALID_TIERS:

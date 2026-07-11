@@ -14,9 +14,9 @@
   "service_port": {{SERVICE_PORT}}{{SERVICE_SCHEME_JSON}},
   "price": "free",
   "cost_notice": [
-    "Aliyun deploy defaults to cn-hongkong; pass --region for other regions.",
+    "Alibaba Cloud defaults to cn-hongkong; choose another supported region in the launcher.",
     "Mainland China regions may fail bootstrap (Docker Hub / catalog CDN reachability).",
-    "Custom domains: AWS uses --domain + --hosted-zone-id (Route53); Aliyun uses --domain + --dns-domain (Alidns). DNS propagation and ACME may take several minutes.",
+    "Custom domains can be configured with Route53 parameters on AWS or Alidns parameters on Alibaba Cloud. DNS propagation and ACME may take several minutes.",
     "First bootstrap may take 8-15 minutes on Aliyun public OS images.",
     "You pay only for cloud resources such as ECS, EIP, disk, and data transfer."
   ],

@@ -81,7 +81,7 @@ EOF
   fi
 
   run_as_root systemctl start docker || true
-  run_as_root docker compose -f /opt/cloud-forge/docker-compose.app.yml up -d --remove-orphans
+  run_as_root env CLOUD_FORGE_APP_VERSION="${CLOUD_FORGE_APP_VERSION:-}" docker compose -f /opt/cloud-forge/docker-compose.app.yml up -d --remove-orphans
   echo "==> Cloud Forge AWS app bootstrap complete: ${APP_ID}"
   exit 0
 fi
@@ -142,5 +142,5 @@ EOF
 fi
 
 run_as_root systemctl start docker || true
-run_as_root /opt/cloud-forge/bin/cloud-forge-apply-app
+run_as_root env CLOUD_FORGE_APP_VERSION="${CLOUD_FORGE_APP_VERSION:-}" /opt/cloud-forge/bin/cloud-forge-apply-app
 echo "==> Cloud Forge AWS app bootstrap complete: ${APP_ID}"
