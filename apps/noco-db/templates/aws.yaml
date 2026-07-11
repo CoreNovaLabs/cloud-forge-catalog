@@ -104,7 +104,7 @@ Resources:
 
 
 
-          curl -fsSL https://cdn.jsdelivr.net/gh/CoreNovaLabs/cloud-forge-catalog@v0.5.0/scripts/aws/bootstrap-app.sh -o /tmp/cf-bootstrap.sh
+          curl -fsSL https://cdn.jsdelivr.net/gh/CoreNovaLabs/cloud-forge-catalog@v0.5.1/scripts/aws/bootstrap-app.sh -o /tmp/cf-bootstrap.sh
           bash /tmp/cf-bootstrap.sh noco-db
       Tags:
         - Key: Name

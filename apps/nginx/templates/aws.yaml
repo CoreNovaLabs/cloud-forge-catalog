@@ -108,7 +108,7 @@ Resources:
           export CLOUD_FORGE_APP_VERSION=${AppVersion}
 
 
-          curl -fsSL https://cdn.jsdelivr.net/gh/CoreNovaLabs/cloud-forge-catalog@v0.5.0/scripts/aws/bootstrap-app.sh -o /tmp/cf-bootstrap.sh
+          curl -fsSL https://cdn.jsdelivr.net/gh/CoreNovaLabs/cloud-forge-catalog@v0.5.1/scripts/aws/bootstrap-app.sh -o /tmp/cf-bootstrap.sh
           bash /tmp/cf-bootstrap.sh nginx
       Tags:
         - Key: Name
