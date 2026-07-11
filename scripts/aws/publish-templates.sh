@@ -17,20 +17,29 @@ while IFS= read -r template; do
   relative="${template#"$ROOT/"}"
   key="releases/${CATALOG_VERSION}/${relative}"
   checksum="$(shasum -a 256 "$template" | awk '{print $1}')"
-  remote_checksum="$(aws s3api head-object --bucket "$BUCKET" --key "$key" --region "$REGION" --query 'Metadata.sha256' --output text 2>/dev/null || true)"
-  if [[ -n "$remote_checksum" && "$remote_checksum" != "None" ]]; then
+  if head_output="$(aws s3api head-object --bucket "$BUCKET" --key "$key" --region "$REGION" --output json 2>&1)"; then
+    remote_checksum="$(jq -r '.Metadata.sha256 // empty' <<<"$head_output")"
+    if [[ -z "$remote_checksum" ]]; then
+      echo "refusing to replace existing object without sha256 metadata: s3://${BUCKET}/${key}" >&2
+      exit 1
+    fi
     if [[ "$remote_checksum" != "$checksum" ]]; then
       echo "refusing to overwrite immutable object s3://${BUCKET}/${key}" >&2
       exit 1
     fi
     skipped=$((skipped + 1))
     continue
+  elif ! grep -Eq '\(404\)|Not Found|NoSuchKey' <<<"$head_output"; then
+    echo "failed to inspect s3://${BUCKET}/${key}: ${head_output}" >&2
+    exit 1
   fi
   aws s3api put-object \
     --bucket "$BUCKET" \
     --key "$key" \
     --body "$template" \
     --content-type application/yaml \
+    --cache-control 'public, max-age=31536000, immutable' \
+    --if-none-match '*' \
     --metadata "sha256=${checksum}" \
     --region "$REGION" >/dev/null
   published=$((published + 1))
