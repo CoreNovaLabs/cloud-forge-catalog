@@ -1,0 +1,61 @@
+{
+  "aws": {
+    "name": "AWS",
+    "default_region": "us-east-1",
+    "regions": [
+      {
+        "id": "us-east-1",
+        "name": "US East (N. Virginia)",
+        "status": "supported"
+      }
+    ],
+    "ami_by_role": {
+      "web": "ami-0777e5ab470bf89c1",
+      "db": "ami-0f6b6dc8c575106cb",
+      "tcp": "ami-0f6b6dc8c575106cb"
+    },
+    "marketplace_products": {
+      "web": {
+        "product_id": "prod-c2q4h76hz3u4k",
+        "offer_id": "offer-ov5klsvohnoxu",
+        "visibility": "limited",
+        "url": "https://aws.amazon.com/marketplace/pp/prod-c2q4h76hz3u4k"
+      },
+      "db": {
+        "product_id": "prod-r2ldqznatcigs",
+        "visibility": "limited",
+        "url": "https://aws.amazon.com/marketplace/pp/prod-r2ldqznatcigs"
+      },
+      "tcp": {
+        "product_id": "prod-r2ldqznatcigs",
+        "visibility": "limited",
+        "url": "https://aws.amazon.com/marketplace/pp/prod-r2ldqznatcigs"
+      }
+    }
+  },
+  "aliyun": {
+    "name": "Alibaba Cloud",
+    "default_region": "cn-hongkong",
+    "instance_type_selection": "provider-console",
+    "regions": [
+      { "id": "cn-hongkong", "name": "China (Hong Kong)", "status": "supported" },
+      { "id": "ap-southeast-1", "name": "Singapore", "status": "supported" },
+      { "id": "ap-southeast-3", "name": "Malaysia (Kuala Lumpur)", "status": "supported" },
+      { "id": "ap-southeast-5", "name": "Indonesia (Jakarta)", "status": "supported" },
+      { "id": "ap-southeast-6", "name": "Philippines (Manila)", "status": "supported" },
+      { "id": "ap-southeast-7", "name": "Thailand (Bangkok)", "status": "supported" },
+      { "id": "ap-southeast-8", "name": "Malaysia (Johor)", "status": "supported" },
+      { "id": "ap-northeast-1", "name": "Japan (Tokyo)", "status": "supported" },
+      { "id": "ap-northeast-2", "name": "South Korea (Seoul)", "status": "supported" },
+      { "id": "us-west-1", "name": "US (Silicon Valley)", "status": "supported" },
+      { "id": "us-east-1", "name": "US (Virginia)", "status": "supported" },
+      { "id": "eu-central-1", "name": "Germany (Frankfurt)", "status": "supported" },
+      { "id": "eu-west-1", "name": "UK (London)", "status": "supported" },
+      { "id": "eu-west-2", "name": "France (Paris)", "status": "supported" },
+      { "id": "me-east-1", "name": "UAE (Dubai)", "status": "supported" },
+      { "id": "me-central-1", "name": "Saudi Arabia (Riyadh, partner region)", "status": "supported" },
+      { "id": "na-south-1", "name": "Mexico", "status": "supported" }
+    ],
+    "excluded_region_groups": ["mainland-china"]
+  }
+}

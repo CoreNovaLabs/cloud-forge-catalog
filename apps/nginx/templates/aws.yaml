@@ -1,14 +1,19 @@
 AWSTemplateFormatVersion: '2010-09-09'
-Description: 'Hello NGINX on Cloud Forge CLI - one-command deployment'
+Description: 'NGINX on Cloud Forge - browser-based deployment'
 
 Parameters:
   InstanceType:
     Type: String
     Default: t3.micro
-    AllowedValues: [t3.micro, t3.small, t3.medium]
+    AllowedValues: [t3.medium, t3.micro, t3.small]
+  AppVersion:
+    Type: String
+    Default: "1.27-alpine"
+    AllowedValues: ["1.27-alpine", "1.26-alpine"]
+    Description: Curated application release to deploy.
   LatestAmiId:
     Type: AWS::EC2::Image::Id
-    Default: ami-04cf9ac8716f030d6
+    Default: ami-0777e5ab470bf89c1
   CaddyTlsMode:
     Type: String
     Default: ip-letsencrypt
@@ -55,10 +60,10 @@ Conditions:
   UseHttp: !Equals [!Ref CaddyTlsMode, http]
 
 Resources:
-  HelloNginxSecurityGroup:
+  NginxSecurityGroup:
     Type: AWS::EC2::SecurityGroup
     Properties:
-      GroupDescription: Allow app traffic and restricted SSH for hello-nginx
+      GroupDescription: Allow app traffic and restricted SSH for nginx
       VpcId: !If [HasVpc, !Ref VpcId, !Ref AWS::NoValue]
       SecurityGroupIngress:
         - IpProtocol: tcp
@@ -76,9 +81,9 @@ Resources:
           CidrIp: !Ref AllowedIP
       Tags:
         - Key: cloud-forge:app
-          Value: hello-nginx
+          Value: nginx
 
-  HelloNginxInstance:
+  NginxInstance:
     Type: AWS::EC2::Instance
     Properties:
       ImageId: !Ref LatestAmiId
@@ -91,42 +96,41 @@ Resources:
             VolumeSize: !Ref DiskSize
             VolumeType: gp3
       SecurityGroupIds:
-        - !Ref HelloNginxSecurityGroup
+        - !Ref NginxSecurityGroup
       UserData:
         Fn::Base64: !Sub |
           #!/bin/bash
           set -euxo pipefail
-          export CLOUD_FORGE_CADDY_PUBLIC_IP=${HelloNginxEIP}
+          export CLOUD_FORGE_CADDY_PUBLIC_IP=${NginxEIP}
           export CLOUD_FORGE_CADDY_TLS_MODE=${CaddyTlsMode}
           export CLOUD_FORGE_DOMAIN_NAME=${DomainName}
           export CLOUD_FORGE_CADDY_EMAIL=${CaddyEmail}
+          export CLOUD_FORGE_APP_VERSION=${AppVersion}
 
-          curl -fsSL https://cdn.jsdelivr.net/gh/CoreNovaLabs/cloud-forge-catalog@main/scripts/aws/bootstrap-app.sh -o /tmp/cf-bootstrap.sh
-          if grep -q 'run_as_root CLOUD_FORGE_CATALOG_URL=' /tmp/cf-bootstrap.sh; then
-            curl -fsSL https://cdn.jsdelivr.net/gh/CoreNovaLabs/cloud-forge-catalog@34993eb/scripts/aws/bootstrap-app.sh -o /tmp/cf-bootstrap.sh
-          fi
-          bash /tmp/cf-bootstrap.sh hello-nginx
+
+          curl -fsSL https://cdn.jsdelivr.net/gh/CoreNovaLabs/cloud-forge-catalog@v0.5.0/scripts/aws/bootstrap-app.sh -o /tmp/cf-bootstrap.sh
+          bash /tmp/cf-bootstrap.sh nginx
       Tags:
         - Key: Name
-          Value: cloud-forge-hello-nginx
+          Value: cloud-forge-nginx
         - Key: cloud-forge:app
-          Value: hello-nginx
+          Value: nginx
 
-  HelloNginxEIP:
+  NginxEIP:
     Type: AWS::EC2::EIP
     Properties:
       Domain: vpc
       Tags:
         - Key: cloud-forge:app
-          Value: hello-nginx
+          Value: nginx
 
-  HelloNginxEIPAssociation:
+  NginxEIPAssociation:
     Type: AWS::EC2::EIPAssociation
     Properties:
-      AllocationId: !GetAtt HelloNginxEIP.AllocationId
-      InstanceId: !Ref HelloNginxInstance
+      AllocationId: !GetAtt NginxEIP.AllocationId
+      InstanceId: !Ref NginxInstance
 
-  HelloNginxDNS:
+  NginxDNS:
     Type: AWS::Route53::RecordSet
     Condition: HasDNS
     Properties:
@@ -135,11 +139,11 @@ Resources:
       Type: A
       TTL: 300
       ResourceRecords:
-        - !Ref HelloNginxEIP
+        - !Ref NginxEIP
 
 Outputs:
   ServiceURL:
-    Description: Primary endpoint for hello-nginx.
+    Description: Primary endpoint for nginx.
     Value: !If
       - HasDomain
       - !If
@@ -148,17 +152,17 @@ Outputs:
         - !Sub 'https://${DomainName}'
       - !If
         - UseHttp
-        - !Sub 'http://${HelloNginxEIP}'
-        - !Sub 'https://${HelloNginxEIP}'
+        - !Sub 'http://${NginxEIP}'
+        - !Sub 'https://${NginxEIP}'
   DomainName:
     Description: Custom domain when configured.
     Value: !Ref DomainName
   PublicIP:
     Description: Elastic IP address assigned to the service.
-    Value: !Ref HelloNginxEIP
+    Value: !Ref NginxEIP
   InstanceId:
     Description: Created EC2 instance ID.
-    Value: !Ref HelloNginxInstance
+    Value: !Ref NginxInstance
   AWSRegion:
     Description: AWS region where the stack is deployed.
     Value: !Ref AWS::Region
@@ -170,4 +174,4 @@ Outputs:
     Value: !Ref InstanceType
   SecurityGroupId:
     Description: Security group attached to the instance.
-    Value: !Ref HelloNginxSecurityGroup
+    Value: !Ref NginxSecurityGroup

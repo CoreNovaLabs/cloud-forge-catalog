@@ -4,85 +4,174 @@
   "desc": "Locally hosted web app for manipulating PDF files",
   "icon": "📄",
   "category": "devtools",
-  "tags": ["pdf", "tools", "self-hosted"],
+  "tags": [
+    "pdf",
+    "tools",
+    "self-hosted"
+  ],
   "stars": 0,
   "tier": "community",
-  "clouds": ["aws", "aliyun"],
+  "clouds": [
+    "aws",
+    "aliyun"
+  ],
   "version": "1.0.0",
   "min_cli_version": "0.3.0",
   "ami_role": "web",
   "service_port": 8080,
   "price": "free",
   "cost_notice": [
-    "Aliyun deploy defaults to cn-hongkong; pass --region for other regions.",
-    "Mainland China regions may fail bootstrap (Docker Hub / catalog CDN reachability).",
+    "Alibaba Cloud defaults to cn-hongkong and supports the listed non-mainland regions.",
+    "Alibaba Cloud mainland China regions are not supported.",
     "Custom domains: AWS uses --domain + --hosted-zone-id (Route53); Aliyun uses --domain + --dns-domain (Alidns). DNS propagation and ACME may take several minutes.",
     "First bootstrap may take 8-15 minutes on Aliyun public OS images.",
-    "You pay only for cloud resources such as ECS, EIP, disk, and data transfer."
+    "Cloud resource charges and applicable AWS Marketplace software fees are billed separately."
   ],
   "smoke": {
-    "health_paths": ["/api/v1/info/status"],
+    "health_paths": [
+      "/api/v1/info/status"
+    ],
     "wait_seconds": 120
   },
   "images": {
-    "aws": "ami-04cf9ac8716f030d6",
+    "aws": "ami-0777e5ab470bf89c1",
     "aliyun": "aliyun_3_x64_20G_alibase_20260122.vhd"
   },
   "templates": {
-    "aws": { "path": "apps/stirling-pdf/templates/aws.yaml" },
-    "aliyun": { "path": "apps/stirling-pdf/templates/aliyun.json" }
+    "aws": {
+      "path": "apps/stirling-pdf/templates/aws.yaml"
+    },
+    "aliyun": {
+      "path": "apps/stirling-pdf/templates/aliyun.json"
+    }
   },
   "params": {
     "InstanceType": {
       "type": "string",
       "aws": {
         "default": "t3.small",
-        "options": ["t3.small", "t3.medium"]
+        "options": [
+          "t3.medium",
+          "t3.small"
+        ]
       },
       "aliyun": {
         "default": "ecs.t6-c1m2.large",
-        "options": ["ecs.t6-c1m2.large"]
+        "options": [
+          "ecs.t6-c1m2.large"
+        ]
       }
     },
     "LatestAmiId": {
       "type": "string",
-      "aws": { "default": "ami-04cf9ac8716f030d6" }
+      "aws": {
+        "default": "ami-0777e5ab470bf89c1"
+      }
     },
     "ImageId": {
       "type": "string",
-      "aliyun": { "default": "aliyun_3_x64_20G_alibase_20260122.vhd" }
+      "aliyun": {
+        "default": "aliyun_3_x64_20G_alibase_20260122.vhd"
+      }
     },
     "CaddyTlsMode": {
       "type": "string",
       "aws": {
         "default": "ip-letsencrypt",
-        "options": ["auto", "ip-letsencrypt", "http", "internal"]
+        "options": [
+          "auto",
+          "ip-letsencrypt",
+          "http",
+          "internal"
+        ]
       },
       "aliyun": {
         "default": "ip-letsencrypt",
-        "options": ["auto", "ip-letsencrypt", "http", "internal"]
+        "options": [
+          "auto",
+          "ip-letsencrypt",
+          "http",
+          "internal"
+        ]
       }
     },
-    "DomainName": { "type": "string", "default": "" },
-    "HostedZoneId": { "type": "string", "default": "", "aws": { "default": "" } },
-    "DnsDomainName": { "type": "string", "default": "", "aliyun": { "default": "" } },
-    "DnsRR": { "type": "string", "default": "", "aliyun": { "default": "" } },
-    "CaddyEmail": { "type": "string", "default": "" },
-    "KeyName": { "type": "string", "default": "", "aws": { "default": "" } },
-    "KeyPairName": { "type": "string", "aliyun": { "required": true } },
+    "DomainName": {
+      "type": "string",
+      "default": ""
+    },
+    "HostedZoneId": {
+      "type": "string",
+      "default": "",
+      "aws": {
+        "default": ""
+      }
+    },
+    "DnsDomainName": {
+      "type": "string",
+      "default": "",
+      "aliyun": {
+        "default": ""
+      }
+    },
+    "DnsRR": {
+      "type": "string",
+      "default": "",
+      "aliyun": {
+        "default": ""
+      }
+    },
+    "CaddyEmail": {
+      "type": "string",
+      "default": ""
+    },
+    "KeyName": {
+      "type": "string",
+      "default": "",
+      "aws": {
+        "default": ""
+      }
+    },
+    "KeyPairName": {
+      "type": "string",
+      "aliyun": {
+        "required": true
+      }
+    },
     "DiskSize": {
       "type": "number",
-      "aws": { "default": "20" },
-      "aliyun": { "default": "20" }
+      "aws": {
+        "default": "20"
+      },
+      "aliyun": {
+        "default": "20"
+      }
     },
     "VpcId": {
       "type": "string",
       "default": "",
-      "aws": { "default": "" },
-      "aliyun": { "required": true }
+      "aws": {
+        "default": ""
+      },
+      "aliyun": {
+        "required": true
+      }
     },
-    "SubnetId": { "type": "string", "default": "", "aws": { "default": "" } },
-    "VSwitchId": { "type": "string", "aliyun": { "required": true } },
-    "AllowedIP": { "type": "string", "default": "0.0.0.0/0" }
+    "SubnetId": {
+      "type": "string",
+      "default": "",
+      "aws": {
+        "default": ""
+      }
+    },
+    "VSwitchId": {
+      "type": "string",
+      "aliyun": {
+        "required": true
+      }
+    },
+    "AllowedIP": {
+      "type": "string",
+      "default": "0.0.0.0/0"
+    }
   }
 }

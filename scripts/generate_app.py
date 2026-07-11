@@ -13,7 +13,8 @@ sys.path.insert(0, str(Path(__file__).resolve().parent))
 from generate_templates import generate_iac, render_template
 
 
-DEFAULT_AWS_AMI = "ami-04cf9ac8716f030d6"
+DEFAULT_AWS_WEB_AMI = "ami-0777e5ab470bf89c1"
+DEFAULT_AWS_DB_AMI = "ami-0f6b6dc8c575106cb"
 DEFAULT_ALIYUN_IMAGE = "aliyun_3_x64_20G_alibase_20260122.vhd"
 VALID_TIERS = {"certified", "community", "experimental"}
 VALID_CATEGORIES = {"devtools", "automation", "monitoring", "database", "cms", "other"}
@@ -214,6 +215,12 @@ def app_role(entry: dict) -> str:
     return str(entry.get("ami_role") or "web")
 
 
+def default_aws_ami(entry: dict) -> str:
+    if entry.get("aws_ami"):
+        return str(entry["aws_ami"])
+    return DEFAULT_AWS_DB_AMI if is_direct_tcp_entry(entry) else DEFAULT_AWS_WEB_AMI
+
+
 def is_direct_tcp_entry(entry: dict) -> bool:
     return app_role(entry) in DIRECT_TCP_ROLES
 
@@ -283,12 +290,12 @@ def generate_app(root: Path, entry: dict, *, force: bool = False) -> None:
         fail(f"invalid category: {category!r}")
 
     aws_instance_default = entry.get("aws_instance_default", "t3.small")
-    aws_instance_options = entry.get("aws_instance_options", [aws_instance_default])
+    aws_instance_options = list(dict.fromkeys(entry.get("aws_instance_options", [aws_instance_default])))
     aliyun_instance_default = entry.get("aliyun_instance_default", "ecs.t6-c1m1.large")
-    aliyun_instance_options = entry.get(
+    aliyun_instance_options = list(dict.fromkeys(entry.get(
         "aliyun_instance_options",
         [aliyun_instance_default],
-    )
+    )))
     aws_disk = str(entry.get("aws_disk_gb", 20))
     aliyun_disk = str(entry.get("aliyun_disk_gb", aws_disk))
     smoke_paths = entry.get("smoke_health_paths", ["/", "/health"])
@@ -307,7 +314,7 @@ def generate_app(root: Path, entry: dict, *, force: bool = False) -> None:
         "TAGS_JSON": json.dumps(tags, ensure_ascii=False),
         "STARS": str(int(entry.get("stars", 0))),
         "TIER": tier,
-        "AWS_AMI_DEFAULT": entry.get("aws_ami", DEFAULT_AWS_AMI),
+        "AWS_AMI_DEFAULT": default_aws_ami(entry),
         "ALIYUN_IMAGE_DEFAULT": entry.get("aliyun_image", DEFAULT_ALIYUN_IMAGE),
         "AWS_INSTANCE_DEFAULT": aws_instance_default,
         "AWS_INSTANCE_OPTIONS_JSON": json.dumps(aws_instance_options),

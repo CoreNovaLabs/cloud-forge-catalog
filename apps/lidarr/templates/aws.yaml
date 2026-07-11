@@ -1,14 +1,15 @@
 AWSTemplateFormatVersion: '2010-09-09'
-Description: 'Lidarr on Cloud Forge CLI - one-command deployment'
+Description: 'Lidarr on Cloud Forge - browser-based deployment'
 
 Parameters:
   InstanceType:
     Type: String
     Default: t3.small
-    AllowedValues: [t3.small, t3.medium]
+    AllowedValues: [t3.medium, t3.small]
+
   LatestAmiId:
     Type: AWS::EC2::Image::Id
-    Default: ami-04cf9ac8716f030d6
+    Default: ami-0777e5ab470bf89c1
   CaddyTlsMode:
     Type: String
     Default: ip-letsencrypt
@@ -101,10 +102,9 @@ Resources:
           export CLOUD_FORGE_DOMAIN_NAME=${DomainName}
           export CLOUD_FORGE_CADDY_EMAIL=${CaddyEmail}
 
-          curl -fsSL https://cdn.jsdelivr.net/gh/CoreNovaLabs/cloud-forge-catalog@main/scripts/aws/bootstrap-app.sh -o /tmp/cf-bootstrap.sh
-          if grep -q 'run_as_root CLOUD_FORGE_CATALOG_URL=' /tmp/cf-bootstrap.sh; then
-            curl -fsSL https://cdn.jsdelivr.net/gh/CoreNovaLabs/cloud-forge-catalog@34993eb/scripts/aws/bootstrap-app.sh -o /tmp/cf-bootstrap.sh
-          fi
+
+
+          curl -fsSL https://cdn.jsdelivr.net/gh/CoreNovaLabs/cloud-forge-catalog@v0.5.0/scripts/aws/bootstrap-app.sh -o /tmp/cf-bootstrap.sh
           bash /tmp/cf-bootstrap.sh lidarr
       Tags:
         - Key: Name

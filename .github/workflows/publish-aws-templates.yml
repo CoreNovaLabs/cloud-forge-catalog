@@ -1,0 +1,39 @@
+name: Publish immutable AWS templates
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - 'apps/**/templates/aws.yaml'
+      - 'apps/**/manifest.json'
+      - 'index/apps.json'
+      - 'scripts/aws/publish-templates.sh'
+      - '.github/workflows/publish-aws-templates.yml'
+
+permissions:
+  contents: read
+  id-token: write
+
+concurrency:
+  group: publish-aws-templates
+  cancel-in-progress: false
+
+jobs:
+  publish:
+    if: github.repository == 'CoreNovaLabs/cloud-forge-catalog'
+    runs-on: ubuntu-latest
+    environment: production
+    steps:
+      - uses: actions/checkout@v4
+      - uses: aws-actions/configure-aws-credentials@v6.1.2
+        with:
+          role-to-assume: ${{ vars.AWS_TEMPLATE_PUBLISH_ROLE_ARN }}
+          aws-region: ${{ vars.AWS_TEMPLATE_REGION || 'us-east-1' }}
+      - name: Validate catalog
+        run: ./scripts/validate.sh
+      - name: Publish immutable release paths
+        env:
+          AWS_TEMPLATE_BUCKET: ${{ vars.AWS_TEMPLATE_BUCKET }}
+          AWS_TEMPLATE_REGION: ${{ vars.AWS_TEMPLATE_REGION || 'us-east-1' }}
+        run: ./scripts/aws/publish-templates.sh
